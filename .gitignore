@@ -1,0 +1,15 @@
+.Rproj.user
+.Rhistory
+*.RData
+*.pptx
+*.ppt
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+*.html
+*.htm
+
+Original_Sim/
