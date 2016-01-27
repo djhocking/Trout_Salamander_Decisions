@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<smile version="1.0" id="Network1" numsamples="1000" discsamples="10000">
+	<nodes>
+		<cpt id="salamander_multi_state_abundance">
+			<state id="none" />
+			<state id="some" />
+			<state id="many" />
+			<state id="lots" />
+			<probabilities>0.5 0.5 0 0</probabilities>
+		</cpt>
+		<cpt id="catchemnt_area__stream_size_">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="average_summer_stream_temperature">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="maximum_summer_stream_temperature">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="local_forest_cover">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="upstream_forest_cover">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="local_buffer_forest_cover">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="upstream_buffer_forest_cover">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="brook_trout_presence">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="region__physiographic_province_">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="network_position">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="network_structure">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="baseline_abundance_state">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="streamflow">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+		<cpt id="extreme_flow_events">
+			<state id="State0" />
+			<state id="State1" />
+			<probabilities>0.5 0.5</probabilities>
+		</cpt>
+	</nodes>
+	<extensions>
+		<genie version="1.0" app="GeNIe 2.0.5590.0" name="Network1" faultnameformat="nodestate">
+			<node id="salamander_multi_state_abundance">
+				<name>catchment-level salamander multi-state abundance</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>333 42 431 103</position>
+				<barchart active="true" width="287" height="90" />
+			</node>
+			<node id="catchemnt_area__stream_size_">
+				<name>catchemnt area (stream size)</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>51 162 153 225</position>
+			</node>
+			<node id="average_summer_stream_temperature">
+				<name>average summer stream temperature</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>170 160 280 228</position>
+			</node>
+			<node id="maximum_summer_stream_temperature">
+				<name>maximum summer stream temperature</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>173 234 283 302</position>
+			</node>
+			<node id="local_forest_cover">
+				<name>local forest cover</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>335 177 430 236</position>
+			</node>
+			<node id="upstream_forest_cover">
+				<name>upstream forest cover</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>357 258 448 314</position>
+			</node>
+			<node id="local_buffer_forest_cover">
+				<name>local buffer forest cover</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>495 181 592 241</position>
+			</node>
+			<node id="upstream_buffer_forest_cover">
+				<name>upstream buffer forest cover</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>524 273 626 336</position>
+			</node>
+			<node id="brook_trout_presence">
+				<name>brook trout presence</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>694 190 773 239</position>
+			</node>
+			<node id="region__physiographic_province_">
+				<name>region (physiographic province)</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>721 266 830 334</position>
+			</node>
+			<node id="network_position">
+				<name>network position</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>73 423 164 479</position>
+			</node>
+			<node id="network_structure">
+				<name>network structure</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>200 429 297 489</position>
+			</node>
+			<node id="baseline_abundance_state">
+				<name>baseline abundance state</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>341 418 438 478</position>
+			</node>
+			<node id="streamflow">
+				<name>average streamflow</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>494 432 598 474</position>
+			</node>
+			<node id="extreme_flow_events">
+				<name>extreme flow events</name>
+				<interior color="ccffcc" />
+				<outline color="000080" />
+				<font color="000000" name="Arial" size="8" />
+				<position>653 433 736 484</position>
+			</node>
+		</genie>
+	</extensions>
+</smile>
