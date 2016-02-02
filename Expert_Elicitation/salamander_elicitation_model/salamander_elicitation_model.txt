@@ -1,0 +1,15 @@
+# salamander elicitation model
+# created by Rachel Katz Feb 01 2016
+
+############## elicitation model description ##############
+# Elicite model beliefs and parameter values with uncertainty from experts for predicting
+# occupancy probabilities (catchment-level) of three stream-salamander species with 
+# current ranges into the northeastern US. Use this model to forecast current distributions
+# of salamanders and compare to exisiting distributions.
+# Step 1: build the model: identify parameters & hypotheses for salamander occupancy (build on exisiting Hocking NE trout model)
+# Step 2: include expected values and confidence of experts (mean and precision). precision values may have variable confidences (i.e., 1SD or2SD, 95% or 80% confidence)
+# Step 3: elicit experts and compare expert opinions (where is it most variable?) (web-based survey?)
+# Step 4: simulate distributions based on simulated means (while waiting for elicitation results) 
+# Step 5: predict distributions based on mean expert opinions
+# Step 6: sensititivly anlaysis for each paramater (hold all constant at the mean and vary one parmaeter at a time_
+# Step 7: 
