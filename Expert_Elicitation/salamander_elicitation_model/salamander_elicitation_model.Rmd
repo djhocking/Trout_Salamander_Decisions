@@ -17,8 +17,14 @@
 [name of url](http://www.google.com)
 
 ```{r}
-rand<-runif(100,0,100)
+rand<-runif(1,0,100)
 ```
+
+The random number is `r rand`. 
+
+
+
+
 
 
 # salamander elicitation model
@@ -124,7 +130,9 @@ B1[s] ~ dnorm(B1.mean[1:3],B1.var[1:3])
 # assume linear relation between occupancy and catchment forest cover: expert elicitation of 100%, 50% and 0% forested?
 # B1.mean <-average(B1.average,B1.upper,B1.lower)
 # B1.average <- average([(oc1.average-oc2.average)/(100-50)],[(oc2.average-oc3.average)/(50-0)] # take the average across experts?
-# don't elicit upper and lower?
+# make up some data and build a regression
+
+# don't need to elicit upper and lower and confidence intervals
 # B1.upper <- average([(oc1.upper-oc2.upper)/(100-50)],[(oc2.upper-oc3.upper)/(50-0)] 
 # B1.lower <- average([(oc1.lower-oc2.lower)/(100-50)],[(oc2.lower-oc3.lower)/(50-0)]
 
