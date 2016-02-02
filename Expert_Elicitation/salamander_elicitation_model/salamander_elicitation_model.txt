@@ -67,12 +67,16 @@
 
 ############## salamander model description ##############
 
-pr.occ[s,i]<- logit(B0.int + B1.temp*temp[i]
+# for each simulation, pick one of the forest-buffer models below based on model weights (0.33,0.33,0.33)?
+pr.occ[s,i,nobuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i]
+pr.occ[s,i,localbuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i] + B3[s]*local.forest.buffer[i] + B4[s]*upstream.forest.buffer[i] 
+pr.occ[s,i,upstreambuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i] + B4[s]*upstream.forest.buffer[i] 
+
 
 # expected overall average based on physiographic province (fixed effect)
 B0[0:8] ~ dnorm(B0.mean[0:8],B0.var[0:8])
-B0.int <-
-B0[0] + 
+B0.int[s] <-
+B0[0] + # random intercept for species (mean + var) 
 BO[1]*Appalachian Plateaus[i] + 
 BO[2]*Valley and Ridge Province[i] + 
 BO[3]*Blue Ridge Province[i] +
@@ -85,7 +89,43 @@ BO[8]*Interior Low Plateaus[i]
 B0.mean[0:8] <- log(mean.p[0:8]/(1-mean.p[0:8])
 mean.p[0]<-expert.mean.p[0]
 expert.mean.p[0]<-average(expert.p[0,1:X]) # average mean occupancy across experts
-expert.var.p[0]<-variance(expert.p[0,1:X]) # average mean occupancy across experts
+expert.var.p[0]<-variance(expert.p[0,1:X]) # variance in mean occupancy across experts?
+# do we just elicit the mean and use variance in the mean across experts to get precision?
+# if not, then how do we compute variance from X confidence intervals (i.e., 60%, 80% and 95%?)
+# collect expert data for each province for ANY or EACH of the three salamander species; mean occupancy = 0.5, lower limit = 0.3, upper limit = 0.7, with 80% confidence ->  mean = 0.5 and var/precision = ?)
+# X provinces * 3 species = X expert questions
+
+# expected effect of local catchment-forest cover on salamander occupancy for each species (fixed effect)
+B1[s] ~ dnorm(B1.mean[1:3],B1.var[1:3])
+# assume linear relation between occupancy and catchment forest cover: expert elicitation of 100%, 50% and 0% forested?
+# B1.mean <-average(B1.average,B1.upper,B1.lower)
+# B1.average <- average([(oc1.average-oc2.average)/(100-50)],[(oc2.average-oc3.average)/(50-0)] # take the average across experts?
+# don't elicit upper and lower?
+# B1.upper <- average([(oc1.upper-oc2.upper)/(100-50)],[(oc2.upper-oc3.upper)/(50-0)] 
+# B1.lower <- average([(oc1.lower-oc2.lower)/(100-50)],[(oc2.lower-oc3.lower)/(50-0)]
+
+# expected effect of upstream catchment-forest cover on salamander occupancy for each species (fixed effect)
+B2[s] ~ dnorm(B2.mean[1:3],B2.var[1:3])
+# assume linear relation between occupancy and upstream catchment forest cover: expert elicitation of 100%, 50% and 0% forested?
+
+# expected effect of local catchment-forest buffer on salamander occupancy for each species (fixed effect)
+B3[s] ~ dnorm(B3.mean[1:3],B3.var[1:3])
+# assume linear relation between occupancy and local forest buffer: expert elicitation of 100%, 50% and 0% forested?
+
+# expected effect of upstream catchment-forest buffer on salamander occupancy for each species (fixed effect)
+B4[s] ~ dnorm(B4.mean[1:3],B4.var[1:3])
+# assume linear relation between occupancy and upstream forest buffer: expert elicitation of 100%, 50% and 0% forested?
+
+# interaction between buffer and local forest? i.e, occupancy increases with increasing buffer more in non-forested compared to forested catchments?
+
+# expected effect of trout presence on salamander occupancy for each species (fixed effect)
+B5[s] ~ dnorm(B5.mean[1:3],B5.var[1:3])
+# assume binary effect; trout presence = lower salamander occupancy
+
+# expected effect of catchment size on salamander occupancy for each species (fixed effect)
+B6[s] ~ dnorm(B6.mean[1:3],B6.var[1:3])
+# assume linear relation etween occupancy and catchment siz or estimate each seperately?: B6[s,1:5] = tiny, small, medium, moderate, large?
+
 
 
 
