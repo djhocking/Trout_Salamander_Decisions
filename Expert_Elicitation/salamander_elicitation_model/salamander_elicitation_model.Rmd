@@ -1,0 +1,157 @@
+# Title
+## Subheading
+### sub-subheading
+#### last heading
+
+*italics*
+
+**bold**
+
+* bulllet list
+* asdf
+
+1. numbered list
+2. sadf
+3. asdf
+
+[name of url](http://www.google.com)
+
+```{r}
+rand<-runif(100,0,100)
+```
+
+
+# salamander elicitation model
+# created by Rachel Katz Feb 01 2016
+
+############## elicitation model description ##############
+# Elicite model beliefs and parameter values with uncertainty from experts for predicting
+# occupancy probabilities (catchment-level) of three stream-salamander species with 
+# current ranges into the northeastern US. Use this model to forecast current distributions
+# of salamanders and compare to exisiting distributions.
+# Step 1: build the model: identify parameters & hypotheses for salamander occupancy (build on exisiting Hocking NE trout model)
+# Step 2: include expected values and confidence of experts (mean and precision). precision values may have variable confidences (i.e., 1SD or2SD, 95% or 80% confidence)
+# Step 3: elicit experts and compare expert opinions (where is it most variable?) (build an web-based survey?)
+# Step 4: simulate salamander distributions based on simulated means (while waiting for elicitation results) 
+# Step 5: predict distributions based on mean expert opinions
+# Step 6: conduct sensititivly analysis for each paramater (hold all constant at the mean and vary one parmaeter at a time_
+
+
+############## uncertainty description ##############
+# response variable: species-specific [s] probability of occupancy [pr.occ] at the catchment-level [i] under climate-temp model uncertainty [ctm]
+# pr.occ[s,i,ctm,fish]
+
+# three salamander species: 
+# s[1:3]
+# species 1 = G. porphyriticus; spring salamander
+# species 2 = D. fuscus; dusky salamander
+# species 3 = E. bislineata; two-lined salamander
+
+# four temperature climate models:
+# ctm[1:4]
+# 4 alterantive climate futures (0, 2, 4, 6 C degree increase in catchment mean july stream temperature)
+# 4 alterantive climate futures (0, 2, 4, 6 degree increase in catchment maximum annual temperature?)
+# assume constant change in temperature across catchments? (no spatial variablity?)
+# climate model beliefs uncertainty = elicit climate-temp model weights (i.e., ctm1=0.10, ctm2=0.40, ctm3=0.40, ctm4=0.10, sum=1)
+
+# streamflow climate models:
+# cfm[1:X]
+# X alterantive flow (lower rainfall, same rainfall, higher rainfall?)
+# assume constant change in rainfall across catchments? (rainfall*area = discharge)
+# climate model beliefs uncertainty = elicit climate-flow model weights (i.e., sum=1)
+
+# three fish-salamander interactions hypothesess:
+# fish[1:3]
+# three fish-salamander hypothesis: no-interaction, negative-interaction, positive-interaction
+
+# local vs. upstream hypotheses (beta's):
+# catch[1:2]
+# two hypotheses: upstream landuse affects catchment occupancy, local landuse affects catchment occupancy
+
+# buffer vs. catchment-forest hypotheses (beta's):
+# buff[1:2] <- c(0.50, 0.50) # equal belief in both models
+# first hypotheses: percent riparian forest withing 30m buffer affects catchment-level occupancy
+# second hypotheses: percent riparian forest in upland (non-riparian) affects catchment-level occupancy
+
+# buff*catch interactive hypotheses?
+# upstream forest buffer
+# local-catchment forest buffer
+# upstream catchment (non-buffer) forest
+# local-catchment forest (non-buffer)
+
+# regional intercept (base-line occupancy) differences
+# region[1:8]
+# 8 regions (binary, intercept effect)
+# Appalachian Plateaus, Valley and Ridge Province, Blue Ridge Province, Piedmont Province, Coastal Plain, New England, Adirondack Province, Interior Low Plateaus
+
+# hyper parameters: random effect of species, location, etc?
+# elicit mean and variance in random effects from experts (not centered on 0 with wide intervals); see Martin et al. 2005 EcoApps.
+# shift in mean occupancy defined for each species (species is a hyper parameter?)
+# shift in mean occupancy defined for each region (region is a hyper parameter?)
+
+############## salamander model description ##############
+
+# for each simulation, pick one of the forest-buffer models below based on model weights (0.33,0.33,0.33)?
+pr.occ[s,i,nobuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i]
+pr.occ[s,i,localbuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i] + B3[s]*local.forest.buffer[i] + B4[s]*upstream.forest.buffer[i] 
+pr.occ[s,i,upstreambuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i] + B4[s]*upstream.forest.buffer[i] 
+
+
+# expected overall average based on physiographic province (fixed effect)
+B0[0:8] ~ dnorm(B0.mean[0:8],B0.var[0:8])
+B0.int[s] <-
+B0[0] + # random intercept for species (mean + var) 
+BO[1]*Appalachian Plateaus[i] + 
+BO[2]*Valley and Ridge Province[i] + 
+BO[3]*Blue Ridge Province[i] +
+BO[4]*Piedmont Province[i] + 
+BO[5]*Coastal Plain[i] + 
+BO[6]*New England[i] + 
+BO[7]*Adirondack Province[i] + 
+BO[8]*Interior Low Plateaus[i]
+
+B0.mean[0:8] <- log(mean.p[0:8]/(1-mean.p[0:8])
+mean.p[0]<-expert.mean.p[0]
+expert.mean.p[0]<-average(expert.p[0,1:X]) # average mean occupancy across experts
+expert.var.p[0]<-variance(expert.p[0,1:X]) # variance in mean occupancy across experts?
+# do we just elicit the mean and use variance in the mean across experts to get precision?
+# if not, then how do we compute variance from X confidence intervals (i.e., 60%, 80% and 95%?)
+# collect expert data for each province for ANY or EACH of the three salamander species; mean occupancy = 0.5, lower limit = 0.3, upper limit = 0.7, with 80% confidence ->  mean = 0.5 and var/precision = ?)
+# X provinces * 3 species = X expert questions
+
+# expected effect of local catchment-forest cover on salamander occupancy for each species (fixed effect)
+B1[s] ~ dnorm(B1.mean[1:3],B1.var[1:3])
+# assume linear relation between occupancy and catchment forest cover: expert elicitation of 100%, 50% and 0% forested?
+# B1.mean <-average(B1.average,B1.upper,B1.lower)
+# B1.average <- average([(oc1.average-oc2.average)/(100-50)],[(oc2.average-oc3.average)/(50-0)] # take the average across experts?
+# don't elicit upper and lower?
+# B1.upper <- average([(oc1.upper-oc2.upper)/(100-50)],[(oc2.upper-oc3.upper)/(50-0)] 
+# B1.lower <- average([(oc1.lower-oc2.lower)/(100-50)],[(oc2.lower-oc3.lower)/(50-0)]
+
+# expected effect of upstream catchment-forest cover on salamander occupancy for each species (fixed effect)
+B2[s] ~ dnorm(B2.mean[1:3],B2.var[1:3])
+# assume linear relation between occupancy and upstream catchment forest cover: expert elicitation of 100%, 50% and 0% forested?
+
+# expected effect of local catchment-forest buffer on salamander occupancy for each species (fixed effect)
+B3[s] ~ dnorm(B3.mean[1:3],B3.var[1:3])
+# assume linear relation between occupancy and local forest buffer: expert elicitation of 100%, 50% and 0% forested?
+
+# expected effect of upstream catchment-forest buffer on salamander occupancy for each species (fixed effect)
+B4[s] ~ dnorm(B4.mean[1:3],B4.var[1:3])
+# assume linear relation between occupancy and upstream forest buffer: expert elicitation of 100%, 50% and 0% forested?
+
+# interaction between buffer and local forest? i.e, occupancy increases with increasing buffer more in non-forested compared to forested catchments?
+
+# expected effect of trout presence on salamander occupancy for each species (fixed effect)
+B5[s] ~ dnorm(B5.mean[1:3],B5.var[1:3])
+# assume binary effect; trout presence = lower salamander occupancy
+
+# expected effect of catchment size on salamander occupancy for each species (fixed effect)
+B6[s] ~ dnorm(B6.mean[1:3],B6.var[1:3])
+# assume linear relation etween occupancy and catchment siz or estimate each seperately?: B6[s,1:5] = tiny, small, medium, moderate, large?
+
+
+
+
+
+
