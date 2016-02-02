@@ -41,13 +41,14 @@
 # fish[1:3]
 # three fish-salamander hypothesis: no-interaction, negative-interaction, positive-interaction
 
-# local vs. upstream hypothese (beta's):
+# local vs. upstream hypotheses (beta's):
 # catch[1:2]
 # two hypotheses: upstream landuse affects catchment occupancy, local landuse affects catchment occupancy
 
 # buffer vs. catchment-forest hypotheses (beta's):
-# buff[1:2]
-# two hypotheses: forest buffer affects catchment occupancy, forest anywhere in catchment affects catchment occupancy
+# buff[1:2] <- c(0.50, 0.50) # equal belief in both models
+# first hypotheses: percent riparian forest withing 30m buffer affects catchment-level occupancy
+# second hypotheses: percent riparian forest in upland (non-riparian) affects catchment-level occupancy
 
 # buff*catch interactive hypotheses?
 # upstream forest buffer
