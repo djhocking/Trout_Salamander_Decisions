@@ -14,7 +14,7 @@
 # Step 6: conduct sensititivly analysis for each paramater (hold all constant at the mean and vary one parmaeter at a time_
 
 
-############## uncertainty model description ##############
+############## uncertainty description ##############
 # response variable: species-specific [s] probability of occupancy [pr.occ] at the catchment-level [i] under climate-temp model uncertainty [ctm]
 # pr.occ[s,i,ctm,fish]
 
@@ -60,6 +60,32 @@
 # 8 regions (binary, intercept effect)
 # Appalachian Plateaus, Valley and Ridge Province, Blue Ridge Province, Piedmont Province, Coastal Plain, New England, Adirondack Province, Interior Low Plateaus
 
+# hyper parameters: random effect of species, location, etc?
+# elicit mean and variance in random effects from experts (not centered on 0 with wide intervals); see Martin et al. 2005 EcoApps.
+# shift in mean occupancy defined for each species (species is a hyper parameter?)
+# shift in mean occupancy defined for each region (region is a hyper parameter?)
+
+############## salamander model description ##############
+
+pr.occ[s,i]<- logit(B0.int + B1.temp*temp[i]
+
+# expected overall average based on physiographic province (fixed effect)
+B0[0:8] ~ dnorm(B0.mean[0:8],B0.var[0:8])
+B0.int <-
+B0[0] + 
+BO[1]*Appalachian Plateaus[i] + 
+BO[2]*Valley and Ridge Province[i] + 
+BO[3]*Blue Ridge Province[i] +
+BO[4]*Piedmont Province[i] + 
+BO[5]*Coastal Plain[i] + 
+BO[6]*New England[i] + 
+BO[7]*Adirondack Province[i] + 
+BO[8]*Interior Low Plateaus[i]
+
+B0.mean[0:8] <- log(mean.p[0:8]/(1-mean.p[0:8])
+mean.p[0]<-expert.mean.p[0]
+expert.mean.p[0]<-average(expert.p[0,1:X]) # average mean occupancy across experts
+expert.var.p[0]<-variance(expert.p[0,1:X]) # average mean occupancy across experts
 
 
 
