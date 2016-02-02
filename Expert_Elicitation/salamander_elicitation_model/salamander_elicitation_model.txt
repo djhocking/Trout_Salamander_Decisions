@@ -8,8 +8,60 @@
 # of salamanders and compare to exisiting distributions.
 # Step 1: build the model: identify parameters & hypotheses for salamander occupancy (build on exisiting Hocking NE trout model)
 # Step 2: include expected values and confidence of experts (mean and precision). precision values may have variable confidences (i.e., 1SD or2SD, 95% or 80% confidence)
-# Step 3: elicit experts and compare expert opinions (where is it most variable?) (web-based survey?)
-# Step 4: simulate distributions based on simulated means (while waiting for elicitation results) 
+# Step 3: elicit experts and compare expert opinions (where is it most variable?) (build an web-based survey?)
+# Step 4: simulate salamander distributions based on simulated means (while waiting for elicitation results) 
 # Step 5: predict distributions based on mean expert opinions
-# Step 6: sensititivly anlaysis for each paramater (hold all constant at the mean and vary one parmaeter at a time_
-# Step 7: 
+# Step 6: conduct sensititivly analysis for each paramater (hold all constant at the mean and vary one parmaeter at a time_
+
+
+############## uncertainty model description ##############
+# response variable: species-specific [s] probability of occupancy [pr.occ] at the catchment-level [i] under climate-temp model uncertainty [ctm]
+# pr.occ[s,i,ctm,fish]
+
+# three salamander species: 
+# s[1:3]
+# species 1 = G. porphyriticus; spring salamander
+# species 2 = D. fuscus; dusky salamander
+# species 3 = E. bislineata; two-lined salamander
+
+# four temperature climate models:
+# ctm[1:4]
+# 4 alterantive climate futures (0, 2, 4, 6 C degree increase in catchment mean july stream temperature)
+# 4 alterantive climate futures (0, 2, 4, 6 degree increase in catchment maximum annual temperature?)
+# assume constant change in temperature across catchments? (no spatial variablity?)
+# climate model beliefs uncertainty = elicit climate-temp model weights (i.e., ctm1=0.10, ctm2=0.40, ctm3=0.40, ctm4=0.10, sum=1)
+
+# streamflow climate models:
+# cfm[1:X]
+# X alterantive flow (lower rainfall, same rainfall, higher rainfall?)
+# assume constant change in rainfall across catchments? (rainfall*area = discharge)
+# climate model beliefs uncertainty = elicit climate-flow model weights (i.e., sum=1)
+
+# three fish-salamander interactions hypothesess:
+# fish[1:3]
+# three fish-salamander hypothesis: no-interaction, negative-interaction, positive-interaction
+
+# local vs. upstream hypothese (beta's):
+# catch[1:2]
+# two hypotheses: upstream landuse affects catchment occupancy, local landuse affects catchment occupancy
+
+# buffer vs. catchment-forest hypotheses (beta's):
+# buff[1:2]
+# two hypotheses: forest buffer affects catchment occupancy, forest anywhere in catchment affects catchment occupancy
+
+# buff*catch interactive hypotheses?
+# upstream forest buffer
+# local-catchment forest buffer
+# upstream catchment (non-buffer) forest
+# local-catchment forest (non-buffer)
+
+# regional intercept (base-line occupancy) differences
+# region[1:8]
+# 8 regions (binary, intercept effect)
+# Appalachian Plateaus, Valley and Ridge Province, Blue Ridge Province, Piedmont Province, Coastal Plain, New England, Adirondack Province, Interior Low Plateaus
+
+
+
+
+
+
