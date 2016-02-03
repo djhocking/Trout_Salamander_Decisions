@@ -12,7 +12,7 @@ Created: Feb 01 2016
 
 Last Updated: Feb 02 2016
 
-```{r import data chuck, echo=FALSE, results='hide'}
+```{r import data, echo=FALSE, results='hide'}
 # install libraries
 library(knitr)
 library(xtable)
@@ -123,14 +123,16 @@ Questions:
 
 *Summary of predictor variables across NE catchments*
 
-```{r predictor ranges chuck, echo=FALSE}
+```{r predictor ranges, echo=FALSE}
 # number of huc 10 watersheds for forecasting (all within NECSC region?)
 no.huc10<-100
+
 # range in catchment drainage area for elicitation
 par(mfrow=c(2,2))
 hist(catchment.data.sub1$AreaSqKM, main="drainage area", breaks=500);abline(v=mean(catchment.data.sub1$AreaSqKM),col="blue");abline(v=median(catchment.data.sub1$AreaSqKM),col="red")
 hist(catchment.data.sub1$AreaSqKM, main="drainage area", breaks=500,xlim=c(0,20));abline(v=mean(catchment.data.sub1$AreaSqKM),col="blue");abline(v=median(catchment.data.sub1$AreaSqKM),col="red")
 hist(catchment.data.sub1$MEAN, main="percent forest cover", breaks=500);abline(v=mean(catchment.data.sub1$MEAN),col="blue");abline(v=median(catchment.data.sub1$MEAN),col="red")
+
 # lm.1<-lm(catchment.data.sub1$MEAN~catchment.data.sub1$AreaSqKM)
 ```
 
@@ -160,13 +162,14 @@ print(table1, type="html")
 ```
 
 *Occupancy model*
+
 Response variable: probability of species-specific occupancy at the catchment-level
+
 Catchment: Deliniated from hyresolution flow-lines (cite, Kyle). 
 
 pr.occupancy[species,catchment]<-
-intercept (overall average) +
-regional.effect (provinces) +
-drainage.area (stream size) + 
+intercept (overall average) + 
+regional.effect (provinces) + drainage.area (stream size) + 
 stream.temp (july mean or annual max) + 
 stream.flow (precip x drainage area; high or low-flow magnitude) + 
 riparian.forest (within 30m of riparian) + 
@@ -185,28 +188,15 @@ sim1.data<-catchment.data.sub1[1:no.catchments,]
 pr.occupancy<-alpha<-matrix(rep(NA,no.catchments*no.species*no.simulations))
 dim(alpha)<-dim(pr.occupancy)<-c(no.catchments,no.species,no.simulations)
 mean.pr.occupancy<-sd.pr.occupancy<-matrix(rep(NA,no.catchments*no.species),nrow=no.catchments,ncol=no.species)
-intercept<-b1<-b2<-NULL
+intercept<-b1<-b2<-rep(NA,no.simulations)
 
 # create parameter uncertainty 
 # need to calcuate odd-ratios from expert elicitation
 # unsure how to add variance/sd in odd-ratios
-for (sim in 1:no.simulations){
-intercept[sim]<-rnorm(no.simulations,mean=log(0.5/(1-0.5)),sd=0.1) # 0.5 average occupancy
-b1[sim]<-rnorm(no.simulations,log(10),sd=0.1) # 5x more likely to occur for every 1 percent increase in forest cover
-b2[sim]<-rnorm(no.simulations,log(0.90),sd=0.1) # 10x less likely to occur for every 1 sqkm increase in drainage area
-}
+intercept[1:no.simulations]<-rnorm(no.simulations,mean=log(0.5/(1-0.5)),sd=0.1) # 0.5 average occupancy
+b1[1:no.simulations]<-rnorm(no.simulations,log(10),sd=0.1) # 5x more likely to occur for every 1 percent increase in forest cover
+b2[1:no.simulations]<-rnorm(no.simulations,log(0.90),sd=0.1) # 10x less likely to occur for every 1 sqkm increase in drainage area
 
-# distribution of beta's
-par(mfrow=c(3,2))
-hist(exp(intercept)/(exp(intercept)+1),main="average occupancy",breaks=10);abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red");
-plot(density(exp(intercept)/(exp(intercept)+1)),main="average occupancy");abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red")
-
-hist(exp(b1), main="odds ratio per 1 percent increase in upstream forest",breaks=10);abline(v=median(exp(b1)),col="red")
-plot(density(exp(b1)), main="odds ratio per 1 percent increase in upstream forest");abline(v=median(exp(b1)),col="red")
-
-hist(exp(b2), main="odds ratio per 1 sqkm increase in drainage area",breaks=10);abline(v=median(exp(b2)),col="red")
-plot(density(exp(b2)), main="odds ratio per 1 sqkm increase in drainage area");abline(v=median(exp(b2)),col="red")
-     
 
 for (species in 1:no.species){
   for (catchment in 1:no.catchments){
@@ -230,15 +220,31 @@ for (species in 1:no.species){
 
 head(alpha)
 head(pr.occupancy)
+```
 
+Simulated parameter uncertainty across experts (N=`r no.simulations`, median = red)
+```{r plot.parm.uncertainty,echo=FALSE, fig.width=6,fig.height=8}
+par(mfrow=c(3,2))
+hist(exp(intercept)/(exp(intercept)+1),main="average occupancy",breaks=10);abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red");
+plot(density(exp(intercept)/(exp(intercept)+1)),main="average occupancy");abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red")
+
+hist(exp(b1), main="odds ratio per 1 percent increase in upstream forest",breaks=10);abline(v=median(exp(b1)),col="red")
+plot(density(exp(b1)), main="odds ratio per 1 percent increase in upstream forest");abline(v=median(exp(b1)),col="red")
+
+hist(exp(b2), main="odds ratio per 1 sqkm increase in drainage area",breaks=10);abline(v=median(exp(b2)),col="red")
+plot(density(exp(b2)), main="odds ratio per 1 sqkm increase in drainage area");abline(v=median(exp(b2)),col="red")
+```
+
+Predicted mean and sd in occupancy 
+```{r plot.occ,echo=FALSE, fig.width=6,fig.height=8}
 par(mfrow=c(2,2))
 #plot(sim1.data$MEAN,sim1.data$AreaSqKM,xlab="percent upstream forest",ylab="drainage area")
 plot(mean.pr.occupancy~sim1.data$MEAN,ylim=c(0,1),xlab="percent upstream forest")
 plot(mean.pr.occupancy~sim1.data$AreaSqKM,ylim=c(0,1),xlab="drainage area")
 plot(sd.pr.occupancy~sim1.data$MEAN,ylim=c(-2,2),xlab="percent upstream forest")
 plot(sd.pr.occupancy~sim1.data$AreaSqKM,ylim=c(-2,2),xlab="drainage area")
-
 ```
+
 Loop over alterantive climate, buffer, and fish models
 
 *Climate model uncertainty*
