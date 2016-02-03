@@ -1,36 +1,18 @@
 ---
 output: html_document
 ---
-# title
-## first sub-heading
-### middle sub-heading
-#### last sub-heading
 
-fonts and lists
+## Salamander Occupancy - Expert Elicitation Manuscript
+RMarkdown File
 
-*italics*
+Created by: Rachel Katz (rachelakatz@gmail.com)
+Co-authors: Dan Hocking, Evan Grant
 
-**bold**
+Created: Feb 01 2016
 
-bulllet list
+Last Updated: Feb 02 2016
 
-* asdf
-
-numbered list
-
-1. sadf
-2. asdf
-
-[name of url](http://www.google.com)
-
-```{r name chunk 1, echo=FALSE, results='hide'}
-rand<-runif(1,0,100)
-rand
-```
-
-The random number is `r rand`. 
-
-```{r name chunk 2, echo=TRUE}
+```{r import data chuck, echo=FALSE, results='hide'}
 # install libraries
 library(knitr)
 library(xtable)
@@ -45,10 +27,11 @@ catchment.data<-cbind(upstream.areasqkm.data,upstream.forest.mean.data)
 # subset to only include drainage areas less than 200km2 and greater than 0.75km2 and over 50% of area with forest cover data available 
 catchment.data.sub1<-subset(catchment.data,catchment.data$AreaSqKM<200 & catchment.data$AreaSqKM>0.75 & catchment.data$percentAreaWithData>50)
 length(catchment.data.sub1[,1])
+
 ```
 
-## Salamander Elicitation Model
 ### Outline
+
 Overview: Elicite parameter values and model beliefs from experts for predicting effects of climate, land use, and brook-trout presense on catchment-level occupancy of three stream-salamander species occuring throughout the northeastern US. Use this model to forecast current distributions of salamanders under differnce climate scenarios and compare to exisiting published distributions/forecasts (?).
 
 * Step 1: build the catchment-level salamander occupancy model
@@ -65,7 +48,8 @@ Potential Journals:
 * Other?
 
 ### Introduction
-*Why expert knowledge is needed in conservation*
+
+*Why use expert knowledge for prediction in conservation*
 
 * Expert knowledge is widely used in conservation because of the complexity of ecological problems, relative lack of empirical data, and imminent nature of decisions. Must act in the face of limited data. 
 * Thus, knowledge typically takes the form of mental models without explicit consideration of biases (i.e., experts are called on to express opinions in a qualitative and non-transparent way). 
@@ -104,19 +88,20 @@ Potential Journals:
 3. Minimizing bias in elicited information
 4. Verifying accuracy of expert information
 
-*Why conduct expert elictation for stream salamanders?*
+*Why conduct expert elictation for predicting/forecasting stream salamander occupancy?*
 
 * Limited information about amphibians (salamanders) region-wide and evidence that they are currently in decline (cite) and are threatened by climate change (cite).
-* Conduct expert elicitation for Plethedontide: Desmognathus, Gyrinophilus, and Eurycea
-* Specifically, G. porphyriticus; spring salamander, D. fuscus; dusky salamander, and E. bislineata; two-lined salamander
-* These species occur across the northeastern streams (i.e., relevant for NECSC) and are known to co-occur in streams with fishes (brook trout; cite), an important predictor/competitor affecting salamander populations, and are sensitive to buffer and upland forest cover, stream temperature and discharge (and network structure).
+
+* Three common stream salamdner species occur across the northeastern streams (i.e., relevant for NECSC) and are known to co-occur in streams with fishes (brook trout; cite), an important predictor/competitor affecting salamander populations, and are sensitive to buffer and upland forest cover, stream temperature and discharge (and network structure).
+
+* Conduct expert elicitation for Plethedontide: Desmognathus fuscus; dusky salamander, Gyrinophilus porphyriticus; spring salamander, and Eurycea bislineata; two-lined salamander
 * Local threats - land use (forest cover), fish-interactions, climate change (temperature and flow)
-* Outstanding hypotheses relevant to management (personal communication; in prep): 
+* Outstanding hypotheses relevant to conservation and management (personal communication; decision-model in prep): 
 
 1. riparian vs. upland land protection is better for instream biota (downstream). Evidence that upland land protection can influence downstream habitat and species occurrence, yet conservation efforts are largely focused on riparian mgt first, then upland (we'll explore this in decision paper)
 2. fish-interaction is strong or weak (brook trout-salamander interactions)
 3. species-specific responses (how much do species vary?)
-4. where would land mgt strategies change (i.e., network structure change buffer vs. upland effects?)
+4. stream-network impacts on species-responses? some watersheds are more vulnerable than others (i.e., network structure, buffer vs. upland effects?)
 
 * Call for experts to aid in identifying parameters to be used in both predictive and decision models to evaluate range of outcomes of conservation actions.
 * Do predictions from experts vary from publications? (maybe compare in analysis or compare in discussion)
@@ -124,7 +109,7 @@ Potential Journals:
 
 *Objectives of this paper*
 
-Overall Motivation: Elicit parameters that can be used for 1) salamander occpuancy models under climate change, 2) co-occurance models under climate change (Hocking et al. forecasting paper), and 3) evaluate land-protections strategies (Kate et al. optimization paper).
+Overall Motivation: Elicit parameters that can be used for 1) predicting/forecasting salamander occpuancy under climate change, 2) co-occurance (BT + SAL) models under climate change (Hocking et al. forecasting paper), and 3) evaluate robust land-protection strategies for salamanders and trout across watersheds in NE (Katz et al. optimization paper).
 
 Questions:
 
@@ -133,11 +118,12 @@ Questions:
 3. Does expert knowledge agree with with field-observations? (why or why not? do we have any? – see publication list that we’ll be sending to experts for potential comparisons).
 
 ### Methods
+
 #### Salamander Occupancy Model
 
 *Summary of predictor variables across NE catchments*
 
-```{r name chunk 3, echo=FALSE}
+```{r predictor ranges chuck, echo=FALSE}
 # number of huc 10 watersheds for forecasting (all within NECSC region?)
 no.huc10<-100
 # range in catchment drainage area for elicitation
@@ -149,6 +135,7 @@ hist(catchment.data.sub1$MEAN, main="percent forest cover", breaks=500);abline(v
 ```
 
 Range in predictor variable values, every 10% quantile (across `r length(catchment.data.sub1[,1])` catchments)
+
 ```{r table1, echo=FALSE, results="asis"}
 # elicitation list of ranges
 e.list<-matrix(nrow=10,ncol=11,rep(NA,2*11))
@@ -172,18 +159,6 @@ table1<-xtable(e.list)
 print(table1, type="html")
 ```
 
-```{r model, echo=FALSE, results="hide"}
-species<-c(1:3)
-climatemodel<-c(1)
-landcovermodel<-c(1)
-fishmodel<-c(1)
-
-intercept<-0.50
-
-#pr.occ[species,catch,climatemodel,landcovermodel,fishmodel]<-intercept + drainage.area + stream.temp + riparian.forest + upland.forest
-```
-
-
 *Occupancy model*
 Response variable: probability of species-specific occupancy at the catchment-level
 Catchment: Deliniated from hyresolution flow-lines (cite, Kyle). 
@@ -200,6 +175,70 @@ riparian.forest x upland.forest (interaction term) +
 fish.presence (brook trout; yes or no) + 
 residual variance
 
+```{r occ.model.sim1, echo=FALSE, results='hide'}
+no.catchments=100
+no.species=1
+no.simulations=20 # number of experts
+
+# create empty vectors and matrices for storing output
+sim1.data<-catchment.data.sub1[1:no.catchments,]
+pr.occupancy<-alpha<-matrix(rep(NA,no.catchments*no.species*no.simulations))
+dim(alpha)<-dim(pr.occupancy)<-c(no.catchments,no.species,no.simulations)
+mean.pr.occupancy<-sd.pr.occupancy<-matrix(rep(NA,no.catchments*no.species),nrow=no.catchments,ncol=no.species)
+intercept<-b1<-b2<-NULL
+
+# create parameter uncertainty 
+# need to calcuate odd-ratios from expert elicitation
+# unsure how to add variance/sd in odd-ratios
+for (sim in 1:no.simulations){
+intercept[sim]<-rnorm(no.simulations,mean=log(0.5/(1-0.5)),sd=0.1) # 0.5 average occupancy
+b1[sim]<-rnorm(no.simulations,log(10),sd=0.1) # 5x more likely to occur for every 1 percent increase in forest cover
+b2[sim]<-rnorm(no.simulations,log(0.90),sd=0.1) # 10x less likely to occur for every 1 sqkm increase in drainage area
+}
+
+# distribution of beta's
+par(mfrow=c(3,2))
+hist(exp(intercept)/(exp(intercept)+1),main="average occupancy",breaks=10);abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red");
+plot(density(exp(intercept)/(exp(intercept)+1)),main="average occupancy");abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red")
+
+hist(exp(b1), main="odds ratio per 1 percent increase in upstream forest",breaks=10);abline(v=median(exp(b1)),col="red")
+plot(density(exp(b1)), main="odds ratio per 1 percent increase in upstream forest");abline(v=median(exp(b1)),col="red")
+
+hist(exp(b2), main="odds ratio per 1 sqkm increase in drainage area",breaks=10);abline(v=median(exp(b2)),col="red")
+plot(density(exp(b2)), main="odds ratio per 1 sqkm increase in drainage area");abline(v=median(exp(b2)),col="red")
+     
+
+for (species in 1:no.species){
+  for (catchment in 1:no.catchments){
+    for (sim in 1:no.simulations){
+      alpha[catchment,species,sim]<-
+      intercept[sim] + b1[sim]*sim1.data$MEAN[catchment] + b2[sim]*sim1.data$AreaSqKM[catchment]
+      #+ regional.effect (provinces) 
+      #+ stream.temp (july mean or annual max) 
+      #+ stream.flow (precip x drainage area; high or low-flow magnitude) 
+      #+ riparian.forest (within 30m of riparian)  
+      #+ upland.forest (outside of 30m riparian) 
+      #+ riparian.forest x upland.forest (interaction term) 
+      #+ fish.presence (brook trout; yes or no) 
+      #+ residual variance
+    pr.occupancy[catchment,species,sim]<-exp(alpha[catchment,species,sim])/(exp(alpha[catchment,species,sim])+1) 
+  } # sim
+    mean.pr.occupancy[catchment,species]<-mean(pr.occupancy[catchment,species,1:no.simulations])
+    sd.pr.occupancy[catchment,species]<-sd(pr.occupancy[catchment,species,1:no.simulations])
+ }
+}
+
+head(alpha)
+head(pr.occupancy)
+
+par(mfrow=c(2,2))
+#plot(sim1.data$MEAN,sim1.data$AreaSqKM,xlab="percent upstream forest",ylab="drainage area")
+plot(mean.pr.occupancy~sim1.data$MEAN,ylim=c(0,1),xlab="percent upstream forest")
+plot(mean.pr.occupancy~sim1.data$AreaSqKM,ylim=c(0,1),xlab="drainage area")
+plot(sd.pr.occupancy~sim1.data$MEAN,ylim=c(-2,2),xlab="percent upstream forest")
+plot(sd.pr.occupancy~sim1.data$AreaSqKM,ylim=c(-2,2),xlab="drainage area")
+
+```
 Loop over alterantive climate, buffer, and fish models
 
 *Climate model uncertainty*
