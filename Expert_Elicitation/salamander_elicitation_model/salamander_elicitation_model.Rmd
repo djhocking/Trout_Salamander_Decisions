@@ -1,164 +1,270 @@
-# Title
-## Subheading
-### sub-subheading
-#### last heading
+---
+output: html_document
+---
+# title
+## first sub-heading
+### middle sub-heading
+#### last sub-heading
+
+fonts and lists
 
 *italics*
 
 **bold**
 
-* bulllet list
+bulllet list
+
 * asdf
 
-1. numbered list
-2. sadf
-3. asdf
+numbered list
+
+1. sadf
+2. asdf
 
 [name of url](http://www.google.com)
 
-```{r}
+```{r name chunk 1, echo=FALSE, results='hide'}
 rand<-runif(1,0,100)
+rand
 ```
 
 The random number is `r rand`. 
 
+```{r name chunk 2, echo=TRUE}
+# install libraries
+library(knitr)
+library(xtable)
+
+#import data
+upstream.areasqkm.data<-read.csv("/Users/katz-umass/Dropbox/Headwater Stream SDM/gis/data files/fromkyle/covariates/upstream_AreaSqKM.csv",fill=TRUE,header=TRUE)
+upstream.forest.mean.data<-read.csv("/Users/katz-umass/Dropbox/Headwater Stream SDM/gis/data files/fromkyle/covariates/upstream_forest_MEAN.csv",fill=TRUE,header=TRUE)
+
+# combine all catchment data into a single object
+catchment.data<-cbind(upstream.areasqkm.data,upstream.forest.mean.data)
+
+# subset to only include drainage areas less than 200km2 and greater than 0.75km2 and over 50% of area with forest cover data available 
+catchment.data.sub1<-subset(catchment.data,catchment.data$AreaSqKM<200 & catchment.data$AreaSqKM>0.75 & catchment.data$percentAreaWithData>50)
+length(catchment.data.sub1[,1])
+```
+
+## Salamander Elicitation Model
+### Outline
+Overview: Elicite parameter values and model beliefs from experts for predicting effects of climate, land use, and brook-trout presense on catchment-level occupancy of three stream-salamander species occuring throughout the northeastern US. Use this model to forecast current distributions of salamanders under differnce climate scenarios and compare to exisiting published distributions/forecasts (?).
+
+* Step 1: build the catchment-level salamander occupancy model
+* Step 2: create expert elicitation survey for model parmaeters and beliefs (means only, use 20+ experts to get variance in mean expected values instead of eliciting confidence) 
+* Step 3: identify salamander experts based on snow-ball or publication criteria
+* Step 4: provide a list of literature for experts to consult prior to elicitation
+* Step 5: compare expert opinions and host webinar/call if large discrepancys suggesting lack of understanding of the questions (repeat elicitation if needed)
+* Step 6: forecast salamander occupancy based on expert elicitation
+* Step 7: conduct sensititivly analysis for major uncertainties (hold all constant at the mean and vary one parmaeter at a time)
+
+Potential Journals:
+
+* Conservation Biology (see Martin et al. 2012, Addison et al. 2015)
+* Other?
+
+### Introduction
+*Why expert knowledge is needed in conservation*
+
+* Expert knowledge is widely used in conservation because of the complexity of ecological problems, relative lack of empirical data, and imminent nature of decisions. Must act in the face of limited data. 
+* Thus, knowledge typically takes the form of mental models without explicit consideration of biases (i.e., experts are called on to express opinions in a qualitative and non-transparent way). 
+* In fields where there is extensive expert knowledge, yet little published data, the use of expert information for ecological models is a cost-effective way of making more confident predictions about the effect of management.
+
+*Increasing use of expert-knowledge in conservation*
+
+* Increasing use of expert elicitation methods to help inform conservation decisions (identify important hypothesis and parameter uncertainties to resolve through research or monitoring).
+* When empirical measures are required for evaluating alternative actions, but are not available, expert judgment can help develop plausible estimates that most effectively inform decisions (Speirs-Bridge et al. 2010; Martin et al. 2012). Expert opinions are valuable in the management of threatened species, where the need to make urgent decisions leaves little time for the collection of further information (?).
+* Expert elicitation can be conducted within a probabilistic framework, which accounts for uncertainty (confidence) of multiple experts. Also used to parameterize models in the absence of data and as Bayesian priors to supplement sparse data and improve confidence in predictions (Yamada et al., 2003; Martin et al., 2005; Denham and Mengersen, 2007; Griffiths et al., 2007; Mac Nally, 2007; O’Neill et al., 2008; Low Choy et al., 2009; O’Leary et al., 2009; Murray et al., 2009; James et al., 2010)
+* Some chance that expert opinions alone (w/ no data) may not be as useful? Yet, when lacking data, expert opinion does not necessarily offer an improvement (Cox, 2000; Pearce et al., 2001; Seoane et al., 2005).
+* Examples of expert elicitation used to parameterize models that inform management decisions (from Martin et al. 2012 and Charney 2012:):
+
+1. Johnson et al. 2010 – use to parameterize Bayesian network to evaluate population viability of cheetahs (X experts).
+2. Runge et al. 2011 – use to identify alternative hypotheses and uncertainties affecting mgt of whooping cranes (X experts).
+3. O’Neill et al. 2008 – used to quantify trends and range of effects of climate change on polar bears (10 experts).
+4. Martin et al. 2005  and Kuhnert et al. 2005 – used to evaluate effects of livestock grazing intensity on austrialian woodland birds in Bayesian GLM (20 experts) 
+5. Smith et al. 2011 – Bayesian networks
+
+*What do we mean by "expert" - who are the experts?*
+
+* An expert is someone who has substantial information on a particular topic that is not widely known by others and who is offered deferred to for their knowledge and interpretation.
+
+*Expert elicitation process*
+
+* Expert-elicitation (in general) is composed of 5 steps:
+1. Deciding how information will be used (purpose and motivation)
+2. Determining what to elicit (and identifying experts; creating a statistical model)
+3. Designing elicitation process
+4. Performing elicitation
+5. Translating elicited information into quantitative statements that be used in ecological models (to ultimately help make decisions).
+
+* Additional important steps to consider:
+1. How to work with multiple experts
+2. How to combine multiple judgments (treat as equal or weights, average or ranges)
+3. Minimizing bias in elicited information
+4. Verifying accuracy of expert information
+
+*Why conduct expert elictation for stream salamanders?*
+
+* Limited information about amphibians (salamanders) region-wide and evidence that they are currently in decline (cite) and are threatened by climate change (cite).
+* Conduct expert elicitation for Plethedontide: Desmognathus, Gyrinophilus, and Eurycea
+* Specifically, G. porphyriticus; spring salamander, D. fuscus; dusky salamander, and E. bislineata; two-lined salamander
+* These species occur across the northeastern streams (i.e., relevant for NECSC) and are known to co-occur in streams with fishes (brook trout; cite), an important predictor/competitor affecting salamander populations, and are sensitive to buffer and upland forest cover, stream temperature and discharge (and network structure).
+* Local threats - land use (forest cover), fish-interactions, climate change (temperature and flow)
+* Outstanding hypotheses relevant to management (personal communication; in prep): 
+
+1. riparian vs. upland land protection is better for instream biota (downstream). Evidence that upland land protection can influence downstream habitat and species occurrence, yet conservation efforts are largely focused on riparian mgt first, then upland (we'll explore this in decision paper)
+2. fish-interaction is strong or weak (brook trout-salamander interactions)
+3. species-specific responses (how much do species vary?)
+4. where would land mgt strategies change (i.e., network structure change buffer vs. upland effects?)
+
+* Call for experts to aid in identifying parameters to be used in both predictive and decision models to evaluate range of outcomes of conservation actions.
+* Do predictions from experts vary from publications? (maybe compare in analysis or compare in discussion)
+* Species distribution models have to make lots of assumptions, we hope experts are considering these assumption and relaxing them, thus providing a more realistic understanding of drivers of occurrence. (be specific here if we mention why SDM models aren't good enough - for using in next co-occuring paper and decision paper)
+
+*Objectives of this paper*
+
+Overall Motivation: Elicit parameters that can be used for 1) salamander occpuancy models under climate change, 2) co-occurance models under climate change (Hocking et al. forecasting paper), and 3) evaluate land-protections strategies (Kate et al. optimization paper).
+
+Questions:
+
+1. How much do expert opinions agree? Where is the disagreement?
+2. Which uncertainties drive forecasts of salamander occurrence (sensitivity analysis; tornado diagram)?
+3. Does expert knowledge agree with with field-observations? (why or why not? do we have any? – see publication list that we’ll be sending to experts for potential comparisons).
+
+### Methods
+#### Salamander Occupancy Model
+
+*Summary of predictor variables across NE catchments*
+
+```{r name chunk 3, echo=FALSE}
+# number of huc 10 watersheds for forecasting (all within NECSC region?)
+no.huc10<-100
+# range in catchment drainage area for elicitation
+par(mfrow=c(2,2))
+hist(catchment.data.sub1$AreaSqKM, main="drainage area", breaks=500);abline(v=mean(catchment.data.sub1$AreaSqKM),col="blue");abline(v=median(catchment.data.sub1$AreaSqKM),col="red")
+hist(catchment.data.sub1$AreaSqKM, main="drainage area", breaks=500,xlim=c(0,20));abline(v=mean(catchment.data.sub1$AreaSqKM),col="blue");abline(v=median(catchment.data.sub1$AreaSqKM),col="red")
+hist(catchment.data.sub1$MEAN, main="percent forest cover", breaks=500);abline(v=mean(catchment.data.sub1$MEAN),col="blue");abline(v=median(catchment.data.sub1$MEAN),col="red")
+# lm.1<-lm(catchment.data.sub1$MEAN~catchment.data.sub1$AreaSqKM)
+```
+
+Range in predictor variable values, every 10% quantile (across `r length(catchment.data.sub1[,1])` catchments)
+```{r table1, echo=FALSE, results="asis"}
+# elicitation list of ranges
+e.list<-matrix(nrow=10,ncol=11,rep(NA,2*11))
+e.list[1,1:11]<-c(quantile(catchment.data.sub1$AreaSqKM,seq(0,1,.10)))
+e.list[2,1:11]<-c(quantile(catchment.data.sub1$MEAN,seq(0,1,.10)))
+e.list[3:10,1:11]<-c(rep(NA,11))
+#e.list
+colnames(e.list)<-c(seq(0,100, by=10))
+rownames(e.list)<-c(
+  "drainage_area_sqkm",
+  "upstream_%forest",
+  "non-buffer_%forest",
+  "buffer30m_%forest",
+  "upstream_non-riparian_%forest",
+  "upstream_riparian30m_%forest",
+  "stream_temp_julymean",
+  "stream_temp_annualmax",
+  "stream_flow_annualmin",
+  "stream_flow_annualmax")
+table1<-xtable(e.list)
+print(table1, type="html")
+```
+
+```{r model, echo=FALSE, results="hide"}
+species<-c(1:3)
+climatemodel<-c(1)
+landcovermodel<-c(1)
+fishmodel<-c(1)
+
+intercept<-0.50
+
+#pr.occ[species,catch,climatemodel,landcovermodel,fishmodel]<-intercept + drainage.area + stream.temp + riparian.forest + upland.forest
+```
 
 
+*Occupancy model*
+Response variable: probability of species-specific occupancy at the catchment-level
+Catchment: Deliniated from hyresolution flow-lines (cite, Kyle). 
+
+pr.occupancy[species,catchment]<-
+intercept (overall average) +
+regional.effect (provinces) +
+drainage.area (stream size) + 
+stream.temp (july mean or annual max) + 
+stream.flow (precip x drainage area; high or low-flow magnitude) + 
+riparian.forest (within 30m of riparian) + 
+upland.forest (outside of 30m riparian) + 
+riparian.forest x upland.forest (interaction term) + 
+fish.presence (brook trout; yes or no) + 
+residual variance
+
+Loop over alterantive climate, buffer, and fish models
+
+*Climate model uncertainty*
+
+*Buffer-Upland model uncertainty*
+*Fish-Sal model uncertainty*
+
+  
 
 
+#### Elicitation Survey
 
-# salamander elicitation model
-# created by Rachel Katz Feb 01 2016
+Martin et al. 2005 (Eco Apps) only elicited the mean, and calculated the mean and precision using mean values across experts (did not elicit lowest, highest and confidence). 
 
-############## elicitation model description ##############
-# Elicite model beliefs and parameter values with uncertainty from experts for predicting
-# occupancy probabilities (catchment-level) of three stream-salamander species with 
-# current ranges into the northeastern US. Use this model to forecast current distributions
-# of salamanders and compare to exisiting distributions.
-# Step 1: build the model: identify parameters & hypotheses for salamander occupancy (build on exisiting Hocking NE trout model)
-# Step 2: include expected values and confidence of experts (mean and precision). precision values may have variable confidences (i.e., 1SD or2SD, 95% or 80% confidence)
-# Step 3: elicit experts and compare expert opinions (where is it most variable?) (build an web-based survey?)
-# Step 4: simulate salamander distributions based on simulated means (while waiting for elicitation results) 
-# Step 5: predict distributions based on mean expert opinions
-# Step 6: conduct sensititivly analysis for each paramater (hold all constant at the mean and vary one parmaeter at a time_
+Use BBN figure (Example BBN for elicitation of variables, see Ban et al. 2015) to identify important conditional probabilities (i.e., riparian x upland, local x upstream) effects?
 
+Method: email survey, web-survey (talk to Jeff/Ben), telephone interview, face-to-face interview, group meeting?
 
-############## uncertainty description ##############
-# response variable: species-specific [s] probability of occupancy [pr.occ] at the catchment-level [i] under climate-temp model uncertainty [ctm]
-# pr.occ[s,i,ctm,fish]
+Provide list of literature to help promote baserate-thinking (outside vs. inside/recent views)
 
-# three salamander species: 
-# s[1:3]
-# species 1 = G. porphyriticus; spring salamander
-# species 2 = D. fuscus; dusky salamander
-# species 3 = E. bislineata; two-lined salamander
+#### List of Experts
 
-# four temperature climate models:
-# ctm[1:4]
-# 4 alterantive climate futures (0, 2, 4, 6 C degree increase in catchment mean july stream temperature)
-# 4 alterantive climate futures (0, 2, 4, 6 degree increase in catchment maximum annual temperature?)
-# assume constant change in temperature across catchments? (no spatial variablity?)
-# climate model beliefs uncertainty = elicit climate-temp model weights (i.e., ctm1=0.10, ctm2=0.40, ctm3=0.40, ctm4=0.10, sum=1)
+Identify experts using the snowball method (ask preliminary list of experts: Who would you go to for expert judgments on salamander ecology for these three species? Why?) until no new experts are identified.
 
-# streamflow climate models:
-# cfm[1:X]
-# X alterantive flow (lower rainfall, same rainfall, higher rainfall?)
-# assume constant change in rainfall across catchments? (rainfall*area = discharge)
-# climate model beliefs uncertainty = elicit climate-flow model weights (i.e., sum=1)
+Criteria for selecting experts:
 
-# three fish-salamander interactions hypothesess:
-# fish[1:3]
-# three fish-salamander hypothesis: no-interaction, negative-interaction, positive-interaction
+Number of publications involving salamanders
+1. Include Desmognathus spp.
+2. Include Gryinophilus spp.
+3. Include Eurycea spp.
 
-# local vs. upstream hypotheses (beta's):
-# catch[1:2]
-# two hypotheses: upstream landuse affects catchment occupancy, local landuse affects catchment occupancy
-
-# buffer vs. catchment-forest hypotheses (beta's):
-# buff[1:2] <- c(0.50, 0.50) # equal belief in both models
-# first hypotheses: percent riparian forest withing 30m buffer affects catchment-level occupancy
-# second hypotheses: percent riparian forest in upland (non-riparian) affects catchment-level occupancy
-
-# buff*catch interactive hypotheses?
-# upstream forest buffer
-# local-catchment forest buffer
-# upstream catchment (non-buffer) forest
-# local-catchment forest (non-buffer)
-
-# regional intercept (base-line occupancy) differences
-# region[1:8]
-# 8 regions (binary, intercept effect)
-# Appalachian Plateaus, Valley and Ridge Province, Blue Ridge Province, Piedmont Province, Coastal Plain, New England, Adirondack Province, Interior Low Plateaus
-
-# hyper parameters: random effect of species, location, etc?
-# elicit mean and variance in random effects from experts (not centered on 0 with wide intervals); see Martin et al. 2005 EcoApps.
-# shift in mean occupancy defined for each species (species is a hyper parameter?)
-# shift in mean occupancy defined for each region (region is a hyper parameter?)
-
-############## salamander model description ##############
-
-# for each simulation, pick one of the forest-buffer models below based on model weights (0.33,0.33,0.33)?
-pr.occ[s,i,nobuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i]
-pr.occ[s,i,localbuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i] + B3[s]*local.forest.buffer[i] + B4[s]*upstream.forest.buffer[i] 
-pr.occ[s,i,upstreambuffer]<- logit(B0.int[s] + B1[s]*local.forest[i] + B2[s]*upstream.forest[i] + B4[s]*upstream.forest.buffer[i] 
+Area of expertises (0=none, 1=some, 2=moderate, 3=lots) for each expert
+1. General salamander ecology
+2. Occupancy modeling of salamanders
+3. Landcover effects
+4. Riparian effects
+5. Stream temperature effects
+6. Streamflow (drought and floods) effects
+7. Fish-predation effects
 
 
-# expected overall average based on physiographic province (fixed effect)
-B0[0:8] ~ dnorm(B0.mean[0:8],B0.var[0:8])
-B0.int[s] <-
-B0[0] + # random intercept for species (mean + var) 
-BO[1]*Appalachian Plateaus[i] + 
-BO[2]*Valley and Ridge Province[i] + 
-BO[3]*Blue Ridge Province[i] +
-BO[4]*Piedmont Province[i] + 
-BO[5]*Coastal Plain[i] + 
-BO[6]*New England[i] + 
-BO[7]*Adirondack Province[i] + 
-BO[8]*Interior Low Plateaus[i]
-
-B0.mean[0:8] <- log(mean.p[0:8]/(1-mean.p[0:8])
-mean.p[0]<-expert.mean.p[0]
-expert.mean.p[0]<-average(expert.p[0,1:X]) # average mean occupancy across experts
-expert.var.p[0]<-variance(expert.p[0,1:X]) # variance in mean occupancy across experts?
-# do we just elicit the mean and use variance in the mean across experts to get precision?
-# if not, then how do we compute variance from X confidence intervals (i.e., 60%, 80% and 95%?)
-# collect expert data for each province for ANY or EACH of the three salamander species; mean occupancy = 0.5, lower limit = 0.3, upper limit = 0.7, with 80% confidence ->  mean = 0.5 and var/precision = ?)
-# X provinces * 3 species = X expert questions
-
-# expected effect of local catchment-forest cover on salamander occupancy for each species (fixed effect)
-B1[s] ~ dnorm(B1.mean[1:3],B1.var[1:3])
-# assume linear relation between occupancy and catchment forest cover: expert elicitation of 100%, 50% and 0% forested?
-# B1.mean <-average(B1.average,B1.upper,B1.lower)
-# B1.average <- average([(oc1.average-oc2.average)/(100-50)],[(oc2.average-oc3.average)/(50-0)] # take the average across experts?
-# make up some data and build a regression
-
-# don't need to elicit upper and lower and confidence intervals
-# B1.upper <- average([(oc1.upper-oc2.upper)/(100-50)],[(oc2.upper-oc3.upper)/(50-0)] 
-# B1.lower <- average([(oc1.lower-oc2.lower)/(100-50)],[(oc2.lower-oc3.lower)/(50-0)]
-
-# expected effect of upstream catchment-forest cover on salamander occupancy for each species (fixed effect)
-B2[s] ~ dnorm(B2.mean[1:3],B2.var[1:3])
-# assume linear relation between occupancy and upstream catchment forest cover: expert elicitation of 100%, 50% and 0% forested?
-
-# expected effect of local catchment-forest buffer on salamander occupancy for each species (fixed effect)
-B3[s] ~ dnorm(B3.mean[1:3],B3.var[1:3])
-# assume linear relation between occupancy and local forest buffer: expert elicitation of 100%, 50% and 0% forested?
-
-# expected effect of upstream catchment-forest buffer on salamander occupancy for each species (fixed effect)
-B4[s] ~ dnorm(B4.mean[1:3],B4.var[1:3])
-# assume linear relation between occupancy and upstream forest buffer: expert elicitation of 100%, 50% and 0% forested?
-
-# interaction between buffer and local forest? i.e, occupancy increases with increasing buffer more in non-forested compared to forested catchments?
-
-# expected effect of trout presence on salamander occupancy for each species (fixed effect)
-B5[s] ~ dnorm(B5.mean[1:3],B5.var[1:3])
-# assume binary effect; trout presence = lower salamander occupancy
-
-# expected effect of catchment size on salamander occupancy for each species (fixed effect)
-B6[s] ~ dnorm(B6.mean[1:3],B6.var[1:3])
-# assume linear relation etween occupancy and catchment siz or estimate each seperately?: B6[s,1:5] = tiny, small, medium, moderate, large?
+#### Forecasting Scenarios 
 
 
+### Results
+*Experts responses*
+Descripton of how many experts responded.
+Parameter estimates (betas) with low vs. high variance among experts.
+Model beliefs (weights) with low vs. high variance among experts.
+Comparisons across species (similar or different - how?)
+
+Table of results (or plot for specific interesting cases).
+
+Insights about elicitation (base-rates and use of literature we provided)
+
+*Salamander forecasting*
+Map of mean expected occupancy for each species with all uncertainties included under current climate, 2040, and 2080 (whichever scenarios we pick)
+
+Histogram of mean expected occupancy for each species with all uncertainties included under current climate, 2040, and 2080 (whichever scenarios we pick). This will show range in expected values (i.e., how many catchments look really bad?)
+
+
+*Sensitivity analysis*
+
+### Discussion
+### References
 
 
 
