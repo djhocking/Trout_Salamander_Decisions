@@ -223,6 +223,7 @@ head(pr.occupancy)
 ```
 
 Simulated parameter uncertainty across experts (N=`r no.simulations`, median = red)
+
 ```{r plot.parm.uncertainty,echo=FALSE, fig.width=6,fig.height=8}
 par(mfrow=c(3,2))
 hist(exp(intercept)/(exp(intercept)+1),main="average occupancy",breaks=10);abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red");
@@ -236,6 +237,7 @@ plot(density(exp(b2)), main="odds ratio per 1 sqkm increase in drainage area");a
 ```
 
 Predicted mean and sd in occupancy 
+
 ```{r plot.occ,echo=FALSE, fig.width=6,fig.height=8}
 par(mfrow=c(2,2))
 #plot(sim1.data$MEAN,sim1.data$AreaSqKM,xlab="percent upstream forest",ylab="drainage area")
@@ -250,6 +252,7 @@ Loop over alterantive climate, buffer, and fish models
 *Climate model uncertainty*
 
 *Buffer-Upland model uncertainty*
+
 *Fish-Sal model uncertainty*
 
   
@@ -263,7 +266,31 @@ Use BBN figure (Example BBN for elicitation of variables, see Ban et al. 2015) t
 
 Method: email survey, web-survey (talk to Jeff/Ben), telephone interview, face-to-face interview, group meeting?
 
-Provide list of literature to help promote baserate-thinking (outside vs. inside/recent views)
+Provide list of literature to help promote baserate-thinking (outside vs. inside/recent views). 
+
+See Appendix A for survey.
+
+#### Appendix A. Survey
+
+Description:
+Time-Committment:
+
+Background: 
+Average size catchment (or smaller; size range) anywhere across the range
+Range of species 1:
+Range of species 2:
+Range of species 3:
+
+Question 1. What is the average occupancy of X species across it's range?
+```{r expert.value.int,echo=FALSE,results='hide'}
+value<-list()
+value$int[1:no.simulations]<-runif(no.simulations,0.60,1.00)
+```
+Question 2. What is the expected probability of occupancy of X species in catchments with different drainage areas (i.e., stream size)?
+```{r expert.value.drainage,echo=FALSE,results='hide'}
+e.list["drainage_area_sqkm"]
+value$drainage[1:no.simulations]<-runif(no.simulations,0.60,1.00)
+```
 
 #### List of Experts
 
