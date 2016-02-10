@@ -10,16 +10,25 @@ Co-authors: Dan Hocking, Evan Grant
 
 Created: Feb 01 2016
 
-Last Updated: Feb 02 2016
+Last Updated: Feb 05 2016
 
 ```{r import data, echo=FALSE, results='hide'}
 # install libraries
 library(knitr)
 library(xtable)
+library(dplyr)
+db <- src_postgres(dbname='conte_dev', host='127.0.0.1', port='5432', user='conte', password='conte')
+print(db)
+
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user=options('SHEDS_USERNAME'), password=options('SHEDS_PASSWORD'))
 
 #import data
 upstream.areasqkm.data<-read.csv("/Users/katz-umass/Dropbox/Headwater Stream SDM/gis/data files/fromkyle/covariates/upstream_AreaSqKM.csv",fill=TRUE,header=TRUE)
 upstream.forest.mean.data<-read.csv("/Users/katz-umass/Dropbox/Headwater Stream SDM/gis/data files/fromkyle/covariates/upstream_forest_MEAN.csv",fill=TRUE,header=TRUE)
+
+#import list of experts
+expert.list.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Data/salamander_experts_list.csv",fill=TRUE,header=TRUE)
 
 # combine all catchment data into a single object
 catchment.data<-cbind(upstream.areasqkm.data,upstream.forest.mean.data)
@@ -255,9 +264,6 @@ Loop over alterantive climate, buffer, and fish models
 
 *Fish-Sal model uncertainty*
 
-  
-
-
 #### Elicitation Survey
 
 Martin et al. 2005 (Eco Apps) only elicited the mean, and calculated the mean and precision using mean values across experts (did not elicit lowest, highest and confidence). 
@@ -272,16 +278,31 @@ See Appendix A for survey.
 
 #### Appendix A. Survey
 
-Description:
-Time-Committment:
+*Description:*
 
-Background: 
+*Background Information*
 Average size catchment (or smaller; size range) anywhere across the range
 Range of species 1:
 Range of species 2:
 Range of species 3:
 
-Question 1. What is the average occupancy of X species across it's range?
+Question 1. In your opinion, what is the overall mean probability of occupancy for each species across it's entire range?
+
+A. Desmognathus fuscus (dusky salamander)            ________(0-1)
+
+B. Gyrinophilus porphyriticus (spring salamander)    ________(0-1)
+
+C. Eurycea bislineata (two-lined salamander)         ________(0-1)
+
+Question 2. In your opinion, what is the expected probability of occupancy for a catchment that none, low, medium, moderate, high, and all forest cover?
+
+A. 0% forest cover           ________(0-1)
+
+B. Gyrinophilus porphyriticus (spring salamander)    ________(0-1)
+
+C. Eurycea bislineata (two-lined salamander)         ________(0-1)
+
+
 ```{r expert.value.int,echo=FALSE,results='hide'}
 value<-list()
 value$int[1:no.simulations]<-runif(no.simulations,0.60,1.00)
@@ -305,16 +326,20 @@ Number of publications involving salamanders
 
 Area of expertises (0=none, 1=some, 2=moderate, 3=lots) for each expert
 1. General salamander ecology
-2. Occupancy modeling of salamanders
-3. Landcover effects
-4. Riparian effects
-5. Stream temperature effects
-6. Streamflow (drought and floods) effects
-7. Fish-predation effects
+2. Landcover effects
+3. Riparian effects
+4. Stream temperature effects
+6. Fish-predation effects
+7. Streamflow (drought and floods) effects
+8. Occupancy modeling 
+9. Abundance modeling
+
+```{r expert.list,echo=FALSE,results='hide'}
+head(expert.list.data)
+```
 
 
 #### Forecasting Scenarios 
-
 
 ### Results
 *Experts responses*
