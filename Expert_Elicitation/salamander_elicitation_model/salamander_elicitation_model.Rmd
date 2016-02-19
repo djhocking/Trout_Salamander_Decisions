@@ -6,26 +6,35 @@ output: html_document
 RMarkdown File
 
 Created by: Rachel Katz (rachelakatz@gmail.com)
-Co-authors: Dan Hocking, Evan Grant
+Co-authors: Dan Hocking, Evan Grant, Ben Letcher
 
 Created: Feb 01 2016
 
-Last Updated: Feb 05 2016
+Last Updated: Feb 19 2016
 
-```{r import data, echo=FALSE, results='hide'}
+```{r install libraries and connect to server, echo=FALSE, results='hide'}
 # install libraries
-library(knitr)
+#library(knitr)
 library(xtable)
-library(dplyr)
-db <- src_postgres(dbname='conte_dev', host='127.0.0.1', port='5432', user='conte', password='conte')
-print(db)
+#library(dplyr)
+#library(RPostgreSQL)
+#library(DBI)
 
-drv <- dbDriver("PostgreSQL")
-con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user=options('SHEDS_USERNAME'), password=options('SHEDS_PASSWORD'))
+#R.home()
+#print(options('SHEDS_USERNAME'))
+
+
+#from dan and jeff
+#drv <- dbDriver("PostgreSQL")
+#con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user='rachel', password='coffeewatertealeaf')
+#con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user=getOption('SHEDS_USERNAME'), password=getOption('SHEDS_PASSWORD'))
+```
+
+```{r import covariate data, echo=FALSE, results='hide'}
 
 #import data
-upstream.areasqkm.data<-read.csv("/Users/katz-umass/Dropbox/Headwater Stream SDM/gis/data files/fromkyle/covariates/upstream_AreaSqKM.csv",fill=TRUE,header=TRUE)
-upstream.forest.mean.data<-read.csv("/Users/katz-umass/Dropbox/Headwater Stream SDM/gis/data files/fromkyle/covariates/upstream_forest_MEAN.csv",fill=TRUE,header=TRUE)
+upstream.areasqkm.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Data/upstream_AreaSqKM.csv",fill=TRUE,header=TRUE)
+upstream.forest.mean.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Data/upstream_forest_MEAN.csv",fill=TRUE,header=TRUE)
 
 #import list of experts
 expert.list.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Data/salamander_experts_list.csv",fill=TRUE,header=TRUE)
@@ -39,9 +48,19 @@ length(catchment.data.sub1[,1])
 
 ```
 
+```{r import expert elicitation data, echo=FALSE, results='hide'}
+#import expert data
+q2.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q2.csv",header=TRUE)
+q3.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q3.csv",header=TRUE)
+q4.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q4.csv",header=TRUE)
+
+q6.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q6.csv",header=TRUE)
+q7.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q7.csv",header=TRUE)
+```
+
 ### Outline
 
-Overview: Elicite parameter values and model beliefs from experts for predicting effects of climate, land use, and brook-trout presense on catchment-level occupancy of three stream-salamander species occuring throughout the northeastern US. Use this model to forecast current distributions of salamanders under differnce climate scenarios and compare to exisiting published distributions/forecasts (?).
+Overview: Elicite parameter values and model beliefs from experts for predicting effects of climate, land use, and brook-trout presense on catchment-level occupancy of three stream-salamander species occuring throughout the northeastern US. Use this model to forecast current distributions of salamanders under differnce climate scenarios and compare to exisiting published distributions.
 
 * Step 1: build the catchment-level salamander occupancy model
 * Step 2: create expert elicitation survey for model parmaeters and beliefs (means only, use 20+ experts to get variance in mean expected values instead of eliciting confidence) 
@@ -132,6 +151,8 @@ Questions:
 
 *Summary of predictor variables across NE catchments*
 
+We used the median and range (min and max or 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, and 100 quantiles) for each covariate across NE catchments to set the covariate space for parameter elicitation. We used the median values of all covariates as the baseline (intercept) and asked experts effects of covariates in relation to this baseline. 
+
 ```{r predictor ranges, echo=FALSE}
 # number of huc 10 watersheds for forecasting (all within NECSC region?)
 no.huc10<-100
@@ -145,7 +166,7 @@ hist(catchment.data.sub1$MEAN, main="percent forest cover", breaks=500);abline(v
 # lm.1<-lm(catchment.data.sub1$MEAN~catchment.data.sub1$AreaSqKM)
 ```
 
-Range in predictor variable values, every 10% quantile (across `r length(catchment.data.sub1[,1])` catchments)
+Range in predictor variable values, every 10% quantile (across `r length(catchment.data.sub1[,1])` catchments). NEED TO FILL IN W/SHEDS DATABASE INFO.
 
 ```{r table1, echo=FALSE, results="asis"}
 # elicitation list of ranges
@@ -176,9 +197,12 @@ Response variable: probability of species-specific occupancy at the catchment-le
 
 Catchment: Deliniated from hyresolution flow-lines (cite, Kyle). 
 
+Paragraph about covariates expected to influence salamnader occupancy, with the additional hypothesis related to buffer vs. upland land protection (decision model, personal comm).
+
+Model:
 pr.occupancy[species,catchment]<-
-intercept (overall average) + 
-regional.effect (provinces) + drainage.area (stream size) + 
+intercept (overall average occupancy) + 
+drainage.area (stream size) + 
 stream.temp (july mean or annual max) + 
 stream.flow (precip x drainage area; high or low-flow magnitude) + 
 riparian.forest (within 30m of riparian) + 
@@ -186,6 +210,118 @@ upland.forest (outside of 30m riparian) +
 riparian.forest x upland.forest (interaction term) + 
 fish.presence (brook trout; yes or no) + 
 residual variance
+
+```{r calculate b0 intercept Q2; echo=FALSE, results='hide'}
+q2.data
+q2.data.DEFU<-subset(q2.data,q2.data$species=="DEFU")
+q2.data.GYPO<-subset(q2.data,q2.data$species=="GYPO")
+q2.data.EUBI<-subset(q2.data,q2.data$species=="EUBI")
+
+q2.data.DEFU$avg_pr_occ
+q2.logit.DEFU<-list()
+q2.logit.DEFU<-log(q2.data.DEFU$avg_pr_occ/(1-q2.data.DEFU$avg_pr_occ))
+int.DEFU<-c(mean(q2.data.DEFU$avg_pr_occ),sd(q2.data.DEFU$avg_pr_occ))
+int.logit.DEFU<-c(mean(q2.logit.DEFU),sd(q2.logit.DEFU))
+betas.DEFU<-data.frame(int.DEFU,int.logit.DEFU)
+betas.DEFU
+
+q2.data.GYPO$avg_pr_occ
+q2.logit.GYPO<-list()
+q2.logit.GYPO<-log(q2.data.GYPO$avg_pr_occ/(1-q2.data.GYPO$avg_pr_occ))
+int.GYPO<-c(mean(q2.data.GYPO$avg_pr_occ),sd(q2.data.GYPO$avg_pr_occ))
+int.logit.GYPO<-c(mean(q2.logit.GYPO),sd(q2.logit.GYPO))
+betas.GYPO<-data.frame(int.GYPO,int.logit.GYPO)
+betas.GYPO
+
+q2.data.EUBI$avg_pr_occ
+q2.logit.EUBI<-list()
+q2.logit.EUBI<-log(q2.data.EUBI$avg_pr_occ/(1-q2.data.EUBI$avg_pr_occ))
+int.EUBI<-c(mean(q2.data.EUBI$avg_pr_occ),sd(q2.data.EUBI$avg_pr_occ))
+int.logit.EUBI<-c(mean(q2.logit.EUBI),sd(q2.logit.EUBI))
+betas.EUBI<-data.frame(int.EUBI,int.logit.EUBI)
+betas.EUBI
+
+int.DEFU2<-rnorm(100,betas.DEFU$int.logit.DEFU[1],betas.DEFU$int.logit.DEFU[2])
+int.GYPO2<-rnorm(100,betas.GYPO$int.logit.GYPO[1],betas.GYPO$int.logit.GYPO[2])
+int.EUBI2<-rnorm(100,betas.EUBI$int.logit.EUBI[1],betas.EUBI$int.logit.EUBI[2])
+```
+
+Histogram showing 100 random draws from normal distribution based on mean and sd across `r max(q2.data$expert_ID)` experts. Red = mean, Blue = each expert's value. 
+
+```{r hist of b0 intercept Q2; echo=FALSE, results='hide'}
+par(mfrow=c(1,3))
+hist(1/(1+exp(-int.DEFU2)),xlab="prob occupancy",main="DEFU",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.DEFU2))),col="red");
+abline(v=q2.data.DEFU$avg_pr_occ,col="blue")
+hist(1/(1+exp(-int.GYPO2)),xlab="prob occupancy",main="GYPO",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.GYPO2))),col="red");abline(v=q2.data.GYPO$avg_pr_occ,col="blue")
+hist(1/(1+exp(-int.EUBI2)),xlab="prob occupancy",main="EUBI",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.EUBI2))),col="red");abline(v=q2.data.EUBI$avg_pr_occ,col="blue")
+```
+
+```{r calculate b1 stream size Q3; echo=FALSE, results='hide'}
+q3.data
+q3.data.DEFU<-subset(q3.data,q3.data$species=="DEFU")
+q3.data.GYPO<-subset(q3.data,q3.data$species=="GYPO")
+q3.data.EUBI<-subset(q3.data,q3.data$species=="EUBI")
+
+q3.data.DEFU$pr_occ
+par(mfrow=c(1,2))
+plot(subset(q3.data.DEFU,q3.data.DEFU$expert_ID==1)$drainagearea_sqkm,subset(q3.data.DEFU,q3.data.DEFU$expert_ID==1)$pr_occ,type="l")
+lines(subset(q3.data.DEFU,q3.data.DEFU$expert_ID==2)$drainagearea_sqkm,subset(q3.data.DEFU,q3.data.DEFU$expert_ID==2)$pr_occ,type="l")
+lines(subset(q3.data.DEFU,q3.data.DEFU$expert_ID==3)$drainagearea_sqkm,subset(q3.data.DEFU,q3.data.DEFU$expert_ID==3)$pr_occ,type="l")
+
+# calculate b1 slope (non linear, it's exponential)
+library(lme4);library(Matrix)
+area.lm<-glmer(q3.data.DEFU$pr_occ~q3.data.DEFU$drainagearea_sqkm + (1 | q3.data.DEFU$expert_ID), family = "exponential")
+summary(area.lm)
+b1d<-q3.data.DEFU$drainagearea_sqkm
+b1e<-q3.data.DEFU$expert_ID
+new.b1<-data.frame(b1d,b1e)
+new.b1$pred<-predict(area.lm,new.b1)
+new.b1
+plot(new.b1$pred[1:10]~new.b1$b1d[1:10] ,type="l")
+lines(new.b1$pred[11:20]~new.b1$b1d[11:20] ,type="l")
+lines(new.b1$pred[21:30]~new.b1$b1d[21:30] ,type="l")
+# predict results in linear function - why?
+
+# plot calculated slopes
+e1.q3.defu<-subset(q3.data,q3.data$expert_ID==1 & q3.data$species=="DEFU")
+e1.q3.gypo<-subset(q3.data,q3.data$expert_ID==1 & q3.data$species=="GYPO")
+e1.q3.eubi<-subset(q3.data,q3.data$expert_ID==1 & q3.data$species=="EUBI")
+e2.q3.defu<-subset(q3.data,q3.data$expert_ID==2 & q3.data$species=="DEFU")
+e2.q3.gypo<-subset(q3.data,q3.data$expert_ID==2 & q3.data$species=="GYPO")
+e2.q3.eubi<-subset(q3.data,q3.data$expert_ID==2 & q3.data$species=="EUBI")
+e3.q3.defu<-subset(q3.data,q3.data$expert_ID==3 & q3.data$species=="DEFU")
+e3.q3.gypo<-subset(q3.data,q3.data$expert_ID==3 & q3.data$species=="GYPO")
+e3.q3.eubi<-subset(q3.data,q3.data$expert_ID==3 & q3.data$species=="EUBI")
+
+boxplot(e1.q3.defu$slope,e2.q3.defu$slope,e3.q3.defu$slope,
+          e1.q3.gypo$slope,e2.q3.gypo$slope,e3.q3.gypo$slope,
+          e1.q3.eubi$slope,e2.q3.eubi$slope,e3.q3.eubi$slope)
+b1.mean<-list()
+b1.mean$defu<-mean(c(e1.q3.defu$slope,e2.q3.defu$slope,e3.q3.defu$slope),na.rm=TRUE)
+b1.mean$gypo<-mean(c(e1.q3.gypo$slope,e2.q3.gypo$slope,e3.q3.gypo$slope),na.rm=TRUE)
+b1.mean$eubi<-mean(c(e1.q3.eubi$slope,e2.q3.eubi$slope,e3.q3.eubi$slope),na.rm=TRUE)
+b1.sd<-list()
+b1.sd$defu<-sd(c(mean(e1.q3.defu$slope,na.rm=TRUE),mean(e2.q3.defu$slope,na.rm=TRUE),mean(e3.q3.defu$slope,na.rm=TRUE)))
+b1.sd$gypo<-sd(c(mean(e1.q3.gypo$slope,na.rm=TRUE),mean(e2.q3.gypo$slope,na.rm=TRUE),mean(e3.q3.gypo$slope,na.rm=TRUE)))
+b1.sd$eubi<-sd(c(mean(e1.q3.eubi$slope,na.rm=TRUE),mean(e2.q3.eubi$slope,na.rm=TRUE),mean(e3.q3.eubi$slope,na.rm=TRUE)))
+b1.mean
+b1.sd
+
+b1.DEFU2<-rnorm(100,b1.mean[1],b1.sd[1])
+b1.GYPO2<-rnorm(100,b1.mean[2],b1.sd[2])
+b1.EUBI2<-rnorm(100,b1.mean[3],b1.sd[3])
+
+```
+
+Histogram showing 100 random draws from normal distribution based on mean and sd across `r max(q3.data$expert_ID)` experts. Red = mean, Blue = each expert's value. 
+
+```{r hist of b1 stream size Q3; echo=FALSE, results='hide'}
+par(mfrow=c(1,3))
+hist(1/(1+exp(-int.DEFU2+b1.mean$defu)),xlab="prob occupancy",main="DEFU",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.DEFU2))),col="red");
+abline(v=q2.data.DEFU$avg_pr_occ,col="blue")
+hist(1/(1+exp(-int.GYPO2)),xlab="prob occupancy",main="GYPO",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.GYPO2))),col="red");abline(v=q2.data.GYPO$avg_pr_occ,col="blue")
+hist(1/(1+exp(-int.EUBI2)),xlab="prob occupancy",main="EUBI",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.EUBI2))),col="red");abline(v=q2.data.EUBI$avg_pr_occ,col="blue")
+```
 
 ```{r occ.model.sim1, echo=FALSE, results='hide'}
 no.catchments=100
@@ -338,7 +474,6 @@ Area of expertises (0=none, 1=some, 2=moderate, 3=lots) for each expert
 head(expert.list.data)
 ```
 
-
 #### Forecasting Scenarios 
 
 ### Results
@@ -361,6 +496,7 @@ Histogram of mean expected occupancy for each species with all uncertainties inc
 *Sensitivity analysis*
 
 ### Discussion
+
 ### References
 
 
