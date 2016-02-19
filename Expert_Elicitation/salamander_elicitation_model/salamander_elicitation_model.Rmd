@@ -26,7 +26,6 @@ library(xtable)
 
 #from dan and jeff
 #drv <- dbDriver("PostgreSQL")
-#con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user='rachel', password='coffeewatertealeaf')
 #con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user=getOption('SHEDS_USERNAME'), password=getOption('SHEDS_PASSWORD'))
 ```
 
