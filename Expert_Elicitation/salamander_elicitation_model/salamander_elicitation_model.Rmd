@@ -14,19 +14,22 @@ Last Updated: Feb 19 2016
 
 ```{r install libraries and connect to server, echo=FALSE, results='hide'}
 # install libraries
-#library(knitr)
+library(knitr)
 library(xtable)
-#library(dplyr)
-#library(RPostgreSQL)
-#library(DBI)
+library(dplyr)
+library(RPostgreSQL)
+library(DBI)
 
-#R.home()
-#print(options('SHEDS_USERNAME'))
+R.home()
+print(options('SHEDS_USERNAME'))
+print(options('SHEDS_PASSWORD'))
 
 
 #from dan and jeff
-#drv <- dbDriver("PostgreSQL")
-#con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user=getOption('SHEDS_USERNAME'), password=getOption('SHEDS_PASSWORD'))
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user=getOption('SHEDS_USERNAME'), password=getOption('SHEDS_PASSWORD'))
+
 ```
 
 ```{r import covariate data, echo=FALSE, results='hide'}
@@ -52,7 +55,6 @@ length(catchment.data.sub1[,1])
 q2.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q2.csv",header=TRUE)
 q3.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q3.csv",header=TRUE)
 q4.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q4.csv",header=TRUE)
-
 q6.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q6.csv",header=TRUE)
 q7.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q7.csv",header=TRUE)
 ```
@@ -119,7 +121,7 @@ Potential Journals:
 
 * Limited information about amphibians (salamanders) region-wide and evidence that they are currently in decline (cite) and are threatened by climate change (cite).
 
-* Three common stream salamdner species occur across the northeastern streams (i.e., relevant for NECSC) and are known to co-occur in streams with fishes (brook trout; cite), an important predictor/competitor affecting salamander populations, and are sensitive to buffer and upland forest cover, stream temperature and discharge (and network structure).
+* Three common stream salamdaner species occur across the northeastern streams (i.e., relevant for NECSC) and are known to co-occur in streams with fishes (brook trout; cite), an important predictor/competitor affecting salamander populations, and are sensitive to buffer and upland forest cover, stream temperature and discharge (and network structure).
 
 * Conduct expert elicitation for Plethedontide: Desmognathus fuscus; dusky salamander, Gyrinophilus porphyriticus; spring salamander, and Eurycea bislineata; two-lined salamander
 * Local threats - land use (forest cover), fish-interactions, climate change (temperature and flow)
@@ -210,117 +212,168 @@ riparian.forest x upland.forest (interaction term) +
 fish.presence (brook trout; yes or no) + 
 residual variance
 
-```{r calculate b0 intercept Q2; echo=FALSE, results='hide'}
-q2.data
-q2.data.DEFU<-subset(q2.data,q2.data$species=="DEFU")
-q2.data.GYPO<-subset(q2.data,q2.data$species=="GYPO")
-q2.data.EUBI<-subset(q2.data,q2.data$species=="EUBI")
+*Expert results (with calculated betas)*
 
-q2.data.DEFU$avg_pr_occ
-q2.logit.DEFU<-list()
-q2.logit.DEFU<-log(q2.data.DEFU$avg_pr_occ/(1-q2.data.DEFU$avg_pr_occ))
-int.DEFU<-c(mean(q2.data.DEFU$avg_pr_occ),sd(q2.data.DEFU$avg_pr_occ))
-int.logit.DEFU<-c(mean(q2.logit.DEFU),sd(q2.logit.DEFU))
-betas.DEFU<-data.frame(int.DEFU,int.logit.DEFU)
-betas.DEFU
+*Grand mean intercept (b0)*
 
-q2.data.GYPO$avg_pr_occ
-q2.logit.GYPO<-list()
-q2.logit.GYPO<-log(q2.data.GYPO$avg_pr_occ/(1-q2.data.GYPO$avg_pr_occ))
-int.GYPO<-c(mean(q2.data.GYPO$avg_pr_occ),sd(q2.data.GYPO$avg_pr_occ))
-int.logit.GYPO<-c(mean(q2.logit.GYPO),sd(q2.logit.GYPO))
-betas.GYPO<-data.frame(int.GYPO,int.logit.GYPO)
-betas.GYPO
-
-q2.data.EUBI$avg_pr_occ
-q2.logit.EUBI<-list()
-q2.logit.EUBI<-log(q2.data.EUBI$avg_pr_occ/(1-q2.data.EUBI$avg_pr_occ))
-int.EUBI<-c(mean(q2.data.EUBI$avg_pr_occ),sd(q2.data.EUBI$avg_pr_occ))
-int.logit.EUBI<-c(mean(q2.logit.EUBI),sd(q2.logit.EUBI))
-betas.EUBI<-data.frame(int.EUBI,int.logit.EUBI)
-betas.EUBI
-
-int.DEFU2<-rnorm(100,betas.DEFU$int.logit.DEFU[1],betas.DEFU$int.logit.DEFU[2])
-int.GYPO2<-rnorm(100,betas.GYPO$int.logit.GYPO[1],betas.GYPO$int.logit.GYPO[2])
-int.EUBI2<-rnorm(100,betas.EUBI$int.logit.EUBI[1],betas.EUBI$int.logit.EUBI[2])
+Raw values from experts for grand mean intercept (b0):
+```{r view expert b0, echo=FALSE }
+# elicitation list of ranges
+b0.list<-matrix(nrow=3,ncol=9,rep(NA,3*9))
+b0.list<-q2.data[,1:3]
+print(b0.list)
 ```
 
-Histogram showing 100 random draws from normal distribution based on mean and sd across `r max(q2.data$expert_ID)` experts. Red = mean, Blue = each expert's value. 
+Calculate grand mean intercept (b0):
+```{r calculate b0, echo=FALSE}
+#q2.data
+q2.data$logit.p<-log(q2.data$avg_pr_occ/(1-q2.data$avg_pr_occ))
+b0.data<-list()
+b0.data$nonlogit<-summarise(group_by(q2.data,species), mean=mean(avg_pr_occ), sd=sd(avg_pr_occ))
+b0.data$logit<-summarise(group_by(q2.data,species), mean=mean(logit.p), sd=sd(logit.p))
+b0.data<-data.frame(b0.data)
+b0.data
+no.species=3
+no.rand=100
+occ<-data.frame("DEFU"=integer(0),"GYPO"=integer(0),"EUBI"=integer(0))
+for(species in 1:no.species){for(rand in 1:no.rand){
+  occ[rand,species]<-1/(1+exp(-(rnorm(1,b0.data[species,"logit.mean"],b0.data[species,"logit.sd"]))))
+}}
+print(summary(occ))
+```
 
-```{r hist of b0 intercept Q2; echo=FALSE, results='hide'}
+*drainage area effect (b1)*
+
+Raw values from experts for drainage area effect (b1):
+```{r view expert b1, echo=FALSE }
+# elicitation list of ranges
+b1.list<-as.data.frame(q3.data)
+b1.list.DEFU<-subset(b1.list,b1.list$species=="DEFU")
+b1.list.GYPO<-subset(b1.list,b1.list$species=="GYPO")
+b1.list.EUBI<-subset(b1.list,b1.list$species=="EUBI")
+boxplot(b1.list.DEFU$pr_occ~b1.list.DEFU$drainagearea_sqkm)
+plot(b1.list.DEFU$pr_occ~b1.list.DEFU$drainagearea_sqkm,type="b")
+
+# regresssion
+hist(q3.data$pr_occ)
+q3.data$logit.p2<-log(q3.data$pr_occ/(1-q3.data$pr_occ))
+head(q3.data)
+library(dplyr)
+str(q3.data)
+q3.defu <- q3.data %>%
+  dplyr::filter(species == "DEFU")
+
+ggplot(q3.defu, aes(log(drainagearea_sqkm), logit.p2, colour = factor(expert_ID))) + geom_line()
+
+lm1<-lmer(logit.p2 ~ log(drainagearea_sqkm) + (1|expert_ID), data = q3.defu)
+
+summary(lm1)
+plot(predict(lm1,q3.defu))
+q3.defu$pred <- predict(lm1,q3.defu)
+q3.defu$resid<- resid(lm1)
+plot(lm1)
+ggplot(q3.defu, aes(drainagearea_sqkm, resid, colour = factor(expert_ID))) + geom_point()
+ggplot(q3.defu, aes(expert_ID, resid, fill = factor(expert_ID), group = factor(expert_ID))) + geom_boxplot()
+ggplot(q3.defu, aes(pred, resid, colour = factor(expert_ID))) + geom_point()
+  
+library(ggplot2)
+ggplot(q3.defu, aes(logit.p2, pred)) + geom_point()
+
+for (i in 1:no.samples){for(area for 1:no.drainage)
+  occ[i,expert]<-
+}
+```
+
+Calculate drainage area effect (b1):
+```{r calculate b1, echo=FALSE, results='hide'}
+b1.data<-list()
+b1.data$slope<-summarise(group_by(b1.list,species), mean=mean(slope,na.rm = TRUE), sd=sd(slope,na.rm = TRUE))
+b1.data$logit.slope<-summarise(group_by(b1.list,species), mean=mean(logit.slope,na.rm = TRUE), sd=sd(logit.slope,na.rm = TRUE))
+
+no.species=3
+no.drainagearea=200
+drainagearea.cov<-seq(min(q3.data$drainagearea_sqkm),max(q3.data$drainagearea_sqkm),length=no.drainagearea)
+
+occ<-data.frame("DEFU"=integer(0),"GYPO"=integer(0),"EUBI"=integer(0))
+for (species in 1:no.species){ for(i in 1:no.drainagearea){
+  occ[i,species]<-1/(1+exp(-(b0.data[species,"logit.mean"]+b1.data$logit.slope[species,"mean"]*drainagearea.cov[i])))
+}}
+par(mfrow=c(1,1))
+plot(occ[,1]~drainagearea.cov,col=1,type="l")
+lines(occ[,2]~drainagearea.cov,col=2)
+lines(occ[,3]~drainagearea.cov,col=3)
+print(summary(occ))
+```
+
+
+*Stream temperature effect (b2)*
+
+Raw values from experts:
+```{r plot raw b2 results, echo=FALSE, results='hide',fig.width=5,fig.height=8}
+q4.data
+q4.data.DEFU<-subset(q4.data,q4.data$species=="DEFU")
+q4.data.GYPO<-subset(q4.data,q4.data$species=="GYPO")
+q4.data.EUBI<-subset(q4.data,q4.data$species=="EUBI")
+
+q4.data.DEFU$pr_occ
+
+par(mfrow=c(2,1))
+plot(subset(q4.data.DEFU,q4.data.DEFU$expert_ID==1)$mean_summer_temp_C,subset(q4.data.DEFU,q4.data.DEFU$expert_ID==1)$pr_occ,ylim=c(0.5,1),type="l",col=1,xlab="b2, stream temp, C",ylab="prob of occupancy")
+lines(subset(q4.data.DEFU,q4.data.DEFU$expert_ID==2)$mean_summer_temp_C,subset(q4.data.DEFU,q4.data.DEFU$expert_ID==2)$pr_occ,type="l",col=2)
+lines(subset(q4.data.DEFU,q4.data.DEFU$expert_ID==3)$mean_summer_temp_C,subset(q4.data.DEFU,q4.data.DEFU$expert_ID==3)$pr_occ,type="l",col=3)
+```
+
+*Streamflow effect (b3)*
+
+Raw values from experts:
+
+*Forest effects (b4)*
+
+Raw values from experts:
+```{r plot raw b4 results, echo=FALSE, results='hide',fig.width=5,fig.height=8}
+q6.data
+q6.data.DEFU<-subset(q6.data,q6.data$species=="DEFU")
+q6.data.GYPO<-subset(q6.data,q6.data$species=="GYPO")
+q6.data.EUBI<-subset(q6.data,q6.data$species=="EUBI")
+
+q6.data.DEFU$pr_occ
+
+par(mfrow=c(1,1))
+plot(subset(q6.data.DEFU,q6.data.DEFU$expert_ID==1 & q6.data.DEFU$upland_percent_forest==0)$riparian30m_percent_forest,subset(q6.data.DEFU,q6.data.DEFU$expert_ID==1 & q6.data.DEFU$riparian30m_percent_forest==0)$pr_occ, ylim=c(0,1),type="l",col=1,xlab="b4, riparian forest cover",ylab="prob of occupancy")
+
+lines(subset(q6.data.DEFU,q6.data.DEFU$expert_ID==1 & q6.data.DEFU$upland_percent_forest==50)$riparian30m_percent_forest,subset(q6.data.DEFU,q6.data.DEFU$expert_ID==1 & q6.data.DEFU$riparian30m_percent_forest==50)$pr_occ, type="l",col=2)
+lines(subset(q6.data.DEFU,q6.data.DEFU$expert_ID==1 & q6.data.DEFU$upland_percent_forest==100)$riparian30m_percent_forest,subset(q6.data.DEFU,q6.data.DEFU$expert_ID==1 & q6.data.DEFU$riparian30m_percent_forest==100)$pr_occ, type="l",col=3)
+legend("topleft",legend=c("0% upland forest", "50% upland forest", "100% upland forest"), text.col=c(1,2,3),cex=0.6)
+
+
+```
+
+*Fish effects (b5)*
+
+Raw values from experts:
+```{r plot raw fish results, echo=FALSE, results='hide',fig.width=5,fig.height=8}
+q7.data
+q7.data.DEFU<-subset(q7.data,q7.data$species=="DEFU")
+q7.data.GYPO<-subset(q7.data,q7.data$species=="GYPO")
+q7.data.EUBI<-subset(q7.data,q7.data$species=="EUBI")
+
+q7.data.DEFU$pr_occ
+
 par(mfrow=c(1,3))
-hist(1/(1+exp(-int.DEFU2)),xlab="prob occupancy",main="DEFU",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.DEFU2))),col="red");
-abline(v=q2.data.DEFU$avg_pr_occ,col="blue")
-hist(1/(1+exp(-int.GYPO2)),xlab="prob occupancy",main="GYPO",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.GYPO2))),col="red");abline(v=q2.data.GYPO$avg_pr_occ,col="blue")
-hist(1/(1+exp(-int.EUBI2)),xlab="prob occupancy",main="EUBI",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.EUBI2))),col="red");abline(v=q2.data.EUBI$avg_pr_occ,col="blue")
+plot(subset(q7.data,q7.data$expert_ID==1&q7.data$species=="DEFU")$trout_presence,subset(q7.data,q7.data$expert_ID==1&q7.data$species=="DEFU")$pr_occ, ylim=c(0,1),type="l",col=1,xlab="fish presence",ylab="prob of occupancy",main="DEFU")
+lines(subset(q7.data,q7.data$expert_ID==2&q7.data$species=="DEFU")$trout_presence,subset(q7.data,q7.data$expert_ID==2&q7.data$species=="DEFU")$pr_occ,type="l",col=2)
+lines(subset(q7.data,q7.data$expert_ID==3&q7.data$species=="DEFU")$trout_presence,subset(q7.data,q7.data$expert_ID==3&q7.data$species=="DEFU")$pr_occ,type="l",col=3)
+
+plot(subset(q7.data,q7.data$expert_ID==1&q7.data$species=="GYPO")$trout_presence,subset(q7.data,q7.data$expert_ID==1&q7.data$species=="GYPO")$pr_occ, ylim=c(0,1),type="l",col=1,xlab="fish presence",ylab="prob of occupancy",main="GYPO")
+lines(subset(q7.data,q7.data$expert_ID==2&q7.data$species=="GYPO")$trout_presence,subset(q7.data,q7.data$expert_ID==2&q7.data$species=="GYPO")$pr_occ,type="l",col=2)
+lines(subset(q7.data,q7.data$expert_ID==3&q7.data$species=="GYPO")$trout_presence,subset(q7.data,q7.data$expert_ID==3&q7.data$species=="GYPO")$pr_occ,type="l",col=3)
+
+plot(subset(q7.data,q7.data$expert_ID==1&q7.data$species=="EUBI")$trout_presence,subset(q7.data,q7.data$expert_ID==1&q7.data$species=="EUBI")$pr_occ, ylim=c(0,1),type="l",col=1,xlab="fish presence",ylab="prob of occupancy",main="EUBI")
+lines(subset(q7.data,q7.data$expert_ID==2&q7.data$species=="EUBI")$trout_presence,subset(q7.data,q7.data$expert_ID==2&q7.data$species=="EUBI")$pr_occ,type="l",col=2)
+lines(subset(q7.data,q7.data$expert_ID==3&q7.data$species=="EUBI")$trout_presence,subset(q7.data,q7.data$expert_ID==3&q7.data$species=="EUBI")$pr_occ,type="l",col=3)
 ```
 
-```{r calculate b1 stream size Q3; echo=FALSE, results='hide'}
-q3.data
-q3.data.DEFU<-subset(q3.data,q3.data$species=="DEFU")
-q3.data.GYPO<-subset(q3.data,q3.data$species=="GYPO")
-q3.data.EUBI<-subset(q3.data,q3.data$species=="EUBI")
 
-q3.data.DEFU$pr_occ
-par(mfrow=c(1,2))
-plot(subset(q3.data.DEFU,q3.data.DEFU$expert_ID==1)$drainagearea_sqkm,subset(q3.data.DEFU,q3.data.DEFU$expert_ID==1)$pr_occ,type="l")
-lines(subset(q3.data.DEFU,q3.data.DEFU$expert_ID==2)$drainagearea_sqkm,subset(q3.data.DEFU,q3.data.DEFU$expert_ID==2)$pr_occ,type="l")
-lines(subset(q3.data.DEFU,q3.data.DEFU$expert_ID==3)$drainagearea_sqkm,subset(q3.data.DEFU,q3.data.DEFU$expert_ID==3)$pr_occ,type="l")
-
-# calculate b1 slope (non linear, it's exponential)
-library(lme4);library(Matrix)
-area.lm<-glmer(q3.data.DEFU$pr_occ~q3.data.DEFU$drainagearea_sqkm + (1 | q3.data.DEFU$expert_ID), family = "exponential")
-summary(area.lm)
-b1d<-q3.data.DEFU$drainagearea_sqkm
-b1e<-q3.data.DEFU$expert_ID
-new.b1<-data.frame(b1d,b1e)
-new.b1$pred<-predict(area.lm,new.b1)
-new.b1
-plot(new.b1$pred[1:10]~new.b1$b1d[1:10] ,type="l")
-lines(new.b1$pred[11:20]~new.b1$b1d[11:20] ,type="l")
-lines(new.b1$pred[21:30]~new.b1$b1d[21:30] ,type="l")
-# predict results in linear function - why?
-
-# plot calculated slopes
-e1.q3.defu<-subset(q3.data,q3.data$expert_ID==1 & q3.data$species=="DEFU")
-e1.q3.gypo<-subset(q3.data,q3.data$expert_ID==1 & q3.data$species=="GYPO")
-e1.q3.eubi<-subset(q3.data,q3.data$expert_ID==1 & q3.data$species=="EUBI")
-e2.q3.defu<-subset(q3.data,q3.data$expert_ID==2 & q3.data$species=="DEFU")
-e2.q3.gypo<-subset(q3.data,q3.data$expert_ID==2 & q3.data$species=="GYPO")
-e2.q3.eubi<-subset(q3.data,q3.data$expert_ID==2 & q3.data$species=="EUBI")
-e3.q3.defu<-subset(q3.data,q3.data$expert_ID==3 & q3.data$species=="DEFU")
-e3.q3.gypo<-subset(q3.data,q3.data$expert_ID==3 & q3.data$species=="GYPO")
-e3.q3.eubi<-subset(q3.data,q3.data$expert_ID==3 & q3.data$species=="EUBI")
-
-boxplot(e1.q3.defu$slope,e2.q3.defu$slope,e3.q3.defu$slope,
-          e1.q3.gypo$slope,e2.q3.gypo$slope,e3.q3.gypo$slope,
-          e1.q3.eubi$slope,e2.q3.eubi$slope,e3.q3.eubi$slope)
-b1.mean<-list()
-b1.mean$defu<-mean(c(e1.q3.defu$slope,e2.q3.defu$slope,e3.q3.defu$slope),na.rm=TRUE)
-b1.mean$gypo<-mean(c(e1.q3.gypo$slope,e2.q3.gypo$slope,e3.q3.gypo$slope),na.rm=TRUE)
-b1.mean$eubi<-mean(c(e1.q3.eubi$slope,e2.q3.eubi$slope,e3.q3.eubi$slope),na.rm=TRUE)
-b1.sd<-list()
-b1.sd$defu<-sd(c(mean(e1.q3.defu$slope,na.rm=TRUE),mean(e2.q3.defu$slope,na.rm=TRUE),mean(e3.q3.defu$slope,na.rm=TRUE)))
-b1.sd$gypo<-sd(c(mean(e1.q3.gypo$slope,na.rm=TRUE),mean(e2.q3.gypo$slope,na.rm=TRUE),mean(e3.q3.gypo$slope,na.rm=TRUE)))
-b1.sd$eubi<-sd(c(mean(e1.q3.eubi$slope,na.rm=TRUE),mean(e2.q3.eubi$slope,na.rm=TRUE),mean(e3.q3.eubi$slope,na.rm=TRUE)))
-b1.mean
-b1.sd
-
-b1.DEFU2<-rnorm(100,b1.mean[1],b1.sd[1])
-b1.GYPO2<-rnorm(100,b1.mean[2],b1.sd[2])
-b1.EUBI2<-rnorm(100,b1.mean[3],b1.sd[3])
-
-```
-
-Histogram showing 100 random draws from normal distribution based on mean and sd across `r max(q3.data$expert_ID)` experts. Red = mean, Blue = each expert's value. 
-
-```{r hist of b1 stream size Q3; echo=FALSE, results='hide'}
-par(mfrow=c(1,3))
-hist(1/(1+exp(-int.DEFU2+b1.mean$defu)),xlab="prob occupancy",main="DEFU",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.DEFU2))),col="red");
-abline(v=q2.data.DEFU$avg_pr_occ,col="blue")
-hist(1/(1+exp(-int.GYPO2)),xlab="prob occupancy",main="GYPO",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.GYPO2))),col="red");abline(v=q2.data.GYPO$avg_pr_occ,col="blue")
-hist(1/(1+exp(-int.EUBI2)),xlab="prob occupancy",main="EUBI",xlim=c(0,1));abline(v=mean(1/(1+exp(-int.EUBI2))),col="red");abline(v=q2.data.EUBI$avg_pr_occ,col="blue")
-```
 
 ```{r occ.model.sim1, echo=FALSE, results='hide'}
 no.catchments=100
@@ -340,7 +393,6 @@ intercept<-b1<-b2<-rep(NA,no.simulations)
 intercept[1:no.simulations]<-rnorm(no.simulations,mean=log(0.5/(1-0.5)),sd=0.1) # 0.5 average occupancy
 b1[1:no.simulations]<-rnorm(no.simulations,log(10),sd=0.1) # 5x more likely to occur for every 1 percent increase in forest cover
 b2[1:no.simulations]<-rnorm(no.simulations,log(0.90),sd=0.1) # 10x less likely to occur for every 1 sqkm increase in drainage area
-
 
 for (species in 1:no.species){
   for (catchment in 1:no.catchments){
