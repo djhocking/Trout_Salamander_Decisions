@@ -1,5 +1,5 @@
 ---
-output: html_document
+output: word_document
 ---
 
 ## Salamander Occupancy - Expert Elicitation Manuscript
@@ -10,7 +10,7 @@ Co-authors: Dan Hocking, Evan Grant, Ben Letcher
 
 Created: Feb 01 2016
 
-Last Updated: Feb 19 2016
+Last Updated: Feb 25 2016
 
 ```{r install libraries and connect to server, echo=FALSE, results='hide'}
 # install libraries
@@ -289,9 +289,14 @@ p3
 
 qall.new<-rbind(qall.defu,qall.gypo,qall.eubi)
 
+dodge=position_dodge(width=0.5)  
+
 p4<-ggplot(subset(qall.new,qall.new$question==3), aes(drainage,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
+
 p5<-ggplot(subset(qall.new,qall.new$question==4), aes(temp,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
-p6<-ggplot(subset(qall.new,qall.new$question==6), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point()+ geom_smooth()+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
+
+p6<-ggplot(subset(qall.new,qall.new$question==6), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
+
 p7<-ggplot(subset(qall.new,qall.new$question==7), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
 p4
 p5
@@ -300,7 +305,7 @@ p7
 #grid.arrange(p4, p5, p6, p7)
 ```
 
-*Export betas*
+*Plot and export betas*
 
 ```{r export betas, echo=FALSE, results='hide'}
 betas<-list()
@@ -342,10 +347,27 @@ betas.coef$sd<-c(NA,
                   sd(qall.data$s.riparian*qall.data$s.upland))
 colnames(betas.coef)<-c("defu.mean","defu.sd","gypo.mean","gypo.sd","eubi.mean","eubi.sd",
                         "min.cov","max.cov","mean.cov","sd.cov")
-#rownames(betas.coef)<-c("int","drainage","temp","temp2","riparian","upland","trout","riparian.upland.int")
-write.csv(betas.coef,file="out_betas.csv",col.names=TRUE,row.names=TRUE)
+predictor.name<-c("int","drainage","temp","temp2","riparian","upland","trout","riparian.upland.int")
+betas.coef$predictor<-predictor.name
+#write.csv(betas.coef,file="out_betas.csv",col.names=TRUE,row.names=TRUE)
 print(betas.coef)
-  
+```
+
+```{r plot betas, echo=FALSE, results='hide', fig.height=8, fig.width=5}
+
+betas.mean<-c(betas.coef[1:8,"defu.mean"],betas.coef[1:8,"gypo.mean"],betas.coef[1:8,"eubi.mean"])
+betas.sd<-c(betas.coef[1:8,"defu.sd"],betas.coef[1:8,"gypo.sd"],betas.coef[1:8,"eubi.sd"])
+betas.sp<-c(rep("defu",8),rep("gypo",8),rep("eubi",8))
+betas.name<-c(rep(predictor.name,3))
+
+all.betas<-data.frame(betas.mean,betas.sd,betas.sp,betas.name)
+#all.betas
+
+dodge=position_dodge(width=0.5)  
+ggplot(all.betas,aes(y=betas.mean,x=betas.name,shape=factor(betas.sp))) + geom_point(aes(shape=betas.sp),position=dodge,size=2) +
+geom_errorbar(aes(y=betas.mean,ymin=betas.mean-betas.sd, ymax=betas.mean+betas.sd),size=.5,position=dodge,width=0) +
+coord_flip()    
+
 ```
 
 ```{r occ.model.sim1, echo=FALSE, results='hide'}
@@ -387,13 +409,11 @@ for (species in 1:no.species){
  }
 }
 
-head(alpha)
-head(pr.occupancy)
+#head(alpha)
+#head(pr.occupancy)
 ```
 
-Simulated parameter uncertainty across experts (N=`r no.simulations`, median = red)
-
-```{r plot.parm.uncertainty,echo=FALSE, fig.width=6,fig.height=8}
+```{r plot.parm.uncertainty,echo=FALSE, results="hide",include=FALSE}
 par(mfrow=c(3,2))
 hist(exp(intercept)/(exp(intercept)+1),main="average occupancy",breaks=10);abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red");
 plot(density(exp(intercept)/(exp(intercept)+1)),main="average occupancy");abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red")
@@ -405,9 +425,9 @@ hist(exp(b2), main="odds ratio per 1 sqkm increase in drainage area",breaks=10);
 plot(density(exp(b2)), main="odds ratio per 1 sqkm increase in drainage area");abline(v=median(exp(b2)),col="red")
 ```
 
-Predicted mean and sd in occupancy 
+Predict mean and sd in occupancy for each catchment
 
-```{r plot.occ,echo=FALSE, fig.width=6,fig.height=8}
+```{r plot.occ,echo=FALSE, results="hide",include=FALSE}
 par(mfrow=c(2,2))
 #plot(sim1.data$MEAN,sim1.data$AreaSqKM,xlab="percent upstream forest",ylab="drainage area")
 plot(mean.pr.occupancy~sim1.data$MEAN,ylim=c(0,1),xlab="percent upstream forest")
@@ -416,13 +436,13 @@ plot(sd.pr.occupancy~sim1.data$MEAN,ylim=c(-2,2),xlab="percent upstream forest")
 plot(sd.pr.occupancy~sim1.data$AreaSqKM,ylim=c(-2,2),xlab="drainage area")
 ```
 
-Loop over alterantive climate, buffer, and fish models
+Loop over alterantive climate scenarios
 
 *Climate model uncertainty*
 
-*Buffer-Upland model uncertainty*
+*Buffer-Upland parameter uncertainty*
 
-*Fish-Sal model uncertainty*
+*Fish-Sal parameter uncertainty*
 
 #### Elicitation Survey
 
@@ -438,40 +458,8 @@ See Appendix A for survey.
 
 #### Appendix A. Survey
 
-*Description:*
+SEE SalamanderElictationSurvey_02222016.docx
 
-*Background Information*
-Average size catchment (or smaller; size range) anywhere across the range
-Range of species 1:
-Range of species 2:
-Range of species 3:
-
-Question 1. In your opinion, what is the overall mean probability of occupancy for each species across it's entire range?
-
-A. Desmognathus fuscus (dusky salamander)            ________(0-1)
-
-B. Gyrinophilus porphyriticus (spring salamander)    ________(0-1)
-
-C. Eurycea bislineata (two-lined salamander)         ________(0-1)
-
-Question 2. In your opinion, what is the expected probability of occupancy for a catchment that none, low, medium, moderate, high, and all forest cover?
-
-A. 0% forest cover           ________(0-1)
-
-B. Gyrinophilus porphyriticus (spring salamander)    ________(0-1)
-
-C. Eurycea bislineata (two-lined salamander)         ________(0-1)
-
-
-```{r expert.value.int,echo=FALSE,results='hide'}
-value<-list()
-value$int[1:no.simulations]<-runif(no.simulations,0.60,1.00)
-```
-Question 2. What is the expected probability of occupancy of X species in catchments with different drainage areas (i.e., stream size)?
-```{r expert.value.drainage,echo=FALSE,results='hide'}
-e.list["drainage_area_sqkm"]
-value$drainage[1:no.simulations]<-runif(no.simulations,0.60,1.00)
-```
 
 #### List of Experts
 
@@ -484,7 +472,7 @@ Number of publications involving salamanders
 2. Include Gryinophilus spp.
 3. Include Eurycea spp.
 
-Area of expertises (0=none, 1=some, 2=moderate, 3=lots) for each expert
+Area of expertises (1=none, 2=some, 3=moderate, 4=lots, 5=expert) for each expert
 1. General salamander ecology
 2. Landcover effects
 3. Riparian effects
@@ -499,23 +487,30 @@ head(expert.list.data)
 ```
 
 #### Forecasting Scenarios 
+Outline comparisons of salamander occupancy from this analysis to others from the literature - how will do experts do?
+
 
 ### Results
+
 *Experts responses*
+
 Descripton of how many experts responded.
+
 Parameter estimates (betas) with low vs. high variance among experts.
+
 Model beliefs (weights) with low vs. high variance among experts.
+
 Comparisons across species (similar or different - how?)
 
-Table of results (or plot for specific interesting cases).
+Table of betas (mean and sd or scatter plot of results).
 
 Insights about elicitation (base-rates and use of literature we provided)
 
 *Salamander forecasting*
+
 Map of mean expected occupancy for each species with all uncertainties included under current climate, 2040, and 2080 (whichever scenarios we pick)
 
 Histogram of mean expected occupancy for each species with all uncertainties included under current climate, 2040, and 2080 (whichever scenarios we pick). This will show range in expected values (i.e., how many catchments look really bad?)
-
 
 *Sensitivity analysis*
 
