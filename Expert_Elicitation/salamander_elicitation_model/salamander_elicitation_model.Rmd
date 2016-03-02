@@ -1,5 +1,5 @@
 ---
-output: word_document
+output: html_document
 ---
 
 ## Salamander Occupancy - Expert Elicitation Manuscript
@@ -10,7 +10,7 @@ Co-authors: Dan Hocking, Evan Grant, Ben Letcher
 
 Created: Feb 01 2016
 
-Last Updated: Feb 25 2016
+Last Updated: Feb 26 2016
 
 ```{r install libraries and connect to server, echo=FALSE, results='hide'}
 # install libraries
@@ -26,13 +26,13 @@ library(lme4)
 
 
 #R.home()
-#print(options('SHEDS_USERNAME'))
-#print(options('SHEDS_PASSWORD'))
+print(options('SHEDS_USERNAME'))
+print(options('SHEDS_PASSWORD'))
 
 
 #from dan and jeff
-#drv <- dbDriver("PostgreSQL")
-#con <- dbConnect(drv, dbname='sheds', host='osensei.cns.umass.edu', user=getOption('SHEDS_USERNAME'), password=getOption('SHEDS_PASSWORD'))
+drv <- dbDriver("PostgreSQL")
+con <- dbConnect(drv, dbname='sheds_new', host='osensei.cns.umass.edu', user=getOption('SHEDS_USERNAME'), password=getOption('SHEDS_PASSWORD'))
 ```
 
 ```{r import covariate data, echo=FALSE, results='hide'}
@@ -40,9 +40,6 @@ library(lme4)
 #will replace with covariates from sheds-db 
 upstream.areasqkm.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Data/upstream_AreaSqKM.csv",fill=TRUE,header=TRUE)
 upstream.forest.mean.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Data/upstream_forest_MEAN.csv",fill=TRUE,header=TRUE)
-
-#import list of experts
-expert.list.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Data/salamander_experts_list.csv",fill=TRUE,header=TRUE)
 
 # combine all catchment data into a single object
 catchment.data<-cbind(upstream.areasqkm.data,upstream.forest.mean.data)
@@ -55,11 +52,6 @@ length(catchment.data.sub1[,1])
 
 ```{r import expert elicitation data, echo=FALSE, results='hide'}
 #import expert data
-q2.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q2.csv",header=TRUE)
-q3.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q3.csv",header=TRUE)
-q4.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q4.csv",header=TRUE)
-q6.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q6.csv",header=TRUE)
-q7.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q7.csv",header=TRUE)
 qall.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_qall.csv",header=TRUE)
 ```
 
@@ -88,9 +80,12 @@ Potential Journals:
 * Thus, knowledge typically takes the form of mental models without explicit consideration of biases (i.e., experts are called on to express opinions in a qualitative and non-transparent way). 
 * In fields where there is extensive expert knowledge, yet little published data, the use of expert information for ecological models is a cost-effective way of making more confident predictions about the effect of management.
 
+* Use of expert elicitation to consolidate the current state of knowledge is valuable when the status of a species is uncertain, yet there is general recognition that the species is sub- ject to multiple, often synergistic, threats to its persistence in the wild.
+
 *Increasing use of expert-knowledge in conservation*
 
 * Increasing use of expert elicitation methods to help inform conservation decisions (identify important hypothesis and parameter uncertainties to resolve through research or monitoring).
+* The use of expert knowledge is growing as a tool for synthesizing diverse sources of information into a reliable representation of the current state of scientific knowledge, including its uncertainties when elicited with the same level of rigour pro- vided in the collection and use of empirical data.
 * When empirical measures are required for evaluating alternative actions, but are not available, expert judgment can help develop plausible estimates that most effectively inform decisions (Speirs-Bridge et al. 2010; Martin et al. 2012). Expert opinions are valuable in the management of threatened species, where the need to make urgent decisions leaves little time for the collection of further information (?).
 * Expert elicitation can be conducted within a probabilistic framework, which accounts for uncertainty (confidence) of multiple experts. Also used to parameterize models in the absence of data and as Bayesian priors to supplement sparse data and improve confidence in predictions (Yamada et al., 2003; Martin et al., 2005; Denham and Mengersen, 2007; Griffiths et al., 2007; Mac Nally, 2007; O’Neill et al., 2008; Low Choy et al., 2009; O’Leary et al., 2009; Murray et al., 2009; James et al., 2010)
 * Some chance that expert opinions alone (w/ no data) may not be as useful? Yet, when lacking data, expert opinion does not necessarily offer an improvement (Cox, 2000; Pearce et al., 2001; Seoane et al., 2005).
@@ -105,6 +100,10 @@ Potential Journals:
 *What do we mean by "expert" - who are the experts?*
 
 * An expert is someone who has substantial information on a particular topic that is not widely known by others and who is offered deferred to for their knowledge and interpretation.
+
+* Expert knowledge can be defined as substantive information on a particular topic that is not widely known by others (Martin et al., 2012). 
+
+* Experts are distinguished from non-experts by having training or experience with respect to a topic of interest (Fazey et al., 2006).
 
 *Expert elicitation process*
 
@@ -121,14 +120,17 @@ Potential Journals:
 3. Minimizing bias in elicited information
 4. Verifying accuracy of expert information
 
-*Why conduct expert elictation for predicting/forecasting stream salamander occupancy?*
+* Why conduct expert elictation for predicting/forecasting stream salamander occupancy?*
 
 * Limited information about amphibians (salamanders) region-wide and evidence that they are currently in decline (cite) and are threatened by climate change (cite).
 
 * Three common stream salamdaner species occur across the northeastern streams (i.e., relevant for NECSC) and are known to co-occur in streams with fishes (brook trout; cite), an important predictor/competitor affecting salamander populations, and are sensitive to buffer and upland forest cover, stream temperature and discharge (and network structure).
 
 * Conduct expert elicitation for Plethedontide: Desmognathus fuscus; dusky salamander, Gyrinophilus porphyriticus; spring salamander, and Eurycea bislineata; two-lined salamander
-* Local threats - land use (forest cover), fish-interactions, climate change (temperature and flow)
+
+* Direct threats?
+* Indirect threats -  land use (forest cover; urbanization), disease, fish-interactions, climate change (temperature and flow)
+
 * Outstanding hypotheses relevant to conservation and management (personal communication; decision-model in prep): 
 
 1. riparian vs. upland land protection is better for instream biota (downstream). Evidence that upland land protection can influence downstream habitat and species occurrence, yet conservation efforts are largely focused on riparian mgt first, then upland (we'll explore this in decision paper)
@@ -136,13 +138,29 @@ Potential Journals:
 3. species-specific responses (how much do species vary?)
 4. stream-network impacts on species-responses? some watersheds are more vulnerable than others (i.e., network structure, buffer vs. upland effects?)
 
+*Now increasing threat of climate change (via temperature?)
+
 * Call for experts to aid in identifying parameters to be used in both predictive and decision models to evaluate range of outcomes of conservation actions.
 * Do predictions from experts vary from publications? (maybe compare in analysis or compare in discussion)
 * Species distribution models have to make lots of assumptions, we hope experts are considering these assumption and relaxing them, thus providing a more realistic understanding of drivers of occurrence. (be specific here if we mention why SDM models aren't good enough - for using in next co-occuring paper and decision paper)
 
+* Knowledge of that status and potential declines is needed to identify mangagement actions that can be implemented to reduce population declines in the future (act now to mitigate climate/land use threats)
+
+*Current data on these species*
+
+* Current data on these species is patchy?
+* No consistant monitoring method or field-studies across their range
+* Thus they have high levels of uncertainty when extrapolating to even huc 10 (lowest level of mgt), state, or regional scales.
+* Significant geographical gaps in estimates and trend in occupancy (need to come up with a list of current studies). 
+* Need address occupancy, trends, threats and effects of potential land-potection (buffer vs. upland) so that headwater stream mgt actions can be confidently employed to impact local and minimize species declines.
+* Also, there are diverse experts opinions on occupancy/threats in various regions.
+
+
 *Objectives of this paper*
 
-Overall Motivation: Elicit parameters that can be used for 1) predicting/forecasting salamander occpuancy under climate change, 2) co-occurance (BT + SAL) models under climate change (Hocking et al. forecasting paper), and 3) evaluate robust land-protection strategies for salamanders and trout across watersheds in NE (Katz et al. optimization paper).
+Overall Motivation: To use a structured, expert elicitation methods for species in which empirical data are limited and expert opinions may vary (conflict among experts?), such that effectiveness of alternative mgt strategies may vary.
+
+Elicit parameters that can be used for 1) predicting/forecasting salamander occpuancy under climate change, 2) co-occurance (BT + SAL) models under climate change (Hocking et al. forecasting paper), and 3) evaluate robust land-protection strategies for salamanders and trout across watersheds in NE (Katz et al. optimization paper).
 
 Questions:
 
@@ -151,6 +169,61 @@ Questions:
 3. Does expert knowledge agree with with field-observations? (why or why not? do we have any? – see publication list that we’ll be sending to experts for potential comparisons).
 
 ### Methods
+
+*Identify Experts*
+
+* Ask NEARMI salamander ecologists to name 20 experts
+* Use snowball method within survey - who else do you think is more qualified to answer these questions.
+
+Criteria for selecting experts (self-reporting via survey):
+
+Area of expertises (1=none, 2=some, 3=moderate, 4=lots, 5=expert) for each expert
+1. General salamander ecology
+2. Landcover effects
+3. Riparian effects
+4. Stream temperature effects
+6. Fish-predation effects
+7. Streamflow (drought and floods) effects
+8. Occupancy modeling 
+9. Abundance modeling
+
+The X expert participants, who also co-authored this paper, are active salamander researchers in the regions where these species occur and have knowledge of, and experience with, salamander ecology, conservation practice and modelling. (from koala paper)
+
+WE DID NOT USE 4-STEP: JUST ONE b/c too many questions and calcuated confidence based on diversity among experts. Martin et al. 2005 (Eco Apps) only elicited the mean, and calculated the mean and precision using mean values across experts (did not elicit lowest, highest and confidence). Use BBN figure (Example BBN for elicitation of variables, see Ban et al. 2015) to identify important conditional probabilities (i.e., riparian x upland, local x upstream) effects?
+
+[We used a structured, four-step process (Speirs-Bridge
+et al., 2010; McBride et al., 2012b) to question the experts (Table 1). This procedure helps improve the accuracy of estimates (Burgman et al., 2011), promotes the pooling of individual knowledge and reduces overconfidence (Speirs- Bridge et al., 2010; McBride et al., 2012b).] - koala paper.
+
+We used three steps: pre-survey, webinar-discussion, and post-survey (took 1 month?) + telephone-follow up for extreme values.
+
+
+```{r expert.list,echo=FALSE,results='hide'}
+#head(expert.list.data)
+```
+
+*Step 1: Pre-Survey Email questionaire*
+
+* Provide list of literature to help promote baserate-thinking (outside vs. inside/recent views). 
+* 
+
+* See Appendix A for pre-survey.
+
+*Step 2: Webinar-discusison*
+[taken from koala paper]
+
+* Each expert’s first-round answers from the email questionnaire were displayed anonymously to the group. During the 2-hr webinar, the first round of elicited answers was discussed in detail within the group, with experts sharing knowledge from their respective areas of expertise. All experts were given the opportunity to participate in the discussion of each species and allowed to discuss diverse experiences among regions. The experts agreed that this information was influential in guiding their revisions of their estimates in cases where they did not possess knowledge. 
+
+* At the end of the webinar, experts were asked to reconsider their previous assessments in the light of the group discussions. They were given the opportunity to anonymously revise their first-roundassessments. These revised assessments were used in the final estimation of salamander occupancy and effects of environmental variables. 
+
+*Step 3: Post-elicitation*
+
+* Calcualate mean and sd of each betas (used expert as random-effect).
+
+* Aggregation is not always appropriate for a group of judgments (Morgan & Henrion, 1990; Kriegler et al., 2009).
+
+* Assume normally distributed (calcuate median and mean)
+* If bimodel distribution - then potentially two hypotheses (camps), so we can go back and elicit beliefs on the two distributions (as structural uncertainty). 
+* Betas/predicted relationships between occ and covariates were showed to experts for final comment/review.
 
 #### Salamander Occupancy Model
 
@@ -223,28 +296,21 @@ residual variance
 str(qall.data)
 
 qall.drainage<- qall.data %>%
-  dplyr::filter(question=="3")
-p1<-ggplot(qall.drainage, aes(drainage,pr_occ,colour=interaction(expert_ID,species))) +
-geom_point() +
-geom_line() 
+  dplyr::filter(question=="3" & expert_ID>="4")
+p1<-ggplot(qall.drainage, aes(drainage,pr_occ,colour=factor(species), shape=factor(expert_ID), group=interaction(expert_ID,species))) + geom_point(size=3) + geom_line() 
 
 qall.temp<- qall.data %>%
-  dplyr::filter(question=="4")
-p2<-ggplot(qall.temp, aes(temp, pr_occ,colour=interaction(expert_ID,species))) + 
-geom_point() +
-geom_line()
+  dplyr::filter(question=="4"& expert_ID>="4")
+p2<-ggplot(qall.temp, aes(temp,pr_occ,colour=factor(species), shape=factor(expert_ID), group=interaction(expert_ID,species))) + geom_point(size=3) + geom_line() 
 
 qall.forest<- qall.data %>%
-  dplyr::filter(question=="6")
-p3<-ggplot(qall.forest, aes(riparian, pr_occ,colour=interaction(expert_ID,species,upland))) + 
-geom_point() +
-geom_line()
+  dplyr::filter(question=="6"& expert_ID>="4")
+p3<-ggplot(qall.forest, aes(interaction(riparian,upland),pr_occ,colour=factor(species), shape=factor(expert_ID), group=interaction(expert_ID,species,upland)))  + geom_boxplot()
 
 qall.trout<- qall.data %>%
-  dplyr::filter(question=="7")
-p4<-ggplot(qall.trout, aes(trout, pr_occ,colour=interaction(expert_ID,species))) + 
-geom_point() +
-geom_line()
+  dplyr::filter(question=="7"& expert_ID>="4")
+p2<-ggplot(qall.trout, aes(trout,pr_occ,colour=factor(species), shape=factor(expert_ID), group=interaction(expert_ID,species))) + geom_point(size=3) + geom_line() 
+
 
 p1
 p2
@@ -259,13 +325,16 @@ p4
 
 qall.data$logit.p<-log(qall.data$pr_occ/(1-qall.data$pr_occ))
 
-qall.defu<-subset(qall.data,qall.data$species=="DEFU")
-qall.gypo<-subset(qall.data,qall.data$species=="GYPO")
-qall.eubi<-subset(qall.data,qall.data$species=="EUBI")
+qall.defu<-subset(qall.data,qall.data$species=="DEFU" & qall.data$expert_ID>=4 & qall.data$logit.p>=-99)
+qall.gypo<-subset(qall.data,qall.data$species=="GYPO" & qall.data$expert_ID>=4 & qall.data$logit.p>=-99)
+qall.eubi<-subset(qall.data,qall.data$species=="EUBI" & qall.data$expert_ID>=4 & qall.data$logit.p>=-99)
   
 lm1.defu<-lmer(logit.p ~ log(s.drainage+1) + s.temp +I(s.temp^2) + s.riparian*s.upland + trout + (1|expert_ID), data = qall.defu)
+
 lm1.gypo<-lmer(logit.p ~ log(s.drainage+1) + s.temp +I(s.temp^2) + s.riparian*s.upland + trout + (1|expert_ID), data = qall.gypo)
+
 lm1.eubi<-lmer(logit.p ~ log(s.drainage+1) + s.temp +I(s.temp^2) + s.riparian*s.upland + trout + (1|expert_ID), data = qall.eubi)
+
 
 summary(lm1.defu)
 qall.defu$pred <- predict(lm1.defu,qall.defu)
@@ -291,17 +360,27 @@ qall.new<-rbind(qall.defu,qall.gypo,qall.eubi)
 
 dodge=position_dodge(width=0.5)  
 
-p4<-ggplot(subset(qall.new,qall.new$question==3), aes(drainage,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
+p4<-ggplot(subset(qall.new,qall.new$question==3 & qall.new$expert_ID==4), aes(drainage,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
+p4.5<-ggplot(subset(qall.new,qall.new$question==3 & qall.new$expert_ID==5), aes(drainage,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
 
-p5<-ggplot(subset(qall.new,qall.new$question==4), aes(temp,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
+p5<-ggplot(subset(qall.new,qall.new$question==4 & qall.new$expert_ID==4), aes(temp,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
+p5.5<-ggplot(subset(qall.new,qall.new$question==4 & qall.new$expert_ID==5), aes(temp,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
 
-p6<-ggplot(subset(qall.new,qall.new$question==6), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
+p6<-ggplot(subset(qall.new,qall.new$question==6 & qall.new$expert_ID==4), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
+p6.5<-ggplot(subset(qall.new,qall.new$question==6 & qall.new$expert_ID==5), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
 
-p7<-ggplot(subset(qall.new,qall.new$question==7), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
+p7<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==4), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
+p7.5<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==5), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
+
 p4
+p4.5
 p5
+p5.5
 p6
+p6.5
 p7
+p7.5
+
 #grid.arrange(p4, p5, p6, p7)
 ```
 
@@ -444,50 +523,13 @@ Loop over alterantive climate scenarios
 
 *Fish-Sal parameter uncertainty*
 
-#### Elicitation Survey
-
-Martin et al. 2005 (Eco Apps) only elicited the mean, and calculated the mean and precision using mean values across experts (did not elicit lowest, highest and confidence). 
-
-Use BBN figure (Example BBN for elicitation of variables, see Ban et al. 2015) to identify important conditional probabilities (i.e., riparian x upland, local x upstream) effects?
-
-Method: email survey, web-survey (talk to Jeff/Ben), telephone interview, face-to-face interview, group meeting?
-
-Provide list of literature to help promote baserate-thinking (outside vs. inside/recent views). 
-
-See Appendix A for survey.
-
 #### Appendix A. Survey
 
-SEE SalamanderElictationSurvey_02222016.docx
+* SEE SalamanderElictationSurvey_02222016.docx
 
-
-#### List of Experts
-
-Identify experts using the snowball method (ask preliminary list of experts: Who would you go to for expert judgments on salamander ecology for these three species? Why?) until no new experts are identified.
-
-Criteria for selecting experts:
-
-Number of publications involving salamanders
-1. Include Desmognathus spp.
-2. Include Gryinophilus spp.
-3. Include Eurycea spp.
-
-Area of expertises (1=none, 2=some, 3=moderate, 4=lots, 5=expert) for each expert
-1. General salamander ecology
-2. Landcover effects
-3. Riparian effects
-4. Stream temperature effects
-6. Fish-predation effects
-7. Streamflow (drought and floods) effects
-8. Occupancy modeling 
-9. Abundance modeling
-
-```{r expert.list,echo=FALSE,results='hide'}
-head(expert.list.data)
-```
 
 #### Forecasting Scenarios 
-Outline comparisons of salamander occupancy from this analysis to others from the literature - how will do experts do?
+* Outline comparisons of salamander occupancy from this analysis to others from the literature - how will do experts do?
 
 
 ### Results
@@ -515,6 +557,13 @@ Histogram of mean expected occupancy for each species with all uncertainties inc
 *Sensitivity analysis*
 
 ### Discussion
+
+* expert elicitation process
+
+* insights for salamander conservation (decision-model in prep)
+
+* future directions
+
 
 ### References
 
