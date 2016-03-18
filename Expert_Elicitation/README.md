@@ -2,4 +2,5 @@
 
 Get information from experts necessary to model stream salamanders across the northeastern US
 
-1. Initial salamander survey given to experts (Expert_Elicitation_Survey_03142016)
+1. Initial salamander survey given to experts (SalamanderElicitationSurvey_03142016.docx)
+2. Invitation to experts to participate in survey (letter to experts)
