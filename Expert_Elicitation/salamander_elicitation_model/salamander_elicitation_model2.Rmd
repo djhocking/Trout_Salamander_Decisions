@@ -12,7 +12,7 @@ Created: Feb 01 2016
 
 Last Updated: March 18 2016
 
-#### methods #####
+#################### collect and format ovariate data from sheds
 ```{r install libraries, echo=FALSE, results='hide'}
 library(knitr)
 library(xtable)
@@ -40,8 +40,7 @@ drv <- dbDriver("PostgreSQL")
 con <- dbConnect(drv, dbname='sheds_new', host='osensei.cns.umass.edu', user=getOption('SHEDS_USERNAME'), password=getOption('SHEDS_PASSWORD'))
 db <- src_postgres(dbname='sheds_new', host='osensei.cns.umass.edu', port='5432', user=options('SHEDS_USERNAME'), password=options('SHEDS_PASSWORD'))
 ```
-
-```{r download covariates from db, echo=FALSE, results='hide', eval=FALSE}
+```{r download covariates from db and save, echo=FALSE, results='hide', eval=FALSE}
 
 # column names: featureid |  variable  | value | zone  | riparian_distance_ft 
 # zone = upstream or local
@@ -68,193 +67,74 @@ featureids<-c(df_huc$featureid)
 # get the covariates for the featureids
 tbl_covariates <- tbl(db, 'covariates')
 tbl_covariates <- dplyr::filter(tbl_covariates, featureid %in% featureids ) 
-df_cov_long<-dplyr::collect(tbl_covariates) # this takes ~ 201pm-
-df_covariates<-tidyr::spread(df_cov_long,variable,value)
+#df_cov_long<-dplyr::collect(tbl_covariates) # this takes ~ 201pm-
+#df_covariates<-tidyr::spread(df_cov_long,variable,value)
 summary(df_covariates)
 
 df_covariates_m<-as.matrix((df_covariates))
 df_covariates_m
-write.csv(df_covariates_m,file="df_covariates.csv")
+#write.csv(df_covariates_m,file="df_covariates.csv")
 ```
-```{r import covariate data, echo=FALSE, results='hide'}
+```{r import covariate data, create cov.df, echo=FALSE, results='hide'}
+
 # import saved covariate data from db
 deerfield.cov.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/df_covariates.csv",fill=TRUE,header=TRUE)
+
+# replace NA's with -999
 deerfield.cov.data[is.na(deerfield.cov.data)] <- -999
 
-covariates<-deerfield.cov.data %>%
-     select(featureid, AreaSqKM,zone,riparian_distance_ft,ann_tmax_c,forest)
+# select covariates 
+covariates<-deerfield.cov.data %>% 
+  select(featureid, AreaSqKM,zone,riparian_distance_ft,ann_tmax_c,forest,aug_prcp_mm,slope_pcnt)
 str(covariates)
-#plot(covariates)
 
-cov.temp<-subset(covariates,ann_tmax_c > -999 & zone=="local")
-str(cov.temp) #1088 catchments
-plot(cov.temp$ann_tmax_c)
-plot(cov.temp$forest)
+# subset local data (temp)
+cov1<-subset(covariates,zone=="local" & ann_tmax_c > -999)
+str(cov1) #1088 catchments
+ggplot(cov1,aes(cov1$ann_tmax_c)) + geom_histogram(alpha=1,binwidth=.1) + xlim(10,26) + ggtitle("deefield max annual temp")
 
-cov.area<-subset(covariates, ann_tmax_c > -999 & zone=="upstream")
-str(cov.area) #1088 catchments
-plot(cov.area$AreaSqKM)
+# subset upstream data (drainage area and precip)
+cov2<-subset(covariates, zone=="upstream" & ann_tmax_c > -999)
+str(cov2) #1088 catchments
+ggplot(cov2,aes(cov2$AreaSqKM)) + geom_histogram(alpha=1, binwidth=20) + ggtitle("deefield drainage area")
+ggplot(cov2,aes(cov2$aug_prcp_mm)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("deefield aug upstream precip")
 
-cov.ripa<-subset(covariates, riparian_distance_ft == 200 & zone=="local")
-str(cov.ripa) #1088 catchments
-plot(cov.ripa$forest)
+# subset local riparian zone data (forest cover)
+cov3<-subset(covariates, riparian_distance_ft == 200 & zone=="local")
+str(cov3) #1088 catchments
+ggplot(cov3,aes(cov2$forest)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("deefield riparian forest")
 
-cov<-data.frame(cov.area$AreaSqKM,cov.temp$ann_tmax_c,cov.temp$ann_tmax_c^2,cov.temp$forest,cov.ripa$forest)
+# save subset data as cov.df
+cov.df<-data.frame(cov2$AreaSqKM,cov2$aug_prcp_mm,cov1$ann_tmax_c,cov2$ann_tmax_c^2,cov2$forest,cov3$forest);colnames(cov.df)<-c("area","prcp","temp","temp2","ufor","rfor")
+str(cov.df)
 
 # remove greater than 200km2 drainages
-cov<-subset(cov,cov$cov.area.AreaSqKM <= 200)
-str(cov)
-plot(cov)
-```
-```{r standarize covariates, echo=FALSE, results='hide', eval=FALSE}
-
-beta.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/out_betas.csv",fill=TRUE,header=TRUE)
-
-beta.data
-
-cov.area.std<-(cov$cov.area.AreaSqKM-beta.data[beta.data$predictor=="drainage","mean.cov"])/beta.data[beta.data$predictor=="drainage","sd.cov"]
-cov.temp.std<-(cov$cov.temp.ann_tmax_c-beta.data[beta.data$predictor=="temp","mean.cov"])/beta.data[beta.data$predictor=="temp","sd.cov"]
-cov.temp2.std<-(cov$cov.temp.ann_tmax_c^2-beta.data[beta.data$predictor=="temp2","mean.cov"])/beta.data[beta.data$predictor=="temp2","sd.cov"]
-cov.upla.std<-(cov$cov.temp.forest-beta.data[beta.data$predictor=="upland","mean.cov"])/beta.data[beta.data$predictor=="upland","sd.cov"]
-cov.ripa.std<-(cov$cov.ripa.forest-beta.data[beta.data$predictor=="riparian","mean.cov"])/beta.data[beta.data$predictor=="riparian","sd.cov"]
-cov.ripa.upla.std<-( (cov$cov.ripa.forest*cov$cov.temp.forest)-beta.data[beta.data$predictor=="riparian.upland.int","mean.cov"])/beta.data[beta.data$predictor=="riparian.upland.int","sd.cov"]
-
-# create matrix of covariates
-cov.std.m<-cbind(log(cov.area.std+1))
-
-cov.std.m<-cbind(cov.temp.std)
-cov.std.m<-cbind(cov.temp2.std)
-cov.std.m<-cbind(cov.temp.std,cov.temp2.std)
-
-cov.std.m<-cbind(cov.upla.std)
-cov.std.m<-cbind(cov.ripa.std)
-cov.std.m<-cbind(cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
-
-cov.std.m<-cbind(log(cov.area.std+1),cov.temp.std,cov.temp2.std,cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
-
-cov.std.m<-as.matrix(cov.std.m,ncols=6,nrows=985)
-str(cov.std.m)
-#,cov.temp.std,cov.temp.std^2,cov.upla.std,cov.ripa.std)
-
-# create a vector of betas for each species
-dfus.betas<-c(beta.data$defu.mean[2:6],beta.data$defu.mean[8])
-#,beta.data$defu.mean[6],beta.data$defu.mean[5])
-ebis.betas<-c(beta.data$eubi.mean[2:6],beta.data$eubi.mean[8])
-#,beta.data$eubi.mean[6],beta.data$eubi.mean[5])
-gpor.betas<-c(beta.data$gypo.mean[2:6],beta.data$gypo.mean[8])
-#,beta.data$gypo.mean[6],beta.data$gypo.mean[5])
-
-# calculate probability of occupancy using logit link function
-logit.p.dfus<- beta.data$defu.mean[1] + rowSums(cov.std.m * dfus.betas)  
-pr_occ.dfus<-1/(1+exp(-(logit.p.dfus)))
-logit.p.ebis<- beta.data$eubi.mean[1] + rowSums(cov.std.m * ebis.betas)   
-pr_occ.ebis<-1/(1+exp(-(logit.p.ebis)))
-logit.p.gpor<- beta.data$gypo.mean[1] + rowSums(cov.std.m * gpor.betas)   
-pr_occ.gpor<-1/(1+exp(-(logit.p.gpor)))
-
-cov$dfus_pr_occ<-pr_occ.dfus
-cov$ebis_pr_occ<-pr_occ.ebis
-cov$gpor_pr_occ<-pr_occ.gpor
-
-ggplot(cov, aes(cov.area.AreaSqKM,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.temp.forest,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.ripa.forest,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.ripa.forest,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.temp.ann_tmax_c,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-
+cov.df<-subset(cov.df,cov.df$area <= 200)
+str(cov.df)
+plot(cov.df)
 ```
 
+#################### import and analyze expert data 
 ```{r import expert elicitation data, echo=FALSE, results='hide'}
 #import expert data
-qall.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_qall.csv",header=TRUE)
-
 qall2.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_qall2.csv",stringsAsFactors = TRUE,header=TRUE)
+str(qall2.data)
 ```
-
-#### results #####
-#### Salamander Occupancy Model
-
-*Summary of predictor variables across NE catchments*
-
-We used the median and range (min and max or 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, and 100 quantiles) for each covariate across NE catchments to set the covariate space for parameter elicitation. We used the median values of all covariates as the baseline (intercept) and asked experts effects of covariates in relation to this baseline. 
-
-
-```{r table1, echo=FALSE, results="asis", eval=FALSE}
-# elicitation list of ranges
-e.list<-matrix(nrow=10,ncol=11,rep(NA,2*11))
-e.list[1,1:11]<-c(quantile(catchment.data.sub1$AreaSqKM,seq(0,1,.10)))
-e.list[2,1:11]<-c(quantile(catchment.data.sub1$MEAN,seq(0,1,.10)))
-e.list[3:10,1:11]<-c(rep(NA,11))
-#e.list
-colnames(e.list)<-c(seq(0,100, by=10))
-rownames(e.list)<-c(
-  "drainage_area_sqkm",
-  "upstream_%forest",
-  "non-buffer_%forest",
-  "buffer30m_%forest",
-  "upstream_non-riparian_%forest",
-  "upstream_riparian30m_%forest",
-  "stream_temp_julymean",
-  "stream_temp_annualmax",
-  "stream_flow_annualmin",
-  "stream_flow_annualmax")
-table1<-xtable(e.list)
-print(table1, type="html")
-```
-
-*Occupancy model*
-
-Response variable: probability of species-specific occupancy at the catchment-level
-
-Catchment: Deliniated from hyresolution flow-lines (cite, Kyle). 
-
-Paragraph about covariates expected to influence salamnader occupancy, with the additional hypothesis related to buffer vs. upland land protection (decision model, personal comm).
-
-Model:
-pr.occupancy[species,catchment]<-
-intercept (overall average occupancy) + 
-drainage.area (stream size) + 
-stream.temp (july mean or annual max) + 
-stream.flow (precip x drainage area; high or low-flow magnitude) + 
-riparian.forest (within 30m of riparian) + 
-upland.forest (outside of 30m riparian) + 
-riparian.forest x upland.forest (interaction term) + 
-fish.presence (brook trout; yes or no) + 
-residual variance
-
-*Expert results summary*
-
 ```{r plot expert results, echo=FALSE,fig.width=6,fig.height=8}
-
+# remove NA's
 qall.data<-subset(qall2.data,mean_reaches>=0)
 str(qall.data)
-plot(qall.data[,"mean_reaches"])
+
+# check for overall variation among experts (across and within species)
+p.exsp<-ggplot(qall.data,aes(y=mean_reaches,x=interaction(species,expert_ID), fill=factor(species))) + geom_boxplot() + ylim(0,100) + theme(axis.text.x=element_text(angle=270)) + ggtitle("expert variation across species")
+p.ex<-ggplot(qall.data,aes(y=mean_reaches,x=expert_ID,group=factor(expert_ID))) + geom_boxplot() + ylim(0,100) + theme(axis.text.x=element_text(angle=270))+ ggtitle("expert variation within species")
+grid.arrange(p.ex,p.exsp)
 
 # region
 pd <- position_dodge(0.1)
 p2.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("2") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus")
 p2.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("2") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor")
 p2.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("2") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis")
-
 grid.arrange(p2.dfus,p2.gpor,p2.ebis,ncol=3)
 
 # drainage
@@ -315,7 +195,6 @@ pd <- position_dodge(0.1)
 p7.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("7") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus")
 p7.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("7") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor")
 p7.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("7") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis")
-
 grid.arrange(p7.dfus,p7.gpor,p7.ebis,ncol=3)
 
 # salamander presence
@@ -324,99 +203,82 @@ p8.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("8") &
 p8.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("gpor")
 p8.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=c(confidence_reaches), position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("ebis")
 grid.arrange(p8.dfus,p8.gpor,p8.ebis,ncol=3)
-
-# old plots
-qall.drainage<- qall.data %>%
-  dplyr::filter(question=="3" & expert_ID>="0")
-p1<-ggplot(qall.drainage,aes(drainage_area_sqkm,mean_reaches,colour=factor(species), shape=factor(expert_ID), group=interaction(expert_ID,species))) + geom_point(size=3) + geom_line() 
-
-qall.temp<- qall.data %>%
-  dplyr::filter(question=="4" & expert_ID>="4" & pr_occ>=0)
-p2<-ggplot(qall.temp, aes(temp,pr_occ,colour=factor(species),shape=factor(expert_ID))) + geom_point(size=3) + geom_line() 
-
-qall.forest<- qall.data %>%
-  dplyr::filter(question=="6"& expert_ID>="4")
-p3<-ggplot(qall.forest, aes(interaction(riparian,upland),pr_occ,colour=factor(species), shape=factor(expert_ID), group=interaction(expert_ID,species,upland)))  + geom_boxplot()
-
-qall.trout<- qall.data %>%
-  dplyr::filter(question=="7"& expert_ID>="4")
-p4<-ggplot(qall.trout, aes(species,pr_occ,colour=factor(species), shape=factor(expert_ID), group=interaction(expert_ID,species))) + geom_point(size=3)
-
-
-p1
-p2
-p3
-p4
-#grid.arrange(p1, p2, p3,p4)
 ```
-
-*Calculate betas*
-
 ```{r calculate betas, echo=FALSE}
 
-qall.data$logit.p<-log(min(-100,(qall.data$mean_reaches+1)/100/(1-((qall.data$mean_reaches+1)/100))))
+# convert mean_reaches to p (occupancy = mean_reaches/100) and/or logitp
+qall.data$p<-qall.data$mean_reaches/100
+qall.data$p[qall.data$p==0]<-0.01 # trick to avoid NA's
+qall.data$p[qall.data$p==1]<-0.99 # trick to avoid NA's
 
-qall.dfus<-subset(qall.data,qall.data$species=="dfus" & qall.data$expert_ID>=0 & qall.data$logit.p>=0)
-qall.gpor<-subset(qall.data,qall.data$species=="gpor" & qall.data$expert_ID>=0 & qall.data$logit.p>=0)
-qall.ebis<-subset(qall.data,qall.data$species=="ebis" & qall.data$expert_ID>=0 & qall.data$logit.p>=0)
-  
-lm1.defu<-lmer(logit.p ~ log(s.area+1) + s.temp +I(s.temp^2) + s.flow + s.freq + s.ripa + s.upla + s.fish + s.ebis + s.gpor + (1|expert_ID), data = qall.dfus)
+qall.data$logit.p<-log(qall.data$p/(1-qall.data$p))
+plot(density(qall.data$logit.p))
+ggplot(qall.data,aes(x=logit.p,y=p)) + geom_point()
 
-lm1.gypo<-lmer(logit.p ~ log(s.drainage+1) + s.temp +I(s.temp^2) + s.riparian*s.upland + trout + (1|expert_ID), data = qall.gypo)
+ggplot(qall.data,aes(x=question,y=logit.p,group=interaction(expert_ID,question),fill=factor(expert_ID))) + geom_boxplot()
+ggplot(qall.data,aes(x=question,y=p,group=interaction(expert_ID,question),fill=factor(expert_ID))) + geom_boxplot()
 
-lm1.eubi<-lmer(logit.p ~ log(s.drainage+1) + s.temp +I(s.temp^2) + s.riparian*s.upland + trout + (1|expert_ID), data = qall.eubi)
+# subset data for each species
+qall.dfus<-subset(qall.data,qall.data$species=="dfus" & qall.data$expert_ID>=0 & qall.data$p>=0)
+qall.gpor<-subset(qall.data,qall.data$species=="gpor" & qall.data$expert_ID>=0 & qall.data$p>=0)
+qall.ebis<-subset(qall.data,qall.data$species=="ebis" & qall.data$expert_ID>=0 & qall.data$p>=0)
+
+# run logistic linear regression with random effect of expert for each species
+lm1.dfus<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.flow + s.freq + s.ripa + s.upla + s.ripa*s.upla + s.fish + s.ebis + s.gpor + (1|expert_ID),data = qall.dfus)
+lm1.ebis<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.flow + s.freq + s.ripa + s.upla + s.ripa*s.upla + s.fish + s.dfus + s.gpor + (1|expert_ID),data = qall.ebis)
+lm1.gpor<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.flow + s.freq + s.ripa + s.upla + s.ripa*s.upla + s.fish + s.ebis + s.dfus + (1|expert_ID),data = qall.gpor)
+
+# view model results
+summary(lm1.dfus); plot(lm1.dfus) 
+summary(lm1.ebis); plot(lm1.ebis)
+summary(lm1.gpor); plot(lm1.gpor) 
+
+# save predicted values and residuals for each species
+qall.dfus$pred <- predict(lm1.dfus,qall.dfus)
+qall.dfus$resid<- resid(lm1.dfus)
+qall.dfus$predp<-1/(1+exp(-qall.dfus$pred))
+qall.ebis$pred <- predict(lm1.ebis,qall.ebis)
+qall.ebis$resid<- resid(lm1.ebis)
+qall.ebis$predp<-1/(1+exp(-qall.ebis$pred))
+qall.gpor$pred <- predict(lm1.gpor,qall.gpor)
+qall.gpor$resid<- resid(lm1.gpor)
+qall.gpor$predp<-1/(1+exp(-qall.gpor$pred))
 
 
-summary(lm1.defu)
-qall.defu$pred <- predict(lm1.defu,qall.defu)
-qall.defu$resid<- resid(lm1.defu)
+# plot model fit (actual vs. predicted)
+p1<-ggplot(qall.dfus, aes(predp,p), colour="black") + geom_point() + stat_smooth(method="lm") + ggtitle('dfus')
+p2<-ggplot(qall.ebis, aes(predp,p), colour="black") + geom_point() + stat_smooth(method="lm") + ggtitle('ebis')
+p3<-ggplot(qall.gpor, aes(predp,p), colour="black") + geom_point() + stat_smooth(method="lm") + ggtitle('gpor')
+grid.arrange(p1, p2, p3)
 
-summary(lm1.gypo)
-qall.gypo$pred <- predict(lm1.gypo,qall.gypo)
-qall.gypo$resid<- resid(lm1.gypo)
+# plot residuals by question 
+p4<-ggplot(qall.dfus, aes(question,resid), colour="black") + geom_point() + ggtitle('dfus')
+p5<-ggplot(qall.ebis, aes(question,resid), colour="black") + geom_point() + ggtitle('ebis')
+p6<-ggplot(qall.gpor, aes(question,resid), colour="black") + geom_point() + ggtitle('gpor')
+grid.arrange(p4, p5, p6)
 
-summary(lm1.eubi)
-qall.eubi$pred <- predict(lm1.eubi,qall.eubi)
-qall.eubi$resid<- resid(lm1.eubi)
+# plot residuals by question and expert
+p7<-ggplot(qall.dfus, aes(interaction(expert_ID,question),resid, fill=factor(expert_ID))) + geom_boxplot() + ggtitle('dfus') 
+p8<-ggplot(qall.ebis, aes(interaction(expert_ID,question),resid, fill=factor(expert_ID))) + geom_boxplot()  + ggtitle('ebis')
+p9<-ggplot(qall.gpor, aes(interaction(expert_ID,question),resid, fill=factor(expert_ID))) + geom_boxplot() + ggtitle('gpor')
+grid.arrange(p7, p8, p9)
 
-p1<-ggplot(qall.defu, aes(pred,logit.p), colour="black") + geom_point() + stat_smooth(method="lm", se=TRUE) + ggtitle('DEFU')
-p2<-ggplot(qall.gypo, aes(pred,logit.p), colour="black") + geom_point() + stat_smooth(method="lm", se=TRUE) + ggtitle('GYPO')
-p3<-ggplot(qall.eubi, aes(pred,logit.p), colour="black") + geom_point() + stat_smooth(method="lm", se=TRUE) + ggtitle('EUBI')
-p1
-p2
-p3
-#grid.arrange(p1, p2, p3)
+# make new df with predicted and residuals
+qall.new<-rbind(qall.dfus,qall.ebis,qall.gpor)
 
-qall.new<-rbind(qall.defu,qall.gypo,qall.eubi)
-
+# plot relations between predicted occ and factors
 dodge=position_dodge(width=0.5)  
+p10<-ggplot(subset(qall.new,qall.new$question==3),aes(s.area,predp,shape=factor(expert_ID),color=factor(species))) + geom_point() + geom_line() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
+p11<-ggplot(subset(qall.new,qall.new$question==4),aes(s.temp,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
+p12<-ggplot(subset(qall.new,qall.new$question==6),aes(interaction(s.ripa,s.upla),predp,group=interaction(s.upla,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
+p12.5<-ggplot(subset(qall.new,qall.new$question==6 & qall.new$expert_ID==5), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
 
-p4<-ggplot(subset(qall.new,qall.new$question==3 & qall.new$expert_ID==4), aes(drainage,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
-p4.5<-ggplot(subset(qall.new,qall.new$question==3 & qall.new$expert_ID==5), aes(drainage,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
+p13<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==4), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
+p13.5<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==5), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
 
-p5<-ggplot(subset(qall.new,qall.new$question==4 & qall.new$expert_ID==4), aes(temp,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
-p5.5<-ggplot(subset(qall.new,qall.new$question==4 & qall.new$expert_ID==5), aes(temp,1/(1+exp(-pred)),group=factor(species),color=factor(species))) + geom_point()+ geom_smooth()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
-
-p6<-ggplot(subset(qall.new,qall.new$question==6 & qall.new$expert_ID==4), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
-p6.5<-ggplot(subset(qall.new,qall.new$question==6 & qall.new$expert_ID==5), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
-
-p7<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==4), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
-p7.5<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==5), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
-
-#p4
-#p4.5
-#p5
-#p5.5
-#p6
-#p6.5
-#p7
-#p7.5
-
-grid.arrange(p4, p5, p6, p7)
+grid.arrange(p10, p11, p12, p13)
 grid.arrange(p4.5, p5.5, p6.5, p7.5)
 ```
-
-*Plot and export betas*
 
 ```{r export betas, echo=FALSE, results='hide'}
 betas<-list()
@@ -513,6 +375,88 @@ coord_flip()
 
 ```
 
+
+
+```{r standarize cov.df, echo=FALSE, results='hide', eval=FALSE}
+# import betas (with range in covariates in survey)
+beta.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/out_betas.csv",fill=TRUE,header=TRUE)
+beta.data
+
+cov.area.std<-(cov$cov.area.AreaSqKM-beta.data[beta.data$predictor=="drainage","mean.cov"])/beta.data[beta.data$predictor=="drainage","sd.cov"]
+cov.temp.std<-(cov$cov.temp.ann_tmax_c-beta.data[beta.data$predictor=="temp","mean.cov"])/beta.data[beta.data$predictor=="temp","sd.cov"]
+cov.temp2.std<-(cov$cov.temp.ann_tmax_c^2-beta.data[beta.data$predictor=="temp2","mean.cov"])/beta.data[beta.data$predictor=="temp2","sd.cov"]
+cov.upla.std<-(cov$cov.temp.forest-beta.data[beta.data$predictor=="upland","mean.cov"])/beta.data[beta.data$predictor=="upland","sd.cov"]
+cov.ripa.std<-(cov$cov.ripa.forest-beta.data[beta.data$predictor=="riparian","mean.cov"])/beta.data[beta.data$predictor=="riparian","sd.cov"]
+
+# create matrix of std.covariates
+cov.df.std<-cbind(log(cov.area.std+1))
+
+cov.std.m<-cbind(cov.temp.std)
+cov.std.m<-cbind(cov.temp2.std)
+cov.std.m<-cbind(cov.temp.std,cov.temp2.std)
+
+cov.std.m<-cbind(cov.upla.std)
+cov.std.m<-cbind(cov.ripa.std)
+cov.std.m<-cbind(cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
+
+cov.std.m<-cbind(log(cov.area.std+1),cov.temp.std,cov.temp2.std,cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
+
+cov.std.m<-as.matrix(cov.std.m,ncols=6,nrows=985)
+str(cov.std.m)
+#,cov.temp.std,cov.temp.std^2,cov.upla.std,cov.ripa.std)
+
+# create a vector of betas for each species
+dfus.betas<-c(beta.data$defu.mean[2:6],beta.data$defu.mean[8])
+#,beta.data$defu.mean[6],beta.data$defu.mean[5])
+ebis.betas<-c(beta.data$eubi.mean[2:6],beta.data$eubi.mean[8])
+#,beta.data$eubi.mean[6],beta.data$eubi.mean[5])
+gpor.betas<-c(beta.data$gypo.mean[2:6],beta.data$gypo.mean[8])
+#,beta.data$gypo.mean[6],beta.data$gypo.mean[5])
+
+# calculate probability of occupancy using logit link function
+logit.p.dfus<- beta.data$defu.mean[1] + rowSums(cov.std.m * dfus.betas)  
+pr_occ.dfus<-1/(1+exp(-(logit.p.dfus)))
+logit.p.ebis<- beta.data$eubi.mean[1] + rowSums(cov.std.m * ebis.betas)   
+pr_occ.ebis<-1/(1+exp(-(logit.p.ebis)))
+logit.p.gpor<- beta.data$gypo.mean[1] + rowSums(cov.std.m * gpor.betas)   
+pr_occ.gpor<-1/(1+exp(-(logit.p.gpor)))
+
+cov$dfus_pr_occ<-pr_occ.dfus
+cov$ebis_pr_occ<-pr_occ.ebis
+cov$gpor_pr_occ<-pr_occ.gpor
+
+ggplot(cov, aes(cov.area.AreaSqKM,y=value)) +
+  geom_point(aes(y=dfus_pr_occ,col="blue")) +
+  geom_point(aes(y=ebis_pr_occ,col="red")) +
+  geom_point(aes(y=gpor_pr_occ,col="green"))
+
+ggplot(cov, aes(cov.temp.forest,y=value)) +
+  geom_point(aes(y=dfus_pr_occ,col="blue")) +
+  geom_point(aes(y=ebis_pr_occ,col="red")) +
+  geom_point(aes(y=gpor_pr_occ,col="green"))
+
+ggplot(cov, aes(cov.ripa.forest,y=value)) +
+  geom_point(aes(y=dfus_pr_occ,col="blue")) +
+  geom_point(aes(y=ebis_pr_occ,col="red")) +
+  geom_point(aes(y=gpor_pr_occ,col="green"))
+
+ggplot(cov, aes(cov.ripa.forest,y=value)) +
+  geom_point(aes(y=dfus_pr_occ,col="blue")) +
+  geom_point(aes(y=ebis_pr_occ,col="red")) +
+  geom_point(aes(y=gpor_pr_occ,col="green"))
+
+ggplot(cov, aes(cov.temp.ann_tmax_c,y=value)) +
+  geom_point(aes(y=dfus_pr_occ,col="blue")) +
+  geom_point(aes(y=ebis_pr_occ,col="red")) +
+  geom_point(aes(y=gpor_pr_occ,col="green"))
+
+```
+
+
+
+
+
+
 ```{r occ.model.sim1, echo=FALSE, results='hide',eval=FALSE}
 no.catchments=100
 no.species=1
@@ -556,19 +500,6 @@ for (species in 1:no.species){
 #head(pr.occupancy)
 ```
 
-```{r plot.parm.uncertainty,echo=FALSE, results="hide",include=FALSE}
-par(mfrow=c(3,2))
-hist(exp(intercept)/(exp(intercept)+1),main="average occupancy",breaks=10);abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red");
-plot(density(exp(intercept)/(exp(intercept)+1)),main="average occupancy");abline(v=median(exp(intercept)/(exp(intercept)+1)),col="red")
-
-hist(exp(b1), main="odds ratio per 1 percent increase in upstream forest",breaks=10);abline(v=median(exp(b1)),col="red")
-plot(density(exp(b1)), main="odds ratio per 1 percent increase in upstream forest");abline(v=median(exp(b1)),col="red")
-
-hist(exp(b2), main="odds ratio per 1 sqkm increase in drainage area",breaks=10);abline(v=median(exp(b2)),col="red")
-plot(density(exp(b2)), main="odds ratio per 1 sqkm increase in drainage area");abline(v=median(exp(b2)),col="red")
-```
-
-Predict mean and sd in occupancy for each catchment
 
 ```{r plot.occ,echo=FALSE, results="hide",include=FALSE}
 par(mfrow=c(2,2))
@@ -579,54 +510,8 @@ plot(sd.pr.occupancy~sim1.data$MEAN,ylim=c(-2,2),xlab="percent upstream forest")
 plot(sd.pr.occupancy~sim1.data$AreaSqKM,ylim=c(-2,2),xlab="drainage area")
 ```
 
-Loop over alterantive climate scenarios
 
-*Climate model uncertainty*
 
-*Buffer-Upland parameter uncertainty*
-
-*Fish-Sal parameter uncertainty*
-
-#### Appendix A. Survey
-
-* SEE SalamanderElictationSurvey_02222016.docx
-
-#### Forecasting Scenarios 
-* Outline comparisons of salamander occupancy from this analysis to others from the literature - how will do experts do?
-
-### Results
-
-*Experts responses*
-
-Descripton of how many experts responded.
-
-Parameter estimates (betas) with low vs. high variance among experts.
-
-Model beliefs (weights) with low vs. high variance among experts.
-
-Comparisons across species (similar or different - how?)
-
-Table of betas (mean and sd or scatter plot of results).
-
-Insights about elicitation (base-rates and use of literature we provided)
-
-*Salamander forecasting*
-
-Map of mean expected occupancy for each species with all uncertainties included under current climate, 2040, and 2080 (whichever scenarios we pick)
-
-Histogram of mean expected occupancy for each species with all uncertainties included under current climate, 2040, and 2080 (whichever scenarios we pick). This will show range in expected values (i.e., how many catchments look really bad?)
-
-*Sensitivity analysis*
-
-### Discussion
-
-* expert elicitation process
-
-* insights for salamander conservation (decision-model in prep)
-
-* future directions
-
-### References
 
 
 
