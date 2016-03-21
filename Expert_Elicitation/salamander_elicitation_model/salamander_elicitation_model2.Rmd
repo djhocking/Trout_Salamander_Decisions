@@ -9,8 +9,9 @@ Created by: Rachel Katz (rachelakatz@gmail.com)
 Co-authors: Dan Hocking, Evan Grant, Ben Letcher
 
 Created: Feb 01 2016
+Modified from original model.Rmd file - removed manuscript text
 
-Last Updated: March 18 2016
+Last Updated: March 21 2016
 
 #################### collect and format ovariate data from sheds
 ```{r install libraries, echo=FALSE, results='hide'}
@@ -244,7 +245,6 @@ qall.gpor$pred <- predict(lm1.gpor,qall.gpor)
 qall.gpor$resid<- resid(lm1.gpor)
 qall.gpor$predp<-1/(1+exp(-qall.gpor$pred))
 
-
 # plot model fit (actual vs. predicted)
 p1<-ggplot(qall.dfus, aes(predp,p), colour="black") + geom_point() + stat_smooth(method="lm") + ggtitle('dfus')
 p2<-ggplot(qall.ebis, aes(predp,p), colour="black") + geom_point() + stat_smooth(method="lm") + ggtitle('ebis')
@@ -263,44 +263,71 @@ p8<-ggplot(qall.ebis, aes(interaction(expert_ID,question),resid, fill=factor(exp
 p9<-ggplot(qall.gpor, aes(interaction(expert_ID,question),resid, fill=factor(expert_ID))) + geom_boxplot() + ggtitle('gpor')
 grid.arrange(p7, p8, p9)
 
-# make new df with predicted and residuals
+# make new df with predicted and residuals 
 qall.new<-rbind(qall.dfus,qall.ebis,qall.gpor)
 
 # plot relations between predicted occ and factors
 dodge=position_dodge(width=0.5)  
-p10<-ggplot(subset(qall.new,qall.new$question==3),aes(s.area,predp,shape=factor(expert_ID),color=factor(species))) + geom_point() + geom_line() + ylim(0,1) + ylab("prob occupancy")+ xlab("catchment drainage area, km2")
-p11<-ggplot(subset(qall.new,qall.new$question==4),aes(s.temp,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("prob occupancy")+ xlab("mean summer temp, C")
-p12<-ggplot(subset(qall.new,qall.new$question==6),aes(interaction(s.ripa,s.upla),predp,group=interaction(s.upla,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
-p12.5<-ggplot(subset(qall.new,qall.new$question==6 & qall.new$expert_ID==5), aes(interaction(riparian,upland),1/(1+exp(-pred)),group=interaction(upland,species),color=factor(species))) + geom_point(position=position_dodge(1.1))+ ylim(0,1) + ylab("prob occupancy")+ xlab("percentriparian.percentupland")
 
-p13<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==4), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
-p13.5<-ggplot(subset(qall.new,qall.new$question==7 & qall.new$expert_ID==5), aes(trout,1/(1+exp(-pred)),group=interaction(trout,species),color=factor(species))) + geom_boxplot()+ ylim(0,1) + ylab("prob occupancy")+ xlab("brook trout presence")
+# q3 - stream size
+p10<-ggplot(subset(qall.new,qall.new$question==3),aes(s.area,predp,shape=factor(expert_ID),color=factor(species))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("catchment drainage area, km2")
 
-grid.arrange(p10, p11, p12, p13)
-grid.arrange(p4.5, p5.5, p6.5, p7.5)
+# q4 - stream temp
+p11<-ggplot(subset(qall.new,qall.new$question==4),aes(s.temp,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("predicted prob occupancy")+ xlab("mean summer temp, C")
+
+# q5 - streamflow
+p13.dry.small<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of dry years") + ggtitle("small stream, dry")
+p13.wet.small<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of wet years") + ggtitle("small stream, wet")
+p13.dry.medium<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of dry years") + ggtitle("medium stream, dry")
+p13.wet.medium<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of wet years") + ggtitle("medium stream, wet")
+grid.arrange(p13.dry.small,p13.wet.small,p13.dry.medium,p13.wet.medium)
+
+# q6 - forest cover
+p12.100<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==100),aes(s.ripa,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("100% upland forest")
+p12.75<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==75),aes(s.ripa,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("75% upland forest")
+p12.50<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==50),aes(s.ripa,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("50% upland forest")
+p12.25<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==25),aes(s.ripa,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("25% upland forest")
+p12.0<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==0),aes(s.ripa,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("0% upland forest")
+grid.arrange(p12.100,p12.75,p12.50,p12.25,p12.0)
+
+# q7 - brook trout
+pd <- position_dodge(0.1)
+p14<-ggplot(subset(qall.new,qall.new$question==7),aes(expert_ID,predp,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100)  + ggtitle("0% upland forest")
+p14
+
+
 ```
 
 ```{r export betas, echo=FALSE, results='hide'}
+# create list for betas
 betas<-list()
-betas$defu<-summary(lm1.defu)
-betas$gypo<-summary(lm1.gypo)
-betas$eubi<-summary(lm1.eubi)
-betas.coef<-data.frame(defu=print(betas$defu$coefficients[,1:2]),gypo=print(betas$gypo$coefficients[,1:2]),eubi=print(betas$eubi$coefficients[,1:2]))
+betas$dfus<-summary(lm1.dfus)
+betas$gpor<-summary(lm1.gpor)
+betas$ebis<-summary(lm1.ebis)
+betas.coef<-data.frame(dfus=print(betas$dfus$coefficients[,1:2]),gpor=print(betas$gpor$coefficients[,1:2]),ebis=print(betas$ebis$coefficients[,1:2]))
 betas.coef$min<-c(NA,
-                  min(qall.data$drainage),
-                  min(qall.data$temp),
-                  min(qall.data$temp^2),
-                  min(qall.data$riparian),
-                  min(qall.data$upland),
-                  min(qall.data$trout),
+                  min(log(qall.data$drainage_area_sqkm+1)),
+                  min(qall.data$summer_temp_C),
+                  min(qall.data$summer_temp_C^2),
+                  min(qall.data$flow_type),
+                  min(qall.data$flow_year_freq),
+                  min(qall.data$riparian_forest),
+                  min(qall.data$upland_forest),
+                  min(qall.data$trout_presence),
+                  min(qall.data$ebis_presence),
+                  min(qall.data$gpor_presence),
                   min(qall.data$riparian*qall.data$upland))
 betas.coef$max<-c(NA,
-                  max(qall.data$drainage),
-                  max(qall.data$temp),
-                  max(qall.data$temp^2),
-                  max(qall.data$riparian),
-                  max(qall.data$upland),
-                  max(qall.data$trout),
+                  max(log(qall.data$drainage_area_sqkm+1)),
+                  max(qall.data$summer_temp_C),
+                  max(qall.data$summer_temp_C^2),
+                  max(qall.data$flow_type),
+                  max(qall.data$flow_year_freq),
+                  max(qall.data$riparian_forest),
+                  max(qall.data$upland_forest),
+                  max(qall.data$trout_presence),
+                  max(qall.data$ebis_presence),
+                  max(qall.data$gpor_presence),
                   max(qall.data$riparian*qall.data$upland))
 betas.coef$mean<-c(NA,
                   mean(qall.data$drainage),
