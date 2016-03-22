@@ -13,7 +13,7 @@ Modified from original model.Rmd file - removed manuscript text
 
 Last Updated: March 21 2016
 
-#################### collect and format ovariate data from sheds
+#################### collect and format covariate data from sheds
 ```{r install libraries, echo=FALSE, results='hide'}
 library(knitr)
 library(xtable)
@@ -106,16 +106,17 @@ str(cov3) #1088 catchments
 ggplot(cov3,aes(cov2$forest)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("deefield riparian forest")
 
 # save subset data as cov.df
-cov.df<-data.frame(cov2$AreaSqKM,cov2$aug_prcp_mm,cov1$ann_tmax_c,cov2$ann_tmax_c^2,cov2$forest,cov3$forest);colnames(cov.df)<-c("area","prcp","temp","temp2","ufor","rfor")
+cov.df<-data.frame(cov2$AreaSqKM,cov2$aug_prcp_mm,cov2$AreaSqKM*cov2$aug_prcp_mm,cov1$ann_tmax_c,cov2$ann_tmax_c^2,cov2$forest,cov3$forest)
+colnames(cov.df)<-c("area","prcp","area.prcp","temp","temp2","ufor","rfor")
 str(cov.df)
 
 # remove greater than 200km2 drainages
-cov.df<-subset(cov.df,cov.df$area <= 200)
+cov.df<-subset(cov.df,cov.df$area <= 200) # 985 catchments
 str(cov.df)
 plot(cov.df)
 ```
 
-#################### import and analyze expert data 
+#################### import and analyze expert data from survey
 ```{r import expert elicitation data, echo=FALSE, results='hide'}
 #import expert data
 qall2.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_qall2.csv",stringsAsFactors = TRUE,header=TRUE)
@@ -125,6 +126,10 @@ str(qall2.data)
 # remove NA's
 qall.data<-subset(qall2.data,mean_reaches>=0)
 str(qall.data)
+
+# remove NEARMI pre-survey data
+#qall.data<-subset(qall.data,expert_ID>=10)
+#str(qall.data)
 
 # check for overall variation among experts (across and within species)
 p.exsp<-ggplot(qall.data,aes(y=mean_reaches,x=interaction(species,expert_ID), fill=factor(species))) + geom_boxplot() + ylim(0,100) + theme(axis.text.x=element_text(angle=270)) + ggtitle("expert variation across species")
@@ -150,20 +155,26 @@ p4.gpor<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") &
 p4.ebis<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") & mean_reaches>=0), aes(summer_temp_C,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("ebis")
 grid.arrange(p4.dfus, p4.gpor, p4.ebis)
 
-# flow
-p5.10.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==10),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches,color=factor(stream_width_m))) + geom_line(aes(y=mean_reaches,group=factor(stream_width_m),color=factor(stream_width_m))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, dry year")
-p5.190.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==190),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches,color=factor(stream_width_m))) + geom_line(aes(y=mean_reaches,group=factor(stream_width_m),color=factor(stream_width_m))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, wet year")
+# streamflow
+p5.10.sma.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 2-m, dry year")
+p5.10.med.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 4-m, dry year")
+p5.190.sma.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 2-m, wet year")
+p5.190.med.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 4-m, wet year")
 
-p5.10.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==10),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches,color=factor(stream_width_m))) + geom_line(aes(y=mean_reaches,group=factor(stream_width_m),color=factor(stream_width_m))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, dry year")
-p5.190.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==190),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches,color=factor(stream_width_m))) + geom_line(aes(y=mean_reaches,group=factor(stream_width_m),color=factor(stream_width_m))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, wet year")
+p5.10.sma.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 2-m, dry year")
+p5.10.med.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 4-m, dry year")
+p5.190.sma.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 2-m, wet year")
+p5.190.med.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 4-m, wet year")
 
-p5.10.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==10),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches,color=factor(stream_width_m))) + geom_line(aes(y=mean_reaches,group=factor(stream_width_m),color=factor(stream_width_m))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, dry year")
-p5.190.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==190),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches,color=factor(stream_width_m))) + geom_line(aes(y=mean_reaches,group=factor(stream_width_m),color=factor(stream_width_m))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, wet year")
+p5.10.sma.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 2-m, dry year")
+p5.10.med.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 4-m, dry year")
+p5.190.sma.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 2-m, wet year")
+p5.190.med.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 4-m, wet year")
 
-grid.arrange(p5.10.dfus,p5.190.dfus,
-             p5.10.gpor,p5.190.gpor,
-             p5.10.ebis,p5.190.ebis,
-             ncol=2)
+grid.arrange(p5.10.sma.dfus,p5.10.med.dfus,p5.190.sma.dfus,p5.190.med.dfus,
+             p5.10.sma.gpor,p5.10.med.gpor,p5.190.sma.gpor,p5.190.med.gpor,
+             p5.10.sma.ebis,p5.10.med.ebis,p5.190.sma.ebis,p5.190.med.ebis,
+             ncol=4)
 
 # riparian and upland forest
 p6.0.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") & mean_reaches>=0 & upland_forest==0),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 0 upland")
@@ -205,7 +216,7 @@ p8.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("8") &
 p8.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=c(confidence_reaches), position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("ebis")
 grid.arrange(p8.dfus,p8.gpor,p8.ebis,ncol=3)
 ```
-```{r calculate betas, echo=FALSE}
+```{r calculate betas and plot predicted values, echo=FALSE}
 
 # convert mean_reaches to p (occupancy = mean_reaches/100) and/or logitp
 qall.data$p<-qall.data$mean_reaches/100
@@ -224,10 +235,24 @@ qall.dfus<-subset(qall.data,qall.data$species=="dfus" & qall.data$expert_ID>=0 &
 qall.gpor<-subset(qall.data,qall.data$species=="gpor" & qall.data$expert_ID>=0 & qall.data$p>=0)
 qall.ebis<-subset(qall.data,qall.data$species=="ebis" & qall.data$expert_ID>=0 & qall.data$p>=0)
 
+# test for normality (all NOT normal?)
+hist(qall.dfus$logit.p,breaks=100);plot(density(qall.dfus$logit.p))
+shapiro.test(qall.dfus$logit.p)
+hist(qall.gpor$logit.p,breaks=100);plot(density(qall.gpor$logit.p))
+shapiro.test(qall.gpor$logit.p)
+hist(qall.ebis$logit.p,breaks=100);plot(density(qall.ebis$logit.p))
+shapiro.test(qall.ebis$logit.p)
+
 # run logistic linear regression with random effect of expert for each species
-lm1.dfus<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.flow + s.freq + s.ripa + s.upla + s.ripa*s.upla + s.fish + s.ebis + s.gpor + (1|expert_ID),data = qall.dfus)
-lm1.ebis<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.flow + s.freq + s.ripa + s.upla + s.ripa*s.upla + s.fish + s.dfus + s.gpor + (1|expert_ID),data = qall.ebis)
-lm1.gpor<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.flow + s.freq + s.ripa + s.upla + s.ripa*s.upla + s.fish + s.ebis + s.dfus + (1|expert_ID),data = qall.gpor)
+lm1.dfus<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.freq*s.flow + s.freq + s.ripa*s.upla + s.fish + s.ebis + s.gpor + (1|expert_ID),data = qall.dfus)
+lm1.ebis<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.freq*s.flow + s.ripa*s.upla + s.fish + s.dfus + s.gpor + (1|expert_ID),data = qall.ebis)
+lm1.gpor<-lmer(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.freq*s.flow + s.ripa*s.upla + s.fish + s.ebis + s.dfus + (1|expert_ID),data = qall.gpor)
+
+# remove random intercept 
+lm2.dfus<-glm(logit.p ~ log((s.area)+1) + s.temp +I(s.temp^2) + s.freq*s.flow + s.freq + s.ripa*s.upla + s.fish + s.ebis + s.gpor ,data = qall.dfus)
+summary(lm2.dfus) # why is intercept slow low (-3)?
+mean(qall.dfus$logit.p) 
+# random slopes?
 
 # view model results
 summary(lm1.dfus); plot(lm1.dfus) 
@@ -252,16 +277,18 @@ p3<-ggplot(qall.gpor, aes(predp,p), colour="black") + geom_point() + stat_smooth
 grid.arrange(p1, p2, p3)
 
 # plot residuals by question 
-p4<-ggplot(qall.dfus, aes(question,resid), colour="black") + geom_point() + ggtitle('dfus')
-p5<-ggplot(qall.ebis, aes(question,resid), colour="black") + geom_point() + ggtitle('ebis')
-p6<-ggplot(qall.gpor, aes(question,resid), colour="black") + geom_point() + ggtitle('gpor')
-grid.arrange(p4, p5, p6)
+p4<-ggplot(qall.dfus, aes(question,resid, fill=factor(question))) + geom_boxplot() + ggtitle('dfus') + geom_hline(yintercept=0)
+p5<-ggplot(qall.ebis, aes(question,resid, fill=factor(question)))+ geom_boxplot() + ggtitle('ebis') + geom_hline(yintercept=0)
+p6<-ggplot(qall.gpor, aes(question,resid, fill=factor(question))) + geom_boxplot() + ggtitle('gpor') + geom_hline(yintercept=0)
+#grid.arrange(p4, p5, p6)
 
-# plot residuals by question and expert
-p7<-ggplot(qall.dfus, aes(interaction(expert_ID,question),resid, fill=factor(expert_ID))) + geom_boxplot() + ggtitle('dfus') 
-p8<-ggplot(qall.ebis, aes(interaction(expert_ID,question),resid, fill=factor(expert_ID))) + geom_boxplot()  + ggtitle('ebis')
-p9<-ggplot(qall.gpor, aes(interaction(expert_ID,question),resid, fill=factor(expert_ID))) + geom_boxplot() + ggtitle('gpor')
-grid.arrange(p7, p8, p9)
+# plot residuals by expert
+p7<-ggplot(qall.dfus, aes(expert_ID,resid, fill=factor(expert_ID))) + geom_boxplot() + ggtitle('dfus') + geom_hline(yintercept=0)
+p8<-ggplot(qall.ebis, aes(expert_ID,resid, fill=factor(expert_ID))) + geom_boxplot()  + ggtitle('ebis')+ geom_hline(yintercept=0)
+p9<-ggplot(qall.gpor, aes(expert_ID,resid, fill=factor(expert_ID))) + geom_boxplot() + ggtitle('gpor')+ geom_hline(yintercept=0)
+#grid.arrange(p7, p8, p9)
+
+grid.arrange(p4, p5, p6,p7,p8,p9, ncol=3)
 
 # make new df with predicted and residuals 
 qall.new<-rbind(qall.dfus,qall.ebis,qall.gpor)
@@ -270,10 +297,14 @@ qall.new<-rbind(qall.dfus,qall.ebis,qall.gpor)
 dodge=position_dodge(width=0.5)  
 
 # q3 - stream size
-p10<-ggplot(subset(qall.new,qall.new$question==3),aes(s.area,predp,shape=factor(expert_ID),color=factor(species))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("catchment drainage area, km2")
+p10.dfus<-ggplot(subset(qall.new,qall.new$question==3 & species=="dfus"),aes(drainage_area_sqkm,predp,shape=factor(expert_ID))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("catchment drainage area, km2")
+p10.gpor<-ggplot(subset(qall.new,qall.new$question==3 & species=="gpor"),aes(drainage_area_sqkm,predp,shape=factor(expert_ID))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("catchment drainage area, km2")
+p10.ebis<-ggplot(subset(qall.new,qall.new$question==3 & species=="ebis"),aes(drainage_area_sqkm,predp,shape=factor(expert_ID))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("catchment drainage area, km2")
+grid.arrange(p10.dfus,p10.gpor,p10.ebis)
 
 # q4 - stream temp
 p11<-ggplot(subset(qall.new,qall.new$question==4),aes(s.temp,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("predicted prob occupancy")+ xlab("mean summer temp, C")
+p11
 
 # q5 - streamflow
 p13.dry.small<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,predp,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of dry years") + ggtitle("small stream, dry")
@@ -298,15 +329,23 @@ p14
 
 ```
 
-```{r export betas, echo=FALSE, results='hide'}
+```{r export out_betas and cov_ranges, echo=FALSE, results='hide', eval=FALSE}
+
 # create list for betas
 betas<-list()
 betas$dfus<-summary(lm1.dfus)
 betas$gpor<-summary(lm1.gpor)
 betas$ebis<-summary(lm1.ebis)
 betas.coef<-data.frame(dfus=print(betas$dfus$coefficients[,1:2]),gpor=print(betas$gpor$coefficients[,1:2]),ebis=print(betas$ebis$coefficients[,1:2]))
-betas.coef$min<-c(NA,
-                  min(log(qall.data$drainage_area_sqkm+1)),
+colnames(betas.coef)<-c("dfus.mean","dfus.stder","gpor.mean","gpor.stder","ebis.mean","ebis.stder")
+predictor.name<-c("int","log.drainage","temp","temp2","freq","flow","riparian","upland","trout","sp1","sp2","freq.flow","ripa.upla")
+betas.coef$predictor<-predictor.name
+betas.coef<-data.frame(betas.coef)
+write.csv(betas.coef,file="out_betas.csv",row.names=TRUE)
+
+# create list of ranges of covariates (actual and std scales)
+cov.ranges<-list()
+cov.ranges$min<-c(min(qall.data$drainage_area_sqkm),
                   min(qall.data$summer_temp_C),
                   min(qall.data$summer_temp_C^2),
                   min(qall.data$flow_type),
@@ -316,9 +355,9 @@ betas.coef$min<-c(NA,
                   min(qall.data$trout_presence),
                   min(qall.data$ebis_presence),
                   min(qall.data$gpor_presence),
-                  min(qall.data$riparian*qall.data$upland))
-betas.coef$max<-c(NA,
-                  max(log(qall.data$drainage_area_sqkm+1)),
+                  min(qall.data$flow_year_freq*qall.data$flow_type),
+                  min(qall.data$riparian_forest*qall.data$upland_forest))
+cov.ranges$max<-c(max(qall.data$drainage_area_sqkm),
                   max(qall.data$summer_temp_C),
                   max(qall.data$summer_temp_C^2),
                   max(qall.data$flow_type),
@@ -328,155 +367,206 @@ betas.coef$max<-c(NA,
                   max(qall.data$trout_presence),
                   max(qall.data$ebis_presence),
                   max(qall.data$gpor_presence),
-                  max(qall.data$riparian*qall.data$upland))
-betas.coef$mean<-c(NA,
-                  mean(qall.data$drainage),
-                  mean(qall.data$temp),
-                  mean(qall.data$temp^2),
-                  mean(qall.data$riparian),
-                  mean(qall.data$upland),
-                  mean(qall.data$trout),
-                  mean(qall.data$riparian*qall.data$upland))
-betas.coef$sd<-c(NA,
-                  sd(qall.data$drainage),
-                  sd(qall.data$temp),
-                  sd(qall.data$temp^2),
-                  sd(qall.data$riparian),
-                  sd(qall.data$upland),
-                  sd(qall.data$trout),
-                  sd(qall.data$riparian*qall.data$upland))
-                  
-betas.coef$s.min<-c(NA,
-                  min(log(qall.data$s.drainage+1)),
+                  max(qall.data$flow_year_freq*qall.data$flow_type),
+                  max(qall.data$riparian_forest*qall.data$upland_forest))
+cov.ranges$mean<-c(mean(qall.data$drainage_area_sqkm),
+                  mean(qall.data$summer_temp_C),
+                  mean(qall.data$summer_temp_C^2),
+                  mean(qall.data$flow_type),
+                  mean(qall.data$flow_year_freq),
+                  mean(qall.data$riparian_forest),
+                  mean(qall.data$upland_forest),
+                  mean(qall.data$trout_presence),
+                  mean(qall.data$ebis_presence),
+                  mean(qall.data$gpor_presence),
+                  mean(qall.data$flow_year_freq*qall.data$flow_type),
+                  mean(qall.data$riparian_forest*qall.data$upland_forest))
+
+cov.ranges$sd<-c( sd(qall.data$drainage_area_sqkm),
+                  sd(qall.data$summer_temp_C),
+                  sd(qall.data$summer_temp_C^2),
+                  sd(qall.data$flow_type),
+                  sd(qall.data$flow_year_freq),
+                  sd(qall.data$riparian_forest),
+                  sd(qall.data$upland_forest),
+                  sd(qall.data$trout_presence),
+                  sd(qall.data$ebis_presence),
+                  sd(qall.data$gpor_presence),
+                  sd(qall.data$flow_year_freq*qall.data$flow_type),
+                  sd(qall.data$riparian_forest*qall.data$upland_forest))
+cov.ranges$s.min<-c(
+                  min(qall.data$s.area),
                   min(qall.data$s.temp),
                   min(qall.data$s.temp^2),
-                  min(qall.data$s.riparian),
-                  min(qall.data$s.upland),
-                  min(qall.data$trout),
-                  min(qall.data$s.riparian*qall.data$s.upland))
-betas.coef$s.max<-c(NA,
-                  max(log(qall.data$s.drainage+1)),
+                  min(qall.data$s.flow),
+                  min(qall.data$s.freq),
+                  min(qall.data$s.ripa),
+                  min(qall.data$s.upla),
+                  min(qall.data$s.fish),
+                  min(qall.data$s.ebis),
+                  min(qall.data$s.gpor),
+                  min(qall.data$s.freq*qall.data$s.flow),
+                  min(qall.data$s.ripa*qall.data$s.upla))
+cov.ranges$s.max<-c(
+                  max(qall.data$s.area),
                   max(qall.data$s.temp),
                   max(qall.data$s.temp^2),
-                  max(qall.data$s.riparian),
-                  max(qall.data$s.upland),
-                  max(qall.data$trout),
-                  max(qall.data$s.riparian*qall.data$s.upland))
-betas.coef$s.mean<-c(NA,
-                  mean(log(qall.data$s.drainage+1)),
+                  max(qall.data$s.flow),
+                  max(qall.data$s.freq),
+                  max(qall.data$s.ripa),
+                  max(qall.data$s.upla),
+                  max(qall.data$s.fish),
+                  max(qall.data$s.ebis),
+                  max(qall.data$s.gpor),
+                  max(qall.data$s.freq*qall.data$s.flow),
+                  max(qall.data$s.ripa*qall.data$s.upla))
+cov.ranges$s.mean<-c(
+                  mean(qall.data$s.area),
                   mean(qall.data$s.temp),
                   mean(qall.data$s.temp^2),
-                  mean(qall.data$s.riparian),
-                  mean(qall.data$s.upland),
-                  mean(qall.data$trout),
-                  mean(qall.data$s.riparian*qall.data$s.upland))
-betas.coef$s.sd<-c(NA,
-                  sd(log(qall.data$s.drainage+1)),
+                  mean(qall.data$s.flow),
+                  mean(qall.data$s.freq),
+                  mean(qall.data$s.ripa),
+                  mean(qall.data$s.upla),
+                  mean(qall.data$s.fish),
+                  mean(qall.data$s.ebis),
+                  mean(qall.data$s.gpor),
+                  mean(qall.data$s.freq*qall.data$s.flow),
+                  mean(qall.data$s.ripa*qall.data$s.upla))
+cov.ranges$s.sd<-c(
+                  sd(qall.data$s.area),
                   sd(qall.data$s.temp),
                   sd(qall.data$s.temp^2),
-                  sd(qall.data$s.riparian),
-                  sd(qall.data$s.upland),
-                  sd(qall.data$trout),
-                  sd(qall.data$s.riparian*qall.data$s.upland))
-colnames(betas.coef)<-c("defu.mean","defu.sd","gypo.mean","gypo.sd","eubi.mean","eubi.sd","min.cov","max.cov","mean.cov","sd.cov","min.scov","max.scov","mean.scov","sd.scov")
-predictor.name<-c("int","drainage","temp","temp2","riparian","upland","trout","riparian.upland.int")
-betas.coef$predictor<-predictor.name
-write.csv(betas.coef,file="out_betas.csv",col.names=TRUE,row.names=TRUE)
-print(betas.coef)
+                  sd(qall.data$s.flow),
+                  sd(qall.data$s.freq),
+                  sd(qall.data$s.ripa),
+                  sd(qall.data$s.upla),
+                  sd(qall.data$s.fish),
+                  sd(qall.data$s.ebis),
+                  sd(qall.data$s.gpor),
+                  sd(qall.data$s.freq*qall.data$s.flow),
+                  sd(qall.data$s.ripa*qall.data$s.upla))
+cov.ranges<-as.data.frame(cov.ranges)
+colnames(cov.ranges)<-c("min.cov","max.cov","mean.cov","sd.cov","min.scov","max.scov","mean.scov","sd.scov")
+predictor.name<-c("log.drainage","temp","temp2","freq","flow","riparian","upland","trout","sp1","sp2","freq.flow","ripa.upla")
+cov.ranges$predictor<-predictor.name
+write.csv(cov.ranges,file="out_cov_ranges.csv",row.names=TRUE)
 ```
-
 ```{r plot betas, echo=FALSE, results='hide', fig.height=8, fig.width=5}
+str(betas.coef)
 
-betas.mean<-c(betas.coef[1:8,"defu.mean"],betas.coef[1:8,"gypo.mean"],betas.coef[1:8,"eubi.mean"])
-betas.sd<-c(betas.coef[1:8,"defu.sd"],betas.coef[1:8,"gypo.sd"],betas.coef[1:8,"eubi.sd"])
-betas.sp<-c(rep("defu",8),rep("gypo",8),rep("eubi",8))
+betas.mean<-c(betas.coef[1:13,"dfus.mean"],betas.coef[1:13,"gpor.mean"],betas.coef[1:13,"ebis.mean"])
+betas.sd<-c(betas.coef[1:13,"dfus.stder"],betas.coef[1:13,"gpor.stder"],betas.coef[1:13,"ebis.stder"])
+betas.sp<-c(rep("dfus",13),rep("gpor",13),rep("ebis",13))
 betas.name<-c(rep(predictor.name,3))
-
 all.betas<-data.frame(betas.mean,betas.sd,betas.sp,betas.name)
-#all.betas
+str(all.betas)
 
-dodge=position_dodge(width=0.5)  
-ggplot(all.betas,aes(y=betas.mean,x=betas.name,shape=factor(betas.sp))) + geom_point(aes(shape=betas.sp),position=dodge,size=2) +
-geom_errorbar(aes(y=betas.mean,ymin=betas.mean-betas.sd, ymax=betas.mean+betas.sd),size=.5,position=dodge,width=0) +
-coord_flip()    
-
+dodge=position_dodge(width=0.6)  
+p20<-ggplot(all.betas,aes(y=betas.mean,x=betas.name,shape=factor(betas.sp))) + geom_point(aes(shape=betas.sp),position=dodge,size=2) + geom_errorbar(aes(y=betas.mean,ymin=betas.mean-betas.sd,ymax=betas.mean+betas.sd),size=.5,position=dodge,width=.25) + coord_flip()    
+p20
 ```
 
-
-
+#################### predict occupancy using expert data and sheds covariates
 ```{r standarize cov.df, echo=FALSE, results='hide', eval=FALSE}
-# import betas (with range in covariates in survey)
+# import cov_ranges
+covrange.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/out_cov_ranges.csv",fill=TRUE,header=TRUE)
+covrange.data
+
+# import betas
 beta.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/out_betas.csv",fill=TRUE,header=TRUE)
 beta.data
 
-cov.area.std<-(cov$cov.area.AreaSqKM-beta.data[beta.data$predictor=="drainage","mean.cov"])/beta.data[beta.data$predictor=="drainage","sd.cov"]
-cov.temp.std<-(cov$cov.temp.ann_tmax_c-beta.data[beta.data$predictor=="temp","mean.cov"])/beta.data[beta.data$predictor=="temp","sd.cov"]
-cov.temp2.std<-(cov$cov.temp.ann_tmax_c^2-beta.data[beta.data$predictor=="temp2","mean.cov"])/beta.data[beta.data$predictor=="temp2","sd.cov"]
-cov.upla.std<-(cov$cov.temp.forest-beta.data[beta.data$predictor=="upland","mean.cov"])/beta.data[beta.data$predictor=="upland","sd.cov"]
-cov.ripa.std<-(cov$cov.ripa.forest-beta.data[beta.data$predictor=="riparian","mean.cov"])/beta.data[beta.data$predictor=="riparian","sd.cov"]
+# look at covariates for deerfield catchments
+cov.df
 
-# create matrix of std.covariates
-cov.df.std<-cbind(log(cov.area.std+1))
+# standardize covariates based on mean and sd from cov_ranges
+cov.area.std<-(cov.df$area-covrange.data[covrange.data$predictor=="log.drainage","mean.cov"])/covrange.data[covrange.data$predictor=="log.drainage","sd.cov"]
+cov.temp.std<-(cov.df$temp-covrange.data[covrange.data$predictor=="temp","mean.cov"])/covrange.data[covrange.data$predictor=="temp","sd.cov"]
+cov.temp2.std<-(cov.df$temp2-covrange.data[covrange.data$predictor=="temp2","mean.cov"])/covrange.data[covrange.data$predictor=="temp2","sd.cov"]
+cov.upla.std<-(cov.df$ufor-covrange.data[covrange.data$predictor=="upland","mean.cov"])/covrange.data[covrange.data$predictor=="upland","sd.cov"]
+cov.ripa.std<-(cov.df$rfor-covrange.data[covrange.data$predictor=="riparian","mean.cov"])/covrange.data[covrange.data$predictor=="riparian","sd.cov"]
+cov.upla.ripa.std<-cov.upla.std*cov.ripa.std
 
-cov.std.m<-cbind(cov.temp.std)
-cov.std.m<-cbind(cov.temp2.std)
-cov.std.m<-cbind(cov.temp.std,cov.temp2.std)
-
-cov.std.m<-cbind(cov.upla.std)
-cov.std.m<-cbind(cov.ripa.std)
-cov.std.m<-cbind(cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
-
-cov.std.m<-cbind(log(cov.area.std+1),cov.temp.std,cov.temp2.std,cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
-
-cov.std.m<-as.matrix(cov.std.m,ncols=6,nrows=985)
+# create new matrix of std.covariates
+#cov.df.std<-cbind(log(cov.area.std+1))
+#cov.std.m<-cbind(cov.temp.std)
+#cov.std.m<-cbind(cov.temp2.std)
+#cov.std.m<-cbind(cov.temp.std,cov.temp2.std)
+#cov.std.m<-cbind(cov.upla.std)
+#cov.std.m<-cbind(cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
+cov.std.m<-cbind(log(cov.area.std+1),cov.temp.std,cov.temp2.std,cov.ripa.std,cov.upla.std)
+cov.std.m<-as.matrix(cov.std.m,ncols=5,nrows=985)
 str(cov.std.m)
-#,cov.temp.std,cov.temp.std^2,cov.upla.std,cov.ripa.std)
+cov.std.m<-cbind(cov.ripa.std,cov.upla.std)
+cov.std.m<-as.matrix(cov.std.m,ncols=2,nrows=985)
+str(cov.std.m)
 
 # create a vector of betas for each species
-dfus.betas<-c(beta.data$defu.mean[2:6],beta.data$defu.mean[8])
+dfus.betas<-c(beta.data$dfus.mean[2:4],beta.data$dfus.mean[7:8])
+dfus.betas<-c(beta.data$dfus.mean[2:4],beta.data$dfus.mean[7:8])
+dfus.betas<-c(beta.data$dfus.mean[7:8])
 #,beta.data$defu.mean[6],beta.data$defu.mean[5])
-ebis.betas<-c(beta.data$eubi.mean[2:6],beta.data$eubi.mean[8])
+ebis.betas<-c(beta.data$ebis.mean[2:4],beta.data$ebis.mean[7:8])
+ebis.betas<-c(beta.data$ebis.mean[7:8])
 #,beta.data$eubi.mean[6],beta.data$eubi.mean[5])
-gpor.betas<-c(beta.data$gypo.mean[2:6],beta.data$gypo.mean[8])
+gpor.betas<-c(beta.data$gpor.mean[2:4],beta.data$gpor.mean[7:8])
+gpor.betas<-c(beta.data$gpor.mean[7:8])
 #,beta.data$gypo.mean[6],beta.data$gypo.mean[5])
 
 # calculate probability of occupancy using logit link function
-logit.p.dfus<- beta.data$defu.mean[1] + rowSums(cov.std.m * dfus.betas)  
+logit.p.dfus<- beta.data$dfus.mean[1] + rowSums(cov.std.m * dfus.betas)  
 pr_occ.dfus<-1/(1+exp(-(logit.p.dfus)))
-logit.p.ebis<- beta.data$eubi.mean[1] + rowSums(cov.std.m * ebis.betas)   
+logit.p.ebis<- beta.data$ebis.mean[1] + rowSums(cov.std.m * ebis.betas)   
 pr_occ.ebis<-1/(1+exp(-(logit.p.ebis)))
-logit.p.gpor<- beta.data$gypo.mean[1] + rowSums(cov.std.m * gpor.betas)   
+logit.p.gpor<- beta.data$gpor.mean[1] + rowSums(cov.std.m * gpor.betas)   
 pr_occ.gpor<-1/(1+exp(-(logit.p.gpor)))
 
-cov$dfus_pr_occ<-pr_occ.dfus
-cov$ebis_pr_occ<-pr_occ.ebis
-cov$gpor_pr_occ<-pr_occ.gpor
+# wrong intercept? try setting intercept to "region" mean
+str(qall.new)
+int<-list() # intercept from question 2
+int$dfus<-subset(qall.new,question=="2"&species=="dfus")
+int$gpor<-subset(qall.new,question=="2"&species=="ebis")
+int$ebis<-subset(qall.new,question=="2"&species=="ebis")
+median(int$dfus$logit.p)
 
-ggplot(cov, aes(cov.area.AreaSqKM,y=value)) +
+# calculate pr_occ
+logit.p.dfus<- beta.data$dfus.mean[1] + rowSums(cov.std.m * dfus.betas)  
+logit.p.dfus<- median(int$dfus$logit.p) + rowSums(cov.std.m * dfus.betas)  
+pr_occ.dfus<-1/(1+exp(-(logit.p.dfus)))
+
+logit.p.ebis<- beta.data$ebis.mean[1] + rowSums(cov.std.m * ebis.betas)   
+logit.p.ebis<-  median(int$ebis$logit.p)  + rowSums(cov.std.m * ebis.betas)   
+pr_occ.ebis<-1/(1+exp(-(logit.p.ebis)))
+
+logit.p.gpor<- beta.data$gpor.mean[1] + rowSums(cov.std.m * gpor.betas)   
+logit.p.gpor<-  median(int$gpor$logit.p)  + rowSums(cov.std.m * gpor.betas)   
+pr_occ.gpor<-1/(1+exp(-(logit.p.gpor)))
+
+cov.df$dfus_pr_occ<-pr_occ.dfus
+cov.df$ebis_pr_occ<-pr_occ.ebis
+cov.df$gpor_pr_occ<-pr_occ.gpor
+plot(cov.df$dfus_pr_occ)
+plot(cov.df$ebis_pr_occ)
+plot(cov.df$gpor_pr_occ)
+
+p21<-ggplot(cov.df, aes(rfor,y=value)) +
   geom_point(aes(y=dfus_pr_occ,col="blue")) +
   geom_point(aes(y=ebis_pr_occ,col="red")) +
   geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.temp.forest,y=value)) +
+p22<-ggplot(cov.df, aes(ufor,y=value)) +
   geom_point(aes(y=dfus_pr_occ,col="blue")) +
   geom_point(aes(y=ebis_pr_occ,col="red")) +
   geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.ripa.forest,y=value)) +
+p23<-ggplot(cov.df, aes(area,y=value)) +
   geom_point(aes(y=dfus_pr_occ,col="blue")) +
   geom_point(aes(y=ebis_pr_occ,col="red")) +
   geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.ripa.forest,y=value)) +
+p24<-ggplot(cov.df, aes(temp,y=value)) +
   geom_point(aes(y=dfus_pr_occ,col="blue")) +
   geom_point(aes(y=ebis_pr_occ,col="red")) +
   geom_point(aes(y=gpor_pr_occ,col="green"))
-
-ggplot(cov, aes(cov.temp.ann_tmax_c,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-
+grid.arrange(p21,p22,p23,p24)
 ```
 
 
