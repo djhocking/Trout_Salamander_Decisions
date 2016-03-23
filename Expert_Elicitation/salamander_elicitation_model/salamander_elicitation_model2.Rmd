@@ -11,7 +11,7 @@ Co-authors: Dan Hocking, Evan Grant, Ben Letcher
 Created: Feb 01 2016
 Modified from original model.Rmd file - removed manuscript text
 
-Last Updated: March 21 2016
+Last Updated: March 22 2016
 
 #################### collect and format covariate data from sheds
 ```{r install libraries, echo=FALSE, results='hide'}
@@ -76,7 +76,7 @@ df_covariates_m<-as.matrix((df_covariates))
 df_covariates_m
 #write.csv(df_covariates_m,file="df_covariates.csv")
 ```
-```{r import covariate data, create cov.df, echo=FALSE, results='hide'}
+```{r import covariate data, create cov.df, echo=FALSE}
 
 # import saved covariate data from db
 deerfield.cov.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/df_covariates.csv",fill=TRUE,header=TRUE)
@@ -122,7 +122,7 @@ plot(cov.df)
 qall2.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_qall2.csv",stringsAsFactors = TRUE,header=TRUE)
 str(qall2.data)
 ```
-```{r plot expert results, echo=FALSE,fig.width=6,fig.height=8}
+```{r plot expert results, echo=FALSE}
 # remove NA's
 qall.data<-subset(qall2.data,mean_reaches>=0)
 str(qall.data)
@@ -213,10 +213,10 @@ grid.arrange(p7.dfus,p7.gpor,p7.ebis,ncol=3)
 pd <- position_dodge(0.2)
 p8.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("dfus")
 p8.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("gpor")
-p8.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=c(confidence_reaches), position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("ebis")
+p8.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("ebis")
 grid.arrange(p8.dfus,p8.gpor,p8.ebis,ncol=3)
 ```
-```{r calculate betas and plot predicted values, echo=FALSE}
+```{r calculate betas and plot predicted values, echo=FALSE,results='hide'}
 
 # convert mean_reaches to p (occupancy = mean_reaches/100) and/or logitp
 qall.data$p<-qall.data$mean_reaches/100
@@ -328,8 +328,7 @@ p14
 
 
 ```
-
-```{r export out_betas and cov_ranges, echo=FALSE, results='hide', eval=FALSE}
+```{r export out_betas and cov_ranges, echo=FALSE, results='hide'}
 
 # create list for betas
 betas<-list()
@@ -452,12 +451,13 @@ predictor.name<-c("log.drainage","temp","temp2","freq","flow","riparian","upland
 cov.ranges$predictor<-predictor.name
 write.csv(cov.ranges,file="out_cov_ranges.csv",row.names=TRUE)
 ```
-```{r plot betas, echo=FALSE, results='hide', fig.height=8, fig.width=5}
+```{r plot betas, echo=FALSE,result='hide'}
 str(betas.coef)
 
 betas.mean<-c(betas.coef[1:13,"dfus.mean"],betas.coef[1:13,"gpor.mean"],betas.coef[1:13,"ebis.mean"])
 betas.sd<-c(betas.coef[1:13,"dfus.stder"],betas.coef[1:13,"gpor.stder"],betas.coef[1:13,"ebis.stder"])
 betas.sp<-c(rep("dfus",13),rep("gpor",13),rep("ebis",13))
+predictor.name<-c("int","log.drainage","temp","temp2","freq","flow","riparian","upland","trout","sp1","sp2","freq.flow","ripa.upla")
 betas.name<-c(rep(predictor.name,3))
 all.betas<-data.frame(betas.mean,betas.sd,betas.sp,betas.name)
 str(all.betas)
@@ -468,7 +468,7 @@ p20
 ```
 
 #################### predict occupancy using expert data and sheds covariates
-```{r standarize cov.df, echo=FALSE, results='hide', eval=FALSE}
+```{r standarize cov.df, echo=FALSE, results='hide'}
 # import cov_ranges
 covrange.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/out_cov_ranges.csv",fill=TRUE,header=TRUE)
 covrange.data
@@ -487,7 +487,8 @@ cov.temp2.std<-(cov.df$temp2-covrange.data[covrange.data$predictor=="temp2","mea
 cov.upla.std<-(cov.df$ufor-covrange.data[covrange.data$predictor=="upland","mean.cov"])/covrange.data[covrange.data$predictor=="upland","sd.cov"]
 cov.ripa.std<-(cov.df$rfor-covrange.data[covrange.data$predictor=="riparian","mean.cov"])/covrange.data[covrange.data$predictor=="riparian","sd.cov"]
 cov.upla.ripa.std<-cov.upla.std*cov.ripa.std
-
+```
+```{r predict occ , echo=FALSE, results='hide'}
 # create new matrix of std.covariates
 #cov.df.std<-cbind(log(cov.area.std+1))
 #cov.std.m<-cbind(cov.temp.std)
@@ -495,23 +496,28 @@ cov.upla.ripa.std<-cov.upla.std*cov.ripa.std
 #cov.std.m<-cbind(cov.temp.std,cov.temp2.std)
 #cov.std.m<-cbind(cov.upla.std)
 #cov.std.m<-cbind(cov.ripa.std,cov.upla.std,cov.ripa.upla.std)
+
 cov.std.m<-cbind(log(cov.area.std+1),cov.temp.std,cov.temp2.std,cov.ripa.std,cov.upla.std)
 cov.std.m<-as.matrix(cov.std.m,ncols=5,nrows=985)
 str(cov.std.m)
-cov.std.m<-cbind(cov.ripa.std,cov.upla.std)
-cov.std.m<-as.matrix(cov.std.m,ncols=2,nrows=985)
+
+cov.std.m<-cbind(cov.area.std,cov.ripa.std,cov.upla.std)
+cov.std.m<-as.matrix(cov.std.m,ncols=3,nrows=985)
 str(cov.std.m)
 
 # create a vector of betas for each species
 dfus.betas<-c(beta.data$dfus.mean[2:4],beta.data$dfus.mean[7:8])
 dfus.betas<-c(beta.data$dfus.mean[2:4],beta.data$dfus.mean[7:8])
 dfus.betas<-c(beta.data$dfus.mean[7:8])
+dfus.betas<-c(beta.data$dfus.mean[2],beta.data$dfus.mean[7:8])
 #,beta.data$defu.mean[6],beta.data$defu.mean[5])
 ebis.betas<-c(beta.data$ebis.mean[2:4],beta.data$ebis.mean[7:8])
 ebis.betas<-c(beta.data$ebis.mean[7:8])
+ebis.betas<-c(beta.data$ebis.mean[2],beta.data$ebis.mean[7:8])
 #,beta.data$eubi.mean[6],beta.data$eubi.mean[5])
 gpor.betas<-c(beta.data$gpor.mean[2:4],beta.data$gpor.mean[7:8])
 gpor.betas<-c(beta.data$gpor.mean[7:8])
+gpor.betas<-c(beta.data$gpor.mean[2],beta.data$gpor.mean[7:8])
 #,beta.data$gypo.mean[6],beta.data$gypo.mean[5])
 
 # calculate probability of occupancy using logit link function
@@ -550,82 +556,27 @@ plot(cov.df$dfus_pr_occ)
 plot(cov.df$ebis_pr_occ)
 plot(cov.df$gpor_pr_occ)
 
-p21<-ggplot(cov.df, aes(rfor,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-p22<-ggplot(cov.df, aes(ufor,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-p23<-ggplot(cov.df, aes(area,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-p24<-ggplot(cov.df, aes(temp,y=value)) +
-  geom_point(aes(y=dfus_pr_occ,col="blue")) +
-  geom_point(aes(y=ebis_pr_occ,col="red")) +
-  geom_point(aes(y=gpor_pr_occ,col="green"))
-grid.arrange(p21,p22,p23,p24)
+p21.dfus<-ggplot(cov.df,aes(ufor,dfus_pr_occ)) + geom_point() 
+p21.ebis<-ggplot(cov.df,aes(ufor,ebis_pr_occ)) + geom_point() 
+p21.gpor<-ggplot(cov.df,aes(ufor,gpor_pr_occ)) + geom_point() 
+grid.arrange(p21.dfus,p21.ebis,p21.gpor)
+
+p22.dfus<-ggplot(cov.df,aes(rfor,dfus_pr_occ)) + geom_point() 
+p22.ebis<-ggplot(cov.df,aes(rfor,ebis_pr_occ)) + geom_point() 
+p22.gpor<-ggplot(cov.df,aes(rfor,gpor_pr_occ)) + geom_point() 
+grid.arrange(p22.dfus,p22.ebis,p22.gpor)
+
+p23.dfus<-ggplot(cov.df,aes(area,dfus_pr_occ)) + geom_point() 
+p23.ebis<-ggplot(cov.df,aes(area,ebis_pr_occ)) + geom_point() 
+p23.gpor<-ggplot(cov.df,aes(area,gpor_pr_occ)) + geom_point() 
+grid.arrange(p23.dfus,p23.ebis,p23.gpor)
+
 ```
 
 
 
 
 
-
-```{r occ.model.sim1, echo=FALSE, results='hide',eval=FALSE}
-no.catchments=100
-no.species=1
-no.simulations=20 # number of experts
-
-# create empty vectors and matrices for storing output
-sim1.data<-catchment.data.sub1[1:no.catchments,]
-pr.occupancy<-alpha<-matrix(rep(NA,no.catchments*no.species*no.simulations))
-dim(alpha)<-dim(pr.occupancy)<-c(no.catchments,no.species,no.simulations)
-mean.pr.occupancy<-sd.pr.occupancy<-matrix(rep(NA,no.catchments*no.species),nrow=no.catchments,ncol=no.species)
-intercept<-b1<-b2<-rep(NA,no.simulations)
-
-# create parameter uncertainty 
-# need to calcuate odd-ratios from expert elicitation
-# unsure how to add variance/sd in odd-ratios
-intercept[1:no.simulations]<-rnorm(no.simulations,mean=log(0.5/(1-0.5)),sd=0.1) # 0.5 average occupancy
-b1[1:no.simulations]<-rnorm(no.simulations,log(10),sd=0.1) # 5x more likely to occur for every 1 percent increase in forest cover
-b2[1:no.simulations]<-rnorm(no.simulations,log(0.90),sd=0.1) # 10x less likely to occur for every 1 sqkm increase in drainage area
-
-for (species in 1:no.species){
-  for (catchment in 1:no.catchments){
-    for (sim in 1:no.simulations){
-      alpha[catchment,species,sim]<-
-      intercept[sim] + b1[sim]*sim1.data$MEAN[catchment] + b2[sim]*sim1.data$AreaSqKM[catchment]
-      #+ regional.effect (provinces) 
-      #+ stream.temp (july mean or annual max) 
-      #+ stream.flow (precip x drainage area; high or low-flow magnitude) 
-      #+ riparian.forest (within 30m of riparian)  
-      #+ upland.forest (outside of 30m riparian) 
-      #+ riparian.forest x upland.forest (interaction term) 
-      #+ fish.presence (brook trout; yes or no) 
-      #+ residual variance
-    pr.occupancy[catchment,species,sim]<-exp(alpha[catchment,species,sim])/(exp(alpha[catchment,species,sim])+1) 
-  } # sim
-    mean.pr.occupancy[catchment,species]<-mean(pr.occupancy[catchment,species,1:no.simulations])
-    sd.pr.occupancy[catchment,species]<-sd(pr.occupancy[catchment,species,1:no.simulations])
- }
-}
-
-#head(alpha)
-#head(pr.occupancy)
-```
-
-
-```{r plot.occ,echo=FALSE, results="hide",include=FALSE}
-par(mfrow=c(2,2))
-#plot(sim1.data$MEAN,sim1.data$AreaSqKM,xlab="percent upstream forest",ylab="drainage area")
-plot(mean.pr.occupancy~sim1.data$MEAN,ylim=c(0,1),xlab="percent upstream forest")
-plot(mean.pr.occupancy~sim1.data$AreaSqKM,ylim=c(0,1),xlab="drainage area")
-plot(sd.pr.occupancy~sim1.data$MEAN,ylim=c(-2,2),xlab="percent upstream forest")
-plot(sd.pr.occupancy~sim1.data$AreaSqKM,ylim=c(-2,2),xlab="drainage area")
-```
 
 
 
