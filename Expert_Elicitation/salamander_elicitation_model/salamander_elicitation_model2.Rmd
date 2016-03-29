@@ -151,14 +151,19 @@ str(qall.data)
 qall.data<-subset(qall.data,expert_ID>=10)
 str(qall.data)
 
+# subset data for each species
+qall.dfus<-subset(qall.data,qall.data$species=="dfus")
+qall.gpor<-subset(qall.data,qall.data$species=="gpor")
+qall.ebis<-subset(qall.data,qall.data$species=="ebis")
+
 # plot raw values for each expert
 par(mfrow=c(3,2))
 plot(density(qall.dfus$mean_reaches))
-plot(qall.dfus$mean_reaches,col=qall.dfus$expert_ID)
+plot(qall.dfus$mean_reaches,col=qall.dfus$expert_ID,ylim=c(0,100))
 plot(density(qall.gpor$mean_reaches))
-plot(qall.gpor$mean_reaches,col=qall.gpor$expert_ID)
+plot(qall.gpor$mean_reaches,col=qall.gpor$expert_ID,ylim=c(0,100))
 plot(density(qall.ebis$mean_reaches))
-plot(qall.ebis$mean_reaches,col=qall.ebis$expert_ID)
+plot(qall.ebis$mean_reaches,col=qall.ebis$expert_ID,ylim=c(0,100))
 
 
 # check for overall variation among experts (across and within species)
@@ -168,38 +173,38 @@ grid.arrange(p.ex,p.exsp)
 
 # region
 pd <- position_dodge(0.1)
-p2.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("2") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus")
-p2.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("2") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor")
-p2.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("2") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis")
+p2.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("2") ),aes(expert_ID,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus")
+p2.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("2") ),aes(expert_ID,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor")
+p2.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("2") ),aes(expert_ID,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis")
 grid.arrange(p2.dfus,p2.gpor,p2.ebis,ncol=3)
 
 # drainage
-p3.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("3") & mean_reaches>=0), aes(drainage_area_sqkm,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("dfus")
-p3.gpor<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("3") & mean_reaches>=0), aes(drainage_area_sqkm,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("gpor")
-p3.ebis<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("3") & mean_reaches>=0), aes(drainage_area_sqkm,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("ebis")
+p3.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("3") ), aes(drainage_area_sqkm,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("dfus")
+p3.gpor<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("3") ), aes(drainage_area_sqkm,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("gpor")
+p3.ebis<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("3") ), aes(drainage_area_sqkm,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("ebis")
 grid.arrange(p3.dfus, p3.gpor, p3.ebis)
 
 # temp
-p4.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") & mean_reaches>=0), aes(summer_temp_C,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("dfus")
-p4.gpor<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") & mean_reaches>=0), aes(summer_temp_C,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("gpor")
-p4.ebis<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") & mean_reaches>=0), aes(summer_temp_C,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("ebis")
+p4.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") ), aes(summer_temp_C,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("dfus")
+p4.gpor<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") ), aes(summer_temp_C,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("gpor")
+p4.ebis<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("4") ), aes(summer_temp_C,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches))+ ylim(0, 100) + ggtitle("ebis")
 grid.arrange(p4.dfus, p4.gpor, p4.ebis)
 
-# streamflow
-p5.10.sma.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 2-m, dry year")
-p5.10.med.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 4-m, dry year")
-p5.190.sma.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 2-m, wet year")
-p5.190.med.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 4-m, wet year")
+# streamflow - need to fix colors/shapes
+p5.10.sma.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") &  flow_type==10 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 2-m, dry year")
+p5.10.med.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") &  flow_type==10 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 4-m, dry year")
+p5.190.sma.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") &  flow_type==190 & stream_width_m==2),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 2-m, wet year")
+p5.190.med.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("5") &  flow_type==190 & stream_width_m==4),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("dfus, 4-m, wet year")
 
-p5.10.sma.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 2-m, dry year")
-p5.10.med.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 4-m, dry year")
-p5.190.sma.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 2-m, wet year")
-p5.190.med.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 4-m, wet year")
+p5.10.sma.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") &  flow_type==10 & stream_width_m==2),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 2-m, dry year")
+p5.10.med.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") &  flow_type==10 & stream_width_m==4),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 4-m, dry year")
+p5.190.sma.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") &  flow_type==190 & stream_width_m==2),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 2-m, wet year")
+p5.190.med.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("5") &  flow_type==190 & stream_width_m==4),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("gpor, 4-m, wet year")
 
-p5.10.sma.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 2-m, dry year")
-p5.10.med.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==10 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 4-m, dry year")
-p5.190.sma.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 2-m, wet year")
-p5.190.med.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") & mean_reaches>=0 & flow_type==190 & stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=3,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 4-m, wet year")
+p5.10.sma.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") &  flow_type==10 & stream_width_m==2),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='tomato4') + geom_line(aes(y=mean_reaches),color='tomato4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 2-m, dry year")
+p5.10.med.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") &  flow_type==10 & stream_width_m==4),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='tomato1') + geom_line(aes(y=mean_reaches),color='tomato1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 4-m, dry year")
+p5.190.sma.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") &  flow_type==190 & stream_width_m==2),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='skyblue4') + geom_line(aes(y=mean_reaches),color='skyblue4') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 2-m, wet year")
+p5.190.med.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("5") &  flow_type==190 & stream_width_m==4),aes(flow_year_freq,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches),colour='skyblue1') + geom_line(aes(y=mean_reaches),color='skyblue1') +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("ebis, 4-m, wet year")
 
 grid.arrange(p5.10.sma.dfus,p5.10.med.dfus,p5.190.sma.dfus,p5.190.med.dfus,
              p5.10.sma.gpor,p5.10.med.gpor,p5.190.sma.gpor,p5.190.med.gpor,
@@ -207,25 +212,25 @@ grid.arrange(p5.10.sma.dfus,p5.10.med.dfus,p5.190.sma.dfus,p5.190.med.dfus,
              ncol=4)
 
 # riparian and upland forest
-p6.0.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") & mean_reaches>=0 & upland_forest==0),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 0 upland")
-p6.25.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") & mean_reaches>=0 & upland_forest==25),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 25 upland")
-p6.50.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") & mean_reaches>=0 & upland_forest==50),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 50 upland")
-p6.75.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") & mean_reaches>=0 & upland_forest==75),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 75 upland")
-p6.100.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") & mean_reaches>=0 & upland_forest==100),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 100 upland")
+p6.0.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") &  upland_forest==0),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 0 upland")
+p6.25.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") &  upland_forest==25),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 25 upland")
+p6.50.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") &  upland_forest==50),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 50 upland")
+p6.75.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") &  upland_forest==75),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 75 upland")
+p6.100.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("6") &  upland_forest==100),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus, 100 upland")
 #grid.arrange(p6.0.dfus,p6.25.dfus,p6.50.dfus,p6.75.dfus,p6.100.dfus)
 
-p6.0.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") & mean_reaches>=0 & upland_forest==0),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 0 upland")
-p6.25.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") & mean_reaches>=0 & upland_forest==25),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 25 upland")
-p6.50.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") & mean_reaches>=0 & upland_forest==50),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 50 upland")
-p6.75.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") & mean_reaches>=0 & upland_forest==75),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 75 upland")
-p6.100.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") & mean_reaches>=0 & upland_forest==100),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 100 upland")
+p6.0.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") &  upland_forest==0),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 0 upland")
+p6.25.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") &  upland_forest==25),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 25 upland")
+p6.50.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") &  upland_forest==50),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 50 upland")
+p6.75.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") &  upland_forest==75),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 75 upland")
+p6.100.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("6") &  upland_forest==100),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor, 100 upland")
 #grid.arrange(p6.0.gpor,p6.25.gpor,p6.50.gpor,p6.75.gpor,p6.100.gpor)
 
-p6.0.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") & mean_reaches>=0 & upland_forest==0),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 0 upland")
-p6.25.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") & mean_reaches>=0 & upland_forest==25),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 25 upland")
-p6.50.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") & mean_reaches>=0 & upland_forest==50),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 50 upland")
-p6.75.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") & mean_reaches>=0 & upland_forest==75),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 75 upland")
-p6.100.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") & mean_reaches>=0 & upland_forest==100),aes(riparian_forest,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 100 upland")
+p6.0.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") &  upland_forest==0),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 0 upland")
+p6.25.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") &  upland_forest==25),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 25 upland")
+p6.50.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") &  upland_forest==50),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 50 upland")
+p6.75.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") &  upland_forest==75),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 75 upland")
+p6.100.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("6") &  upland_forest==100),aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=1,aes(y=mean_reaches)) + geom_line(aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis, 100 upland")
 #grid.arrange(p6.0.ebis,p6.25.ebis,p6.50.ebis,p6.75.ebis,p6.100.ebis)
 
 grid.arrange(p6.0.dfus,p6.25.dfus,p6.50.dfus,p6.75.dfus,p6.100.dfus,
@@ -233,27 +238,23 @@ grid.arrange(p6.0.dfus,p6.25.dfus,p6.50.dfus,p6.75.dfus,p6.100.dfus,
              p6.0.ebis,p6.25.ebis,p6.50.ebis,p6.75.ebis,p6.100.ebis,ncol=5)
 
 # trout presence
-pd <- position_dodge(0.1)
-p7.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("7") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus")
-p7.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("7") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor")
-p7.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("7") & mean_reaches>=0),aes(expert_ID,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis")
+pd <- position_dodge(0.5)
+p7.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("7") ),aes(expert_ID,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("dfus")
+p7.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("7") ),aes(expert_ID,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("gpor")
+p7.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("7") ),aes(expert_ID,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") + ggtitle("ebis")
 grid.arrange(p7.dfus,p7.gpor,p7.ebis,ncol=3)
+grid.arrange(p2.dfus,p7.dfus,p2.gpor,p7.gpor,p2.ebis,p7.ebis,ncol=2)
 
 # salamander presence
-pd <- position_dodge(0.2)
-p8.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("dfus")
-p8.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("gpor")
-p8.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("8") & mean_reaches>=0),aes(sal_other,mean_reaches,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("ebis")
+pd <- position_dodge(0.5)
+p8.dfus<-ggplot(subset(qall.data,species %in% c("dfus") & question %in% c("8") ),aes(sal_other,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("dfus")
+p8.gpor<-ggplot(subset(qall.data,species %in% c("gpor") & question %in% c("8") ),aes(sal_other,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("gpor")
+p8.ebis<-ggplot(subset(qall.data,species %in% c("ebis") & question %in% c("8") ),aes(sal_other,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") +  ggtitle("ebis")
 grid.arrange(p8.dfus,p8.gpor,p8.ebis,ncol=3)
 ```
 ```{r calculate betas (glmer), echo=FALSE,results='hide'}
 
-ggplot(qall.data,aes(x=question,y=mean_reaches,group=interaction(expert_ID,question),fill=factor(expert_ID))) + geom_boxplot()
-
-# subset data for each species
-qall.dfus<-subset(qall.data,qall.data$species=="dfus" & qall.data$expert_ID>=10 & qall.data$mean_reaches>=0)
-qall.gpor<-subset(qall.data,qall.data$species=="gpor" & qall.data$expert_ID>=10 & qall.data$mean_reaches>=0)
-qall.ebis<-subset(qall.data,qall.data$species=="ebis" & qall.data$expert_ID>=10 & qall.data$mean_reaches>=0)
+#ggplot(qall.data,aes(x=question,y=mean_reaches,group=interaction(expert_ID,question,species),fill=factor(expert_ID))) + geom_boxplot()
 
 # plot correlations among predictor variables
 library(corrgram)
@@ -289,7 +290,7 @@ grid.arrange(p1, p2, p3)
 r1<-ggplot(qall.dfus, aes(pred,resid,color=factor(mean_reaches))) + geom_point() + geom_hline(yintercept=0) + ggtitle('dfus')+theme(legend.position="none")
 r2<-ggplot(qall.gpor, aes(pred,resid,color=factor(mean_reaches))) + geom_point() + geom_hline(yintercept=0) + ggtitle('gpor')+theme(legend.position="none")
 r3<-ggplot(qall.ebis, aes(pred,resid,color=factor(mean_reaches))) + geom_point() + geom_hline(yintercept=0) + ggtitle('dfus')+theme(legend.position="none")
-grid.arrange(r1, r2, r3,ncol=3)
+grid.arrange(r1, r2, r3, ncol=3)
 
 # plot residuals by question 
 p4<-ggplot(qall.dfus, aes(question,resid, fill=factor(question))) + geom_boxplot() + ggtitle('dfus') + geom_hline(yintercept=0)
@@ -309,44 +310,45 @@ grid.arrange(p4, p5, p6,p7,p8,p9, ncol=3)
 qall.new<-rbind(qall.dfus,qall.ebis,qall.gpor)
 ```
 ```{r plot predicted values, echo=FALSE, results='hide'}
+
 # plot relations between predicted occ and factors
 dodge=position_dodge(width=0.5)  
 
 # q3 - stream size
-p10.dfus<-ggplot(subset(qall.new,qall.new$question==3 & species=="dfus"),aes(drainage_area_sqkm,pred,shape=factor(expert_ID))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("catchment drainage area, km2") +ggtitle("dfus")
-p10.gpor<-ggplot(subset(qall.new,qall.new$question==3 & species=="gpor"),aes(drainage_area_sqkm,pred,shape=factor(expert_ID))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("catchment drainage area, km2")+ggtitle("gpor")
-p10.ebis<-ggplot(subset(qall.new,qall.new$question==3 & species=="ebis"),aes(drainage_area_sqkm,pred,shape=factor(expert_ID))) + geom_point() + geom_line() + ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("catchment drainage area, km2")+ggtitle("ebis")
+p10.dfus<-ggplot(subset(qall.new,qall.new$question==3 & species=="dfus"),aes(drainage_area_sqkm,pred,col=factor(expert_ID))) + geom_line() + ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("catchment drainage area, km2") +ggtitle("dfus")
+p10.gpor<-ggplot(subset(qall.new,qall.new$question==3 & species=="gpor"),aes(drainage_area_sqkm,pred,col=factor(expert_ID))) + geom_line() + ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("catchment drainage area, km2")+ggtitle("gpor")
+p10.ebis<-ggplot(subset(qall.new,qall.new$question==3 & species=="ebis"),aes(drainage_area_sqkm,pred,col=factor(expert_ID))) + geom_line() + ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("catchment drainage area, km2")+ggtitle("ebis")
 grid.arrange(p10.dfus,p10.gpor,p10.ebis)
 
 
 
 # q4 - stream temp
-p11<-ggplot(subset(qall.new,qall.new$question==4),aes(summer_temp_C,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("all")
+p11<-ggplot(subset(qall.new,qall.new$question==4),aes(summer_temp_C,pred,color=factor(expert_ID),shape=factor(species))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("all")
 p11
 
-p11.dfus<-ggplot(subset(qall.new,qall.new$question==4&species=="dfus"),aes(summer_temp_C,pred,shape=factor(expert_ID))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("dfus")
-p11.gpor<-ggplot(subset(qall.new,qall.new$question==4&species=="gpor"),aes(summer_temp_C,pred,shape=factor(expert_ID))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("gpor")
-p11.ebis<-ggplot(subset(qall.new,qall.new$question==4&species=="ebis"),aes(summer_temp_C,pred,shape=factor(expert_ID))) + geom_point()+ geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("ebis")
+p11.dfus<-ggplot(subset(qall.new,qall.new$question==4&species=="dfus"),aes(summer_temp_C,pred,col=factor(expert_ID))) + geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("dfus")
+p11.gpor<-ggplot(subset(qall.new,qall.new$question==4&species=="gpor"),aes(summer_temp_C,pred,col=factor(expert_ID))) + geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("gpor")
+p11.ebis<-ggplot(subset(qall.new,qall.new$question==4&species=="ebis"),aes(summer_temp_C,pred,col=factor(expert_ID))) + geom_line()+ ylim(0,1) + ylab("predicted p(occupancy)")+ xlab("mean summer temp, C")+ggtitle("ebis")
 grid.arrange(p11,p11.dfus,p11.gpor,p11.ebis,ncol=2)
 
 # q5 - streamflow
-p13.dry.small<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of dry years") + ggtitle("small stream, dry")
-p13.wet.small<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of wet years") + ggtitle("small stream, wet")
-p13.dry.medium<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of dry years") + ggtitle("medium stream, dry")
-p13.wet.medium<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of wet years") + ggtitle("medium stream, wet")
+p13.dry.small<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,pred,col=factor(expert_ID),shape=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of dry years") + ggtitle("small stream, dry")
+p13.wet.small<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,pred,col=factor(expert_ID),shape=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of wet years") + ggtitle("small stream, wet")
+p13.dry.medium<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==10 & stream_width_m==2),aes(flow_year_freq,pred,col=factor(expert_ID),shape=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of dry years") + ggtitle("medium stream, dry")
+p13.wet.medium<-ggplot(subset(qall.new,qall.new$question==5 & flow_type==190 & stream_width_m==2),aes(flow_year_freq,pred,col=factor(expert_ID),shape=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("frequency of wet years") + ggtitle("medium stream, wet")
 grid.arrange(p13.dry.small,p13.wet.small,p13.dry.medium,p13.wet.medium)
 
 # q6 - forest cover
-p12.100<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==100),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("100% upland forest")
-p12.75<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==75),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("75% upland forest")
-p12.50<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==50),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("50% upland forest")
-p12.25<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==25),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("25% upland forest")
-p12.0<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==0),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point()+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("0% upland forest")
+p12.100<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==100),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point(size=0)+ geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("100% upland forest")
+p12.75<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==75),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point(size=0)+geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("75% upland forest")
+p12.50<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==50),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point(size=0)+geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("50% upland forest")
+p12.25<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==25),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point(size=0)+geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("25% upland forest")
+p12.0<-ggplot(subset(qall.new,qall.new$question==6 & upland_forest==0),aes(s.ripa,pred,shape=factor(expert_ID),color=factor(species))) + geom_point(size=0)+geom_line() + ylim(0,1) + ylab("predicted prob occupancy")+ xlab("percentriparian") + ggtitle("0% upland forest")
 grid.arrange(p12.100,p12.75,p12.50,p12.25,p12.0)
 
 # q7 - brook trout
 pd <- position_dodge(.5)
-p14<-ggplot(subset(qall.new,qall.new$question==7),aes(expert_ID,pred,shape=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + + ylim(0, 100)  + ggtitle("trout presence")
+p14<-ggplot(subset(qall.new,qall.new$question==7),aes(expert_ID,pred,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches)) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=.1, position=pd) + + ylim(0, 100)  + ggtitle("trout presence")
 p14
 ```
 ```{r export out_betas and cov_ranges, echo=FALSE, results='hide'}
@@ -483,8 +485,8 @@ betas.name<-c(rep(predictor.name,3))
 all.betas<-data.frame(betas.mean,betas.sd,betas.sp,betas.name)
 str(all.betas)
 
-dodge=position_dodge(width=0.6)  
-p20<-ggplot(all.betas,aes(y=betas.mean,x=betas.name,shape=factor(betas.sp))) + geom_point(aes(shape=betas.sp),position=dodge,size=2,stat="identity") + geom_errorbar(aes(y=betas.mean,ymin=betas.mean-betas.sd,ymax=betas.mean+betas.sd),size=.5,position=dodge,width=.25) + coord_flip()    
+dodge=position_dodge(width=0.3)  
+p20<-ggplot(all.betas,aes(y=betas.mean,x=betas.name,col=factor(betas.sp))) + geom_point(position=dodge,size=1,stat="identity") + geom_errorbar(aes(y=betas.mean,ymin=betas.mean-betas.sd,ymax=betas.mean+betas.sd),size=.5,position=dodge,width=0) + coord_flip()    
 p20
 ```
 
