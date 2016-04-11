@@ -1,0 +1,254 @@
+---
+title: "salamander_elicitation_survey1_results"
+author: "Katz"
+date: "April 11, 2016"
+output: html_document
+---
+## expert = 17
+
+```{r install libraries,echo=FALSE, results='hide',warning=FALSE,message=FALSE}
+library(knitr)
+library(xtable)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(RPostgreSQL)
+library(DBI)
+library(ggplot2)
+#library(ggthemes)
+library(gridExtra)
+library(lme4)
+#library(plotly) - create interactive plots?
+library(RColorBrewer)
+```
+
+```{r import expert elicitation data, echo=FALSE, results='hide'}
+#import expert data
+qall2.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_qall2.csv",stringsAsFactors = TRUE,header=TRUE)
+str(qall2.data)
+
+#import bio data
+#q1sum.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/expert_elicitation_questionaire_q1sum.csv",stringsAsFactors = TRUE,header=TRUE)
+#str(q1sum.data)
+```
+
+```{r format df,echo=FALSE, results='hide'}
+# remove NA's
+qall.data<-subset(qall2.data,mean_reaches>=0)
+str(qall.data)
+
+# remove NEARMI pre-survey data
+qall.data<-subset(qall.data,expert_ID>=10)
+str(qall.data)
+
+# subset data for each species
+qall.dfus<-subset(qall.data,qall.data$species=="dfus")
+qall.gpor<-subset(qall.data,qall.data$species=="gpor")
+qall.ebis<-subset(qall.data,qall.data$species=="ebis")
+qall.ecir<-subset(qall.data,qall.data$species=="ecir")
+```
+
+```{r set expert ID, echo=FALSE, results="hide"}
+expert_no<-17
+expert.data<-subset(qall.data,expert_ID %in% c(expert_no))
+```
+
+add summary of the number of experts per species by region
+what is your thought process when answering each question?
+what were particular challenges you faced when answering each question?
+
+## question 2
+
+```{r kable - average occupancy by expert (q2), echo=FALSE}
+q2.data<-subset(qall.data,question %in% c("2"))
+q2.data.expert<-subset(q2.data,expert_ID %in% c(expert_no))
+q2.tbl<-as.data.frame(summarise(group_by(q2.data,species),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),sd=round(sd(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),cv=round(sd(mean_reaches)/mean(mean_reaches),digits=2),no.experts=length(mean_reaches)))
+q2.tbl<-left_join(q2.tbl,summarise(group_by(q2.data.expert,species),your_value=round(mean(mean_reaches),digits=0)))
+#q2.tbl<-as.table(q2.tbl)
+kable(q2.tbl, digits=2)
+```
+
+## question 3
+
+A. Is occupancy lower in a 1-m wide stream compared to 2-m wide stream? 
+
+B. What is the maximum occupancy across stream sizes?
+
+C. At what size stream does maximum occupancy occur?
+
+D. How fast does occupancy decline with increasing stream size after maximum occupancy?
+
+*NOTE: support for RE of expert_ID 
+
+```{r plot  - drainage by expert (q3), echo=FALSE, fig.width=6, fig.height=4}
+q3.data<-subset(qall.data,question %in% c("3"))
+q3.data.expert<-subset(q3.data,expert_ID %in% c(expert_no))
+q3.data.mean<-summarise(group_by(q3.data,species,stream_width_m),mean=mean(mean_reaches))
+pd<-ggplot(q3.data, aes((stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + geom_line(size=1,aes(y=mean,x=(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+ geom_line(size=1,aes(y=mean_reaches,x=(stream_width_m)),q3.data.expert,col="red") + facet_grid(.~species, scales="free")
+pd
+
+plogd<-ggplot(q3.data, aes(log(stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + facet_grid(.~species, scales="free") + geom_line(size=1,aes(y=mean,x=log(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=log(stream_width_m)),q3.data.expert,col="red") 
+plogd
+# add real scale for log-drainage values (0 to 200sqkm)
+
+```
+
+## question 4
+
+#insert figure of mean stream temp from sheds
+
+A. Does occupancy decline monotonically with increasing mean summer temperature?
+
+B. Does temperature have limited to no effect on occupancy when low (10-14C; theshold response)?
+
+C. What is a critical thermal maximum for salamanders? Can they avoid this?
+
+D. At what temperatures would salamander cease to occur? (see ice.ecosheds.org temp predictions)
+
+*NOTE: support for RE of expert_ID
+
+```{r plot  - temp by expert (q4), echo=FALSE, fig.width=6, fig.height=4}
+q4.data<-subset(qall.data,question %in% c("4"))
+q4.data.expert<-subset(q4.data,expert_ID %in% c(expert_no))
+q4.data.mean<-summarise(group_by(q4.data,species,summer_temp_C),mean=mean(mean_reaches))
+ptemp<-ggplot(q4.data, aes(summer_temp_C,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q4.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q4.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=summer_temp_C),q4.data.mean,col="black")+ ylab("elicited number of occupie reaches")+geom_line(size=1,aes(y=mean_reaches,x=summer_temp_C),q4.data.expert,col="red")
+ptemp
+```
+
+## question 5
+
+A. Increasing frequency of exceedingly dry years decreases occupancy for all species?
+
+B. Thresdold response to drought for GPOR due to the length of the larval period (true for other species)?
+
+C. What are the ecological mechanisms generating unique relationships (i.e., compared to all other experts)? For example, does a 4-m wide stream "function" more like a 2-m wide stream with increasing frequency of drought years? 
+
+D. Are there alternative hypotheses (i.e., no change vs. decline vs. increase) concerning flow-salamander relationships that need to be coonsidered explicitly within small or medium-sizes streams?
+
+```{r plot  - streamflow by expert (q5), echo=FALSE, fig.width=6, fig.height=4}
+# need to format to expert and streamflow
+q4.data<-subset(qall.data,question %in% c("4"))
+q4.data.expert<-subset(q4.data,expert_ID %in% c(expert_no))
+q4.data.mean<-summarise(group_by(q4.data,species,summer_temp_C),mean=mean(mean_reaches))
+ptemp<-ggplot(q4.data, aes(summer_temp_C,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q4.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q4.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=summer_temp_C),q4.data.mean,col="black")+ ylab("elicited number of occupie reaches")+geom_line(size=1,aes(y=mean_reaches,x=summer_temp_C),q4.data.expert,col="red")
+ptemp
+```
+
+## question 6
+
+A. Is the effect of riparian buffer lower in catchments with little upland forest compared to lots of upland forest?
+
+B. Does the interaction between riparian and upland forest vary among species? 
+
+C. If so, why? For which species does riparian forest cover have a larger impact on occupancy?
+
+D. How important is the type of landcover of the non-forested habitat (i.e., urban vs. agricultural)? Do you predict different relationships between riparian forest depending on the other land uses?
+
+
+```{r plot  - forest cover by expert (q5), echo=FALSE, fig.width=6, fig.height=4}
+# need to format to expert and streamflow
+# plot only mean response on single plot 
+```
+
+## question 7
+
+A. In what scenarios would brook trout NOT influence salamander occupancy?
+
+B. What factors mitigate or exacerbate brook trout-effect on stream salamanders?
+
+```{r plot  - trout by expert (q5), echo=FALSE, fig.width=6, fig.height=4}
+# absolute change in occupancy
+# percent change in occupancy from fish absence
+
+#q2 mean, q7 mean (with trout), ab-change, % change 
+
+#across expert summary mean % decline
+#plot for 0 and 1 (similar to other plots)
+
+
+
+```
+
+## question 8
+
+A. In what scenarios would other salamanders speices presence NOT influence focal salamander occupancy?
+
+B. What factors mitigate or exacerbate other salamander influences on focal species?
+
+C. Is occupancy of each focal species largely independent from other focal stream salamanders?
+
+D. How important is the presence of other salamander species relative to other abiotic factors?
+
+```{r plot  - salamanader by expert (q5), echo=FALSE, fig.width=6, fig.height=4}
+# absolute change in occupancy
+# percent change in occupancy from fish absence
+
+#q2 mean, q7 mean (with trout), ab-change, % change 
+
+#across expert summary mean % decline
+#plot for 0 and 1 (similar to other plots)
+```
+
+
+```{r other, echo=FALSE, results='hide', eval=FALSE}
+########## streamflow 
+mflow<-subset(qall.data,question %in% c("5")&stream_width_m==2)
+pflow<-ggplot(subset(qall.data,question %in% c("5")&stream_width_m==2),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches,color=factor(expert_ID))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("small stream (2-m)")+ scale_colour_manual(values=unique(e.color[mflow$expert_ID-9]))+ facet_grid(flow_type~.~species, scales="free")
+
+mflow2<-subset(qall.data,question %in% c("5")&stream_width_m==4)
+pflow2<-ggplot(subset(qall.data,question %in% c("5")&stream_width_m==4),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches,color=factor(expert_ID))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("medium stream (4-m)")+ scale_colour_manual(values=unique(e.color[mflow2$expert_ID-9]))+ facet_grid(flow_type~.~species, scales="free")
+
+mflow3<-subset(qall.data,question %in% c("5"))
+pflow3<-ggplot(subset(qall.data,question %in% c("5")),aes(flow_year_freq,shape=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches,color=factor(expert_ID))) +  ylim(0, 100) +  theme(legend.position="none") + ggtitle("streamflow x stream size")+ scale_colour_manual(values=unique(e.color[mflow3$expert_ID-9]))+ facet_grid(flow_type+stream_width_m~.~species, scales="free")
+pflow3
+
+grid.arrange(pflow,pflow2,ncol=1)
+
+########## riparian and upland forest
+mfor<-subset(qall.data,question %in% c("6"))
+pfor<-ggplot(subset(qall.data,question %in% c("6")), aes(riparian_forest,col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=0.75,aes(y=mean_reaches)) + ylim(0, 100) + theme(legend.position="none") + ggtitle("percent forest cover")+ scale_colour_manual(values=unique(e.color[mfor$expert_ID-9]))+ facet_grid(species~.~upland_forest, scales="free")
+pfor
+
+########## trout presence
+mfish<-subset(qall.data,question %in% c("7","2"))
+pfish<-ggplot(subset(qall.data,question %in% c("7","2")), aes(expert_ID,mean_reaches,col=factor(expert_ID))) + geom_point(size=2,aes(y=mean_reaches)) + geom_errorbar(size=1, aes(ymin=lower_reaches, ymax=upper_reaches), width=0) + ylim(0, 100) + theme(legend.position="none") + ggtitle("brook trout effect")+ scale_colour_manual(values=unique(e.color[mfish$expert_ID-9]))+ scale_x_continuous(breaks=c(10:24))+geom_text(size=3,aes(label=confidence_reaches),hjust=1.2, vjust=2)+ facet_grid(species~.~expert_ID+trout_presence, scales="free")
+pfish
+
+########## salamander presence
+pd=position_dodge(width=0.8)  
+msald<-subset(qall.data,question %in% c("8","2")&species=="dfus")
+psald<-ggplot(subset(qall.data,question %in% c("8","2")&species=="dfus"), aes(sal_other,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=unique(e.color[msald$expert_ID-9]))+geom_text(size=3,aes(label=confidence_reaches),hjust=1.2, vjust=2,position=pd)+facet_grid(species~.~sal_other,scales="free")
+psald
+
+pd=position_dodge(width=0.8)  
+msalg<-subset(qall.data,question %in% c("8","2")&species=="gpor")
+psalg<-ggplot(subset(qall.data,question %in% c("8","2")&species=="gpor"), aes(sal_other,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=unique(e.color[msalg$expert_ID-9]))+geom_text(size=3,aes(label=confidence_reaches),hjust=1.2, vjust=2,position=pd)+facet_grid(species~.~sal_other,scales="free")
+psalg
+
+pd=position_dodge(width=0.8)  
+msale<-subset(qall.data,question %in% c("8","2")&species=="ebis")
+psale<-ggplot(subset(qall.data,question %in% c("8","2")&species=="ebis"), aes(sal_other,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=unique(e.color[msale$expert_ID-9]))+geom_text(size=3,aes(label=confidence_reaches),hjust=1.2, vjust=2,position=pd)+facet_grid(species~.~sal_other,scales="free")
+psale
+
+pd=position_dodge(width=0.8)  
+msalec<-subset(qall.data,question %in% c("8","2")&species=="ecir")
+psalec<-ggplot(subset(qall.data,question %in% c("8","2")&species=="ecir"), aes(sal_other,mean_reaches,col=factor(expert_ID))) + geom_point(aes(y=mean_reaches),position=pd) + geom_errorbar(aes(ymin=lower_reaches, ymax=upper_reaches), width=0, position=pd) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=unique(e.color[msald$expert_ID-9]))+geom_text(size=3,aes(label=confidence_reaches),hjust=1.2, vjust=2,position=pd)+facet_grid(species~.~sal_other,scales="free")
+psalec
+
+grid.arrange(psald,psalg,psale,psalec)
+```
+
+## question 2b
+
+Comparison of overall mean occupancy (q2 vs. predicted). What are we missing?
+
+Q2 mean, compared to intercept, 80CI (upper, and lower).
+
+Did you overestimate occupancy when estimating mean occupancy? Why or why not? Why is the mean occupancy lower based on other survery responses?
+
+## region-specific responses per species
+
+## re-survey (at least 80% confident your values are within the true range)
+
+## 
+
