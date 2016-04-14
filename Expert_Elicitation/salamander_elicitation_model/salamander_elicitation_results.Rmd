@@ -5,14 +5,37 @@ date: "Updated April 13, 2016"
 output: word_document
 ---
 
+```{r expert} 
+expert_no<-10
+```
+
 #### Webinar Instructions
 
-NEED TO: set up FUZE with instructions instead - working on this
-Join Webex Online Meeting (for video): https://meetings.webex.com/collabs/#/meetings/detail?uuid=MATXYGLPKT1VWMAG0YE1DYK7EF-4O2&rnd=352114.57980
+Join Online Meeting (video): http://fuze.me/32585730 or https://www.fuzemeeting.com/fuze/704a0942/32585730
 
-Conference Line (for audio):
+Meeting ID: 32585730
 
-Please review your survey responses (red line; individual experts = grey lines; mean across experts = black line) and discussion questions for each survey question before our webinar. 
+Join by phone (audio): Dial phone number and enter the Meeting ID when prompted:
+
+Toll Free   +1 855 346 3893
+
+Toll Number +1 201 479 4595
+
+Please download Fuze to optimize video quality (https://www.fuze.com/download?utm_source=Meeting-Invite) before the meeting. 
+
+#### Agenda
+
+1. Introductions
+
+2. Project Background and Motivation
+
+3. Discussion of Survey Responses
+
+4. Additional Factors
+
+5. Next Steps
+
+Please review your survey responses (red lines below; individual experts = grey lines; mean across experts = black line), check for accuracy, and review the discussion topics for each survey question before our webinar. 
 
 Be prepared to share any relevant literature or experiences that helped guide your responses.
 
@@ -61,17 +84,41 @@ qall.ecir<-subset(qall.data,qall.data$species=="ecir")
 ```
 
 ```{r setexpertID, echo=FALSE, results="hide",warning=FALSE,message=FALSE}
-expert_no<-17
 expert.data<-subset(qall.data,expert_ID %in% c(expert_no))
 ```
 
 #### Survey Question 1 - Summary of responses
 
-NEED: summary of the number of experts per species by region as table
+N = 18 experts total.
+
+* mid-atlantic region (OH, PA, DE, NJ, MD, DC) = 4 experts
+
+* northern region (NY, RI, CT, MA, VT, NH, ME, Canada) = 5 experts
+
+* southern region (VA, WV, KY, TN, NC, SC, GA, AL, MS) = 9 experts
+
+Number of experts by region and species. 
+
+```{r kable_q1a, echo=FALSE, warning=FALSE, message=FALSE}
+# number of experts
+df.resp1<-data.frame(region=c("midatlantic","northern","southern"),dfus=c(4, 5, 9),ebis=c(4, 5, 0),ecir=c(0, 0, 9),gpor=c(3, 5, 9))
+
+kable(df.resp1, digits=2)
+```
+
+Response rate (percent of survey questions answered) per region and species.
+
+```{r kable_q1b, echo=FALSE, warning=FALSE, message=FALSE}
+df.resp2<-data.frame(region=c("midatlantic","northern","southern"),dfus.NA=c(4, 0, 4),ebis.NA=c(4, 0, 0),ecir.NA=c(0, 0, 3),gpor.NA=c(4, 0, 3))
+
+df.resp3<-data.frame(region=c("midatlantic","northern","southern"),dfus=c(100-round(df.resp2$dfus.NA/(df.resp1$dfus*7)*100,digits=2)),ebis=c(100-round(df.resp2$ebis.NA/(df.resp1$ebis*7)*100,digits=2)),ecir=c(100-round(df.resp2$ecir.NA/(df.resp1$ecir*7)*100,digits=2)),gpor=c(100-round(df.resp2$gpor.NA/(df.resp1$gpor*7)*100,digits=2)))
+
+kable(df.resp3, digits=2)
+```
 
 For each survey question below, consider 100 randomly selected 500-m stream reaches (each composed of 5 x 100-m stream reaches) each located within a catchment with the following characteristics: 
 
-*	upstream drainage area of 2 km2 (average 2-m wetted width)
+* upstream drainage area of 2 km2 (average 2-m wetted width)
 
 *	average summer(June, July, August) water temperature of 14 degrees C
 
@@ -86,13 +133,7 @@ For each survey question below, consider 100 randomly selected 500-m stream reac
 *	no reaches are located at the edge of a range (non-peripheral or edge population 
 effects).
 
-•	each randomly selected from across the range of salamander communities within each region, which naturally range in the number of co-occurring salamander species within a 500-m each:
-
-•	southern region reaches may contain 0 to 10 co-occurring salamander species
-
-•	mid-atlantic region reaches may contain 0 to 6 co-occurring salamander species 
-
-•	northern region reaches may contain 0 to 4 co-occurring salamander species 
+* each randomly selected from across the range of salamander communities within each region, which naturally range in the number of co-occurring salamander species within a 500-m each: southern region reaches may contain 0 to 10 co-occurring salamander species, mid-atlantic region reaches may contain 0 to 6 co-occurring salamander species, northern region reaches may contain 0 to 4 co-occurring salamander species 
 
 #### Survey Question 2 - Overall Regional Occupancy
 
@@ -109,7 +150,7 @@ kable(q2.tbl, digits=2)
 
 #### Survey Question 3 - Stream Size
 
-Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a particular STREAM SIZE (drainage area; km2) would you expect a population of salamanders to exist for each species? 
+Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a particular STREAM SIZE (drainage area (sqkm) ~ average stream width (m)) would you expect a population of salamanders to exist for each species? 
 
 A. How fast does occupancy decline with increasing stream size after maximum occupancy?
 
@@ -123,10 +164,10 @@ D. At what stream size is occupancy expected to be at its highest?
 q3.data<-subset(qall.data,question %in% c("3"))
 q3.data.expert<-subset(q3.data,expert_ID %in% c(expert_no))
 q3.data.mean<-summarise(group_by(q3.data,species,stream_width_m),mean=mean(mean_reaches))
-pd<-ggplot(q3.data, aes((stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + geom_line(size=1,aes(y=mean,x=(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+ geom_line(size=1,aes(y=mean_reaches,x=(stream_width_m)),q3.data.expert,col="red") + facet_grid(.~species, scales="free")+xlab("average stream width (m))")
+pd<-ggplot(q3.data, aes((stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + geom_line(size=1,aes(y=mean,x=(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+ geom_line(size=1,aes(y=mean_reaches,x=(stream_width_m)),q3.data.expert,col="red") + facet_grid(.~species, scales="free")+xlab("average stream width (m)")
 pd
 
-plogd<-ggplot(q3.data, aes(log(stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + facet_grid(.~species, scales="free") + geom_line(size=1,aes(y=mean,x=log(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=log(stream_width_m)),q3.data.expert,col="red")+xlab("average stream width (m))")
+plogd<-ggplot(q3.data, aes(log(stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + facet_grid(.~species, scales="free") + geom_line(size=1,aes(y=mean,x=log(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=log(stream_width_m)),q3.data.expert,col="red")+xlab("log(average stream width (m))")
 plogd
 
 # add real scale for log-drainage values (0 to 200sqkm)
@@ -361,7 +402,7 @@ kable(q2m.tbl, digits=2)
 
 #### Regional Differences in Species-Responses?
 
-A Are there predictable differences (strong support) that species-specific responses vary among regions (southern, midatlantic, northern)?
+A. Are there predictable differences (strong support) that species-specific responses vary among regions (southern, midatlantic, northern)?
 
 B. Do experts have evidence that EBIS would NOT similar relationships to factors in this survey compares to ECIR? Please explain.
 

@@ -175,7 +175,10 @@ e21="#CCCC00" # yellow
 e22="#3399FF" # light blue
 e23="#9966FF" # light purple 
 e24="#FFCC99" # peach 
-e.color<-c(e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,e21,e22,e23,e24)
+e25="#FFCC99" # peach 
+e26="#FFCC99" # peach 
+e27="#FFCC99" # peach 
+e.color<-c(e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,e20,e21,e22,e23,e24,e25,e26,e27)
 
 # plot median values per question by expert
 s1a<-ggplot(subset(sum,species=="dfus"),aes(median,interaction(question,expert_ID),col=factor(expert_ID)))+geom_point(size=2)+theme(legend.position="none")+scale_colour_manual(values=e.color) + ggtitle("dfus")+facet_grid(expert_ID~., scales="free")
