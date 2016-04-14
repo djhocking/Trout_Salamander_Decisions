@@ -1,29 +1,33 @@
 ---
 title: "Stream Salamander Expert Elicitation Survey Results"
-author: 'Leads: Katz, Hocking, Grant'
-date: "Updated April 13, 2016"
 output: word_document
 ---
 
-```{r expert} 
+### Contact Info
+* Rachel Katz (rakatz@umass.edu)
+* Dan Hocking (dhocking@usgs.gov)
+* Evan Grant (ehgrant@usgs.gov)
+
+```{r expert, echo=FALSE, results='hide', warning=FALSE, message=FALSE} 
 expert_no<-10
 ```
+Your expert ID is `r expert_no`.
 
-#### Webinar Instructions
+### Webinar Instructions
 
-Join Online Meeting (video): http://fuze.me/32585730 or https://www.fuzemeeting.com/fuze/704a0942/32585730
+**Date: Thursday, April 21, 2016**
 
-Meeting ID: 32585730
+**Time: 10am-1pm EST**
 
-Join by phone (audio): Dial phone number and enter the Meeting ID when prompted:
+**Meeting ID: 32589686**
 
-Toll Free   +1 855 346 3893
+Join meeting (for video): http://fuze.me/32589686
 
-Toll Number +1 201 479 4595
+Join meeting (for audio): +1 201-479-4595. Enter the Meeting ID when prompted.
 
-Please download Fuze to optimize video quality (https://www.fuze.com/download?utm_source=Meeting-Invite) before the meeting. 
+Download: For the optimal Fuze experience, we suggest you download Fuze (https://www.fuze.com/download?utm_source=Meeting-Invite) before your meeting.
 
-#### Agenda
+### Meeting Agenda
 
 1. Introductions
 
@@ -35,16 +39,33 @@ Please download Fuze to optimize video quality (https://www.fuze.com/download?ut
 
 5. Next Steps
 
-Please review your survey responses (red lines below; individual experts = grey lines; mean across experts = black line), check for accuracy, and review the discussion topics for each survey question before our webinar. 
+**Please review your survey responses (red lines below = your expert ID; all other individual experts = grey lines; mean across experts = black line), check for accuracy, and review the discussion topics for each survey question before our webinar. Be prepared to share any relevant literature or experiences that helped guide your responses.**
 
-Be prepared to share any relevant literature or experiences that helped guide your responses.
-
-#### Survey Description Summary
+### Survey Description Summary
 
 Stream salamanders are vulnerable to decline across their range due to the increasing number of threats associated with climate change and land use development. Multiple management agencies and conservation organizations are interested in protecting these species through managing riparian and upland habitats and barriers that influence dispersal of stream fishes. Regional data sets useful for estimating and predicting local and broad-scale salamander occupancy in relation to changing abiotic and biotic factors are limited. As a result, management agencies are turning to stream salamander experts to help inform the potential benefits of alternative conservation actions using expert elicitation methods –an approach increasingly used to improve conservation of species with limited empirical data (see Martin et al. 2005, Kuhnert et al. 2010, Speirs-Bridge et al. 2010, Runge et al. 2011, Martin et al. 2012, Adams-Hocking et al. 2016). 
 
-The purpose of this survey is to utilize salamander expertise to assess the effects of biotic and abiotic factors on several species of stream salamanders occurring within the northeastern US. Gathering opinions from multiple experts allows us to include both variability and uncertainty in scientific understanding in predictions of salamander occupancy under a range of alternative climate and land management scenarios. Specifically, this survey aims to use expert knowledge to predict the effects of climate (temperature and streamflow), land use (riparian and upland habitats) and interspecies interactions (fish and salamanders) on three focal species of stream salamanders: northern dusky salamander (Desmognathus fuscus; DFUS), northern two-lined salamander (Eurycea bislineata; EBIS) and spring salamander (Gyrinophilus porphyriticus; GPOR) to help inform management decisions.
- 
+The purpose of this survey is to utilize salamander expertise to assess the effects of biotic and abiotic factors on several species of stream salamanders occurring within the northeastern US. Gathering opinions from multiple experts allows us to include both variability and uncertainty in scientific understanding in predictions of salamander occupancy under a range of alternative climate and land management scenarios. Specifically, this survey aims to use expert knowledge to predict the effects of climate (temperature and streamflow), land use (riparian and upland habitats) and interspecies interactions (fish and salamanders) on three focal species of stream salamanders: northern dusky salamander (*Desmognathus fuscus*; DFUS), northern two-lined salamander (*Eurycea bislineata*; EBIS) and spring salamander (*Gyrinophilus porphyriticus*; GPOR) to help inform management decisions.
+
+For each survey question, experts considered 100 randomly selected 500-m stream reaches (each composed of 5 x 100-m stream reaches) that were each located within a catchment with the following characteristics: 
+
+* upstream drainage area of 2 sq-km (average 2-m wetted width)
+
+*	average summer(June, July, August) water temperature of 14 degrees C
+
+*	near average summer (June, July, August) streamflow every year over last 10 years (zero exceedingly wet or dry years)
+
+*	100% forest cover within a 30-m riparian buffer
+
+*	100% forest cover within the upland (non-riparian buffer)
+
+*	no stream fishes present (no competition or predation)
+
+*	no reaches are located at the edge of a range (non-peripheral or edge population 
+effects).
+
+* each randomly selected from across the range of salamander communities within each region, which naturally range in the number of co-occurring salamander species within a 500-m each: southern region reaches may contain 0 to 10 co-occurring salamander species, mid-atlantic region reaches may contain 0 to 6 co-occurring salamander species, northern region reaches may contain 0 to 4 co-occurring salamander species 
+
 ```{r installlibraries, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
 library(knitr)
 library(xtable)
@@ -87,7 +108,7 @@ qall.ecir<-subset(qall.data,qall.data$species=="ecir")
 expert.data<-subset(qall.data,expert_ID %in% c(expert_no))
 ```
 
-#### Survey Question 1 - Summary of responses
+### Survey Question 1 - Summary of Responses
 
 N = 18 experts total.
 
@@ -101,7 +122,7 @@ Number of experts by region and species.
 
 ```{r kable_q1a, echo=FALSE, warning=FALSE, message=FALSE}
 # number of experts
-df.resp1<-data.frame(region=c("midatlantic","northern","southern"),dfus=c(4, 5, 9),ebis=c(4, 5, 0),ecir=c(0, 0, 9),gpor=c(3, 5, 9))
+df.resp1<-data.frame(region=c("mid-atlantic","northern","southern"),dfus=c(4, 5, 9),ebis=c(4, 5, 0),ecir=c(0, 0, 9),gpor=c(3, 5, 9))
 
 kable(df.resp1, digits=2)
 ```
@@ -109,127 +130,111 @@ kable(df.resp1, digits=2)
 Response rate (percent of survey questions answered) per region and species.
 
 ```{r kable_q1b, echo=FALSE, warning=FALSE, message=FALSE}
-df.resp2<-data.frame(region=c("midatlantic","northern","southern"),dfus.NA=c(4, 0, 4),ebis.NA=c(4, 0, 0),ecir.NA=c(0, 0, 3),gpor.NA=c(4, 0, 3))
+df.resp2<-data.frame(region=c("mid-atlantic","northern","southern"),dfus.NA=c(4, 0, 4),ebis.NA=c(4, 0, 0),ecir.NA=c(0, 0, 3),gpor.NA=c(4, 0, 3))
 
-df.resp3<-data.frame(region=c("midatlantic","northern","southern"),dfus=c(100-round(df.resp2$dfus.NA/(df.resp1$dfus*7)*100,digits=2)),ebis=c(100-round(df.resp2$ebis.NA/(df.resp1$ebis*7)*100,digits=2)),ecir=c(100-round(df.resp2$ecir.NA/(df.resp1$ecir*7)*100,digits=2)),gpor=c(100-round(df.resp2$gpor.NA/(df.resp1$gpor*7)*100,digits=2)))
+df.resp3<-data.frame(region=c("mid-atlantic","northern","southern"),dfus=c(100-round(df.resp2$dfus.NA/(df.resp1$dfus*7)*100,digits=2)),ebis=c(100-round(df.resp2$ebis.NA/(df.resp1$ebis*7)*100,digits=2)),ecir=c(100-round(df.resp2$ecir.NA/(df.resp1$ecir*7)*100,digits=2)),gpor=c(100-round(df.resp2$gpor.NA/(df.resp1$gpor*7)*100,digits=2)))
 
 kable(df.resp3, digits=2)
 ```
 
-For each survey question below, consider 100 randomly selected 500-m stream reaches (each composed of 5 x 100-m stream reaches) each located within a catchment with the following characteristics: 
-
-* upstream drainage area of 2 km2 (average 2-m wetted width)
-
-*	average summer(June, July, August) water temperature of 14 degrees C
-
-*	near average summer (June, July, August) streamflow every year over last 10 years (zero exceedingly wet or dry years)
-
-*	100% forest cover within a 30-m riparian buffer
-
-*	100% forest cover within the upland (non-riparian buffer)
-
-*	no stream fishes present (no competition or predation)
-
-*	no reaches are located at the edge of a range (non-peripheral or edge population 
-effects).
-
-* each randomly selected from across the range of salamander communities within each region, which naturally range in the number of co-occurring salamander species within a 500-m each: southern region reaches may contain 0 to 10 co-occurring salamander species, mid-atlantic region reaches may contain 0 to 6 co-occurring salamander species, northern region reaches may contain 0 to 4 co-occurring salamander species 
-
-#### Survey Question 2 - Overall Regional Occupancy
+### Survey Question 2 - Overall Regional Occupancy
 
 Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) would you expect a population of salamanders to exist for each species?
+
+Expected number of occupied reaches (mean, median, SD, maximum, minimum, CV) across experts (N) compared to your the expected value. 
 
 ```{r kable_q2, echo=FALSE, warning=FALSE, message=FALSE}
 q2.data<-subset(qall.data,question %in% c("2"))
 q2.data.expert<-subset(q2.data,expert_ID %in% c(expert_no))
-q2.tbl<-as.data.frame(summarise(group_by(q2.data,species),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),sd=round(sd(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),cv=round(sd(mean_reaches)/mean(mean_reaches),digits=2),no_experts=length(mean_reaches)))
+q2.tbl<-as.data.frame(summarise(group_by(q2.data,species),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),SD=round(sd(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),CV=round(sd(mean_reaches)/mean(mean_reaches),digits=2),N=length(mean_reaches)))
 q2.tbl<-left_join(q2.tbl,summarise(group_by(q2.data.expert,species),your_value=round(mean(mean_reaches),digits=0)))
 #q2.tbl<-as.table(q2.tbl)
 kable(q2.tbl, digits=2)
 ```
 
-#### Survey Question 3 - Stream Size
+### Survey Question 3 - Stream Size
 
-Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a particular STREAM SIZE (drainage area (sqkm) ~ average stream width (m)) would you expect a population of salamanders to exist for each species? 
+Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a particular STREAM SIZE (drainage area (sq-km) ~ average stream width (m)) would you expect a population of salamanders to exist for each species? 
 
-A. How fast does occupancy decline with increasing stream size after maximum occupancy?
+A. At what stream size is occupancy expected to be maximized?
 
 B. Is occupancy lower in a 1-m wide stream compared to 2-m wide stream? 
 
-C. What is the maximum expected occupancy for a catchment with these charcateristics?
+C. What is the maximum expected occupancy for a catchment with the given charcateristics (see above list)?
 
-D. At what stream size is occupancy expected to be at its highest?
+D. How fast does occupancy decline with increasing stream size after maximum occupancy?
 
-```{r plot_q3, echo=FALSE, fig.width=7, fig.height=3}
+```{r plot_q3, echo=FALSE, fig.width=7, fig.height=4, warning=FALSE, message=FALSE}
 q3.data<-subset(qall.data,question %in% c("3"))
 q3.data.expert<-subset(q3.data,expert_ID %in% c(expert_no))
 q3.data.mean<-summarise(group_by(q3.data,species,stream_width_m),mean=mean(mean_reaches))
-pd<-ggplot(q3.data, aes((stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + geom_line(size=1,aes(y=mean,x=(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+ geom_line(size=1,aes(y=mean_reaches,x=(stream_width_m)),q3.data.expert,col="red") + facet_grid(.~species, scales="free")+xlab("average stream width (m)")
+pd<-ggplot(q3.data, aes((stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + geom_line(size=1.5,aes(y=mean,x=(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+ geom_line(size=1,aes(y=mean_reaches,x=(stream_width_m)),q3.data.expert,col="red") + facet_grid(.~species, scales="free")+xlab("average stream width (m)")
 pd
 
-plogd<-ggplot(q3.data, aes(log(stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none") + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + facet_grid(.~species, scales="free") + geom_line(size=1,aes(y=mean,x=log(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=log(stream_width_m)),q3.data.expert,col="red")+xlab("log(average stream width (m))")
+plogd<-ggplot(q3.data, aes(log(stream_width_m),col=factor(expert_ID))) + geom_point(size=0,aes(y=mean_reaches)) + geom_line(size=.75,aes(y=mean_reaches),q3.data) + ylim(0, 100) + theme(legend.position="none",strip.text.y = element_text(size = 8)) + scale_colour_manual(values=rep("grey",length(unique(q3.data$expert_ID)))) + facet_grid(.~species, scales="free") + geom_line(size=1.5,aes(y=mean,x=log(stream_width_m)),q3.data.mean,col="black") + ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=log(stream_width_m)),q3.data.expert,col="red")+xlab("log(average stream width (m)")
 plogd
 
-# add real scale for log-drainage values (0 to 200sqkm)
 # *NOTE: model support for RE of expert_ID 
 
 ```
 
-#### Survey Question 4 - Stream Temperature
+### Survey Question 4 - Stream Temperature
 
 Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a particular AVERAGE SUMMER (JUNE, JULY, AUGUST) STREAM TEMPERATURE (C) would you expect a population of salamanders to exist for each species?
 
-INSERT: Predicted mean summer stream temperature across the NE (see ice.ecosheds.org)
+Predicted mean summer stream temperature at the HUC 10 level across the NE. See [ice.ecosheds.org](http://ice.ecosheds.org) for catchment-level temperture predictions.
+
+![test](sheds_temp_overview.png)
 
 A. Does occupancy decline monotonically with increasing mean summer temperature?
 
 B. Does temperature have a limited or no effect on occupancy when low (10-14C; theshold response)?
 
-C. What is a critical thermal maximum for salamanders? Can they avoid negative effects of these high temperatures?
+C. What is a critical thermal maximum for salamanders? Can they behaviorally avoid negative physiologic effects of these high temperatures?
 
-D. At what temperatures would salamander cease to occur? (see ice.ecosheds.org temp predictions)
+D. At what temperatures would salamander cease to occur? (see [SHEDS: Interactive Catchment Explorer](http://ice.ecosheds.org) for catchment-level temperature predictions)
 
-```{r plot_q4, echo=FALSE, fig.width=7, fig.height=3}
+```{r plot_q4, echo=FALSE, fig.width=7, fig.height=4, warning=FALSE, message=FALSE}
 q4.data<-subset(qall.data,question %in% c("4"))
 q4.data.expert<-subset(q4.data,expert_ID %in% c(expert_no))
 q4.data.mean<-summarise(group_by(q4.data,species,summer_temp_C),mean=mean(mean_reaches))
-ptemp<-ggplot(q4.data, aes(summer_temp_C,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q4.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q4.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=summer_temp_C),q4.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=summer_temp_C),q4.data.expert,col="red")+xlab("mean summer stream temperature (C)")
+ptemp<-ggplot(q4.data, aes(summer_temp_C,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q4.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q4.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=summer_temp_C),q4.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=summer_temp_C),q4.data.expert,col="red")+xlab("mean summer stream temperature (C)")
 ptemp
 #*NOTE: support for RE of expert_ID
 ```
 
-#### Survey Question 5 - Streamflow
+### Survey Question 5 - Streamflow
 
 Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a particular SUMMER (JUNE, JULY, AUGUST) STREAMFLOW (i.e., DISCHARGE) OVER THE PREVIOUS 10-YEARS would you expect a population of salamanders to exist for each species? Exceedingly dry years represent flow years with ≤ 10% of the long-term average flow (90% below average) and exceedingly wet years represent flow years with ≥ 190% of the long-term average flow (90% above average). Assume all other years are near average flow conditions.
 
-A. Does drought have the same influence in small (2-m) vs. large (4-m) streams? 
+A. Does extreme drought have the same influence in small (2-m) vs. large (4-m) streams? 
 
 B. Does occupancy decline for all speices as the frequency of exceedingly dry years increases?
 
-C. Is there a thresdold response to prolonged (multi-year) drought for species due to the length of the larval period? Which species will this effect be strongest?
+C. Is there a threshold response to prolonged (multi-year) drought for species due to the length of the larval period? Which species will this effect be strongest?
 
-C. What are the ecological mechanisms generating unique relationships between flow and occupancy? For example, does a 4-m wide stream fucntion more like a 2-m wide stream with increasing frequency of drought years? 
+D. What are the ecological mechanisms generating unique relationships between flow and occupancy? For example, does a 4-m wide stream function more like a 2-m wide stream with increasing frequency of drought years? 
 
-D. Are there other hypotheses concerning flow-salamander relationships that need to be coonsidered explicitly within small or medium-sizes streams?
+E. Are there other hypotheses concerning flow-salamander relationships that need to be considered explicitly within small or medium-sizes streams?
 
-```{r plot_q5, echo=FALSE, fig.width=7, fig.height=5}
+```{r plot_q5, echo=FALSE, fig.width=7, fig.height=5, warning=FALSE, message=FALSE}
 labels <- c("2"= "2-m wide stream", "4" = "4-m wide stream")
 
 q5.data<-subset(qall.data,question %in% c("5")&flow_type==10)
 q5.data.expert<-subset(q5.data,expert_ID %in% c(expert_no))
 q5.data.mean<-summarise(group_by(q5.data,species,flow_year_freq),mean=mean(mean_reaches))
-pflowl<-ggplot(q5.data, aes(flow_year_freq,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q5.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q5.data$expert_ID))))+ geom_line(size=1,aes(y=mean,x=flow_year_freq),q5.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=flow_year_freq),q5.data.expert,col="red")+ ggtitle("dry years")+xlab("number of exceedingly dry years")+facet_grid(stream_width_m~.~species, scales="free",labeller=labeller(stream_width_m = labels))
+pflowl<-ggplot(q5.data, aes(flow_year_freq,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q5.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q5.data$expert_ID))))+ geom_line(size=1.5,aes(y=mean,x=flow_year_freq),q5.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=flow_year_freq),q5.data.expert,col="red")+ ggtitle("dry years")+xlab("number of exceedingly dry years")+facet_grid(stream_width_m~.~species, scales="free",labeller=labeller(stream_width_m = labels))
 pflowl
 
 q5.data<-subset(qall.data,question %in% c("5")&flow_type==190)
 q5.data.expert<-subset(q5.data,expert_ID %in% c(expert_no))
 q5.data.mean<-summarise(group_by(q5.data,species,flow_year_freq),mean=mean(mean_reaches))
-pflowh<-ggplot(q5.data, aes(flow_year_freq,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q5.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q5.data$expert_ID))))+  geom_line(size=1,aes(y=mean,x=flow_year_freq),q5.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=flow_year_freq),q5.data.expert,col="red")+ ggtitle("wet years")+xlab("number of exceedingly wet years")+facet_grid(stream_width_m~.~species, scales="free",labeller=labeller(stream_width_m = labels))
+pflowh<-ggplot(q5.data, aes(flow_year_freq,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q5.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q5.data$expert_ID))))+  geom_line(size=1.5,aes(y=mean,x=flow_year_freq),q5.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=flow_year_freq),q5.data.expert,col="red")+ ggtitle("wet years")+xlab("number of exceedingly wet years")+facet_grid(stream_width_m~.~species, scales="free",labeller=labeller(stream_width_m = labels))
 pflowh
 
 ```
 
-#### Survey Question 6 - Forest Cover
+### Survey Question 6 - Forest Cover
 
 Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a particular PERCENT FOREST COVER (in the 30-m riparian buffer and upland) would you expect a population of salamanders to exist for each species?
 
@@ -241,7 +246,7 @@ C. Does the riparian buffer have a larger influence on salamanders in catchments
 
 D. How important is the type of non-forested landcover (urban vs. agricultural)? Do you predict different relationships between riparian forest and salamanders depending on the other land uses? Why or why not?
 
-```{r plot_q6, echo=FALSE, fig.width=7, fig.height=3}
+```{r plot_q6, echo=FALSE, fig.width=7, fig.height=4, warning=FALSE, message=FALSE}
 # plot only mean response on single plot 
 
 q6.data<-subset(qall.data,question %in% c("6"))
@@ -263,18 +268,18 @@ pformean<-ggplot()+geom_line(size=0.2,aes(y=mean,x=riparian_forest,group=upland_
 pformean
 ```
 
-*Note: Percent upland forest cover increases with line width (0, 25, 50, 75, and 100%)
+*Note: Lines represent differing amounts of upland forest cover (e.g., 0% (thinnest line), 25%, 50%, 75%, 100% (thickest line)).
 
-```{r plot_q6b, echo=FALSE, fig.width=7, fig.height=7}
+```{r plot_q6b, echo=FALSE, fig.width=7, fig.height=7, warning=FALSE, message=FALSE}
 labels <- c("0"= "0% upland forest","25"= "25% upland forest","50"= "50% upland forest","75"= "75% upland forest","100"= "100% upland forest")
 q6.data<-subset(qall.data,question %in% c("6"))
 q6.data.expert<-subset(q6.data,expert_ID %in% c(expert_no))
 q6.data.mean<-summarise(group_by(q6.data,species,riparian_forest),mean=mean(mean_reaches))
-pfor<-ggplot(q6.data, aes(riparian_forest,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q6.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q6.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=riparian_forest),q6.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=riparian_forest),q6.data.expert,col="red")+ ggtitle("forest cover")+xlab("percent riparian (30-m) forest cover ")+facet_grid(species~.~upland_forest, scales="free",labeller=labeller(upland_forest = labels))
+pfor<-ggplot(q6.data, aes(riparian_forest,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q6.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q6.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=riparian_forest),q6.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=riparian_forest),q6.data.expert,col="red")+ ggtitle("forest cover")+xlab("percent riparian (30-m) forest cover ")+facet_grid(species~.~upland_forest, scales="free",labeller=labeller(upland_forest = labels))
 pfor
 ```
 
-#### Survey Question 7 - Brook Trout Interaction 
+### Survey Question 7 - Brook Trout Interaction 
 
 Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a RESIDENT BROOK TROUT FISH POPULATION PRESENT would you expect a population of salamanders to exist for each species?
 
@@ -282,12 +287,13 @@ A. When would brook trout presence NOT influence salamander occupancy?
 
 B. What factors mitigate or exacerbate effects of brook trout on focal salamander species?
 
+Elicited number of occupied reaches with no brook trout (0) compared to reaches with brook trout (1).
 ```{r plot_q7, echo=FALSE, fig.width=7, fig.height=4}
 # absolute change in occupancy
 q7.data<-subset(qall.data,question %in% c("7","2"))
 q7.data.expert<-subset(q7.data,expert_ID %in% c(expert_no))
 q7.data.mean<-summarise(group_by(q7.data,trout_presence,species),mean=mean(mean_reaches))
-pfish<-ggplot(q7.data, aes(trout_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q7.data)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q7.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=trout_presence),q7.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=trout_presence),q7.data.expert,col="red")+ ggtitle("brook trout interaction")+xlab("presence of a resident brook trout population = 1")
+pfish<-ggplot(q7.data, aes(trout_presence,col=factor(expert_ID)))+ geom_point(size=2,col="grey",aes(y=mean_reaches),q7.data)+ geom_line(size=.75,aes(y=mean_reaches),q7.data)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q7.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=trout_presence),q7.data.mean,col="black")+ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=trout_presence),q7.data.expert,col="red")+ ggtitle("brook trout interaction")+geom_point(size=2,aes(y=mean_reaches,x=trout_presence),q7.data.expert,col="red")+xlab("presence of a resident brook trout population = 1")
 pfish
 
 # percent change in occupancy from fish absence
@@ -298,12 +304,13 @@ pfish
 #q7.data.perc$perc<-fish.perc
 ```
 
-Summary table of the number of reaches (across experts) expected to be occupied by each salamander species when brook trout population is present.
+Expected number of occupied reaches (mean, median, SD, maximum, minimum, CV) across experts (N) compared to your the expected value when a resident brook trout population is present.
+
 ```{r kable_q7, echo=FALSE, warning=FALSE, message=FALSE}
 #q2 mean, q7 mean (with trout), ab-change, % change 
 q7.data<-subset(qall.data,question %in% c("7"))
 q7.data.expert<-subset(q7.data,expert_ID %in% c(expert_no))
-q7.tbl<-as.data.frame(summarise(group_by(q7.data,species),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),sd=round(sd(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),cv=round(sd(mean_reaches)/mean(mean_reaches),digits=2),no_experts=length(mean_reaches)))
+q7.tbl<-as.data.frame(summarise(group_by(q7.data,species),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),SD=round(sd(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),CV=round(sd(mean_reaches)/mean(mean_reaches),digits=2),N=length(mean_reaches)))
 q7.tbl<-left_join(q7.tbl,summarise(group_by(q7.data.expert,species),your_value=round(mean(mean_reaches),digits=0)))
 #q2.tbl<-as.table(q2.tbl)
 kable(q7.tbl, digits=2)
@@ -311,7 +318,7 @@ kable(q7.tbl, digits=2)
 #across expert summary mean % decline?
 ```
 
-#### Survey Question 8 - Stream Salamander Interaction
+### Survey Question 8 - Stream Salamander Interaction
 
 Based on your knowledge and experience, how many stream reaches (each 500-m long) out of 100 reaches selected randomly from across the region you selected (i.e., vary in other biotic and abiotic conditions) with a POPULATION OF ANOTHER STREAM SALAMANDER would you expect a population of the focal stream salamanders to exist?
 
@@ -323,55 +330,57 @@ C. Is the occupancy of each focal species largely independent from other focal s
 
 D. How important is the presence of other salamander species relative to abiotic factors?
 
-```{r plot_q8, echo=FALSE, fig.width=5, fig.height=3}
+Elicited number of occupied reaches occupied for each focal species (header) without other focal species present (0) compared to reaches with another focal species present (1).
+
+```{r plot_q8, echo=FALSE, fig.width=4, fig.height=2.5,warning=FALSE, message=FALSE}
 # absolute change in occupancy
 # dfus-ebis
 q8.data.de<-subset(qall.data,question %in% c("8","2")&species=="dfus"&sal_other%in% c("none","ebis"))
 q8.data.de.expert<-subset(q8.data.de,expert_ID %in% c(expert_no))
 q8.data.de.mean<-summarise(group_by(q8.data.de,ebis_presence,species),mean=mean(mean_reaches))
-psal_de<-ggplot(q8.data.de, aes(ebis_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.de)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.de$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=ebis_presence),q8.data.de.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=ebis_presence),q8.data.de.expert,col="red")+xlab("presence of ebis = 1")
+psal_de<-ggplot(q8.data.de, aes(ebis_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.de)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.de$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=ebis_presence),q8.data.de.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=ebis_presence),q8.data.de.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=ebis_presence),q8.data.de.expert,col="red")+xlab("presence of ebis = 1")
 
 # dfus-gpor
 q8.data.dg<-subset(qall.data,question %in% c("8","2")&species=="dfus"&sal_other%in% c("none","gpor"))
 q8.data.dg.expert<-subset(q8.data.dg,expert_ID %in% c(expert_no))
 q8.data.dg.mean<-summarise(group_by(q8.data.dg,gpor_presence,species),mean=mean(mean_reaches))
-psal_dg<-ggplot(q8.data.dg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.dg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.dg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=gpor_presence),q8.data.dg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.dg.expert,col="red")+xlab("presence of gpor = 1")
+psal_dg<-ggplot(q8.data.dg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.dg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.dg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=gpor_presence),q8.data.dg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.dg.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=gpor_presence),q8.data.dg.expert,col="red")+xlab("presence of gpor = 1")
 
 # ebis-dfus
 q8.data.ed<-subset(qall.data,question %in% c("8","2")&species=="ebis"&sal_other%in% c("none","dfus"))
 q8.data.ed.expert<-subset(q8.data.ed,expert_ID %in% c(expert_no))
 q8.data.ed.mean<-summarise(group_by(q8.data.ed,dfus_presence,species),mean=mean(mean_reaches))
-psal_ed<-ggplot(q8.data.ed, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ed)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ed$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=dfus_presence),q8.data.ed.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.ed.expert,col="red")+xlab("presence of dfus = 1")
+psal_ed<-ggplot(q8.data.ed, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ed)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ed$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=dfus_presence),q8.data.ed.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.ed.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=dfus_presence),q8.data.ed.expert,col="red")+xlab("presence of dfus = 1")
 
 # ebis-gpor
 q8.data.eg<-subset(qall.data,question %in% c("8","2")&species=="ebis"&sal_other%in% c("none","gpor"))
 q8.data.eg.expert<-subset(q8.data.eg,expert_ID %in% c(expert_no))
 q8.data.eg.mean<-summarise(group_by(q8.data.eg,gpor_presence,species),mean=mean(mean_reaches))
-psal_eg<-ggplot(q8.data.eg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.eg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.eg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=gpor_presence),q8.data.eg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.eg.expert,col="red")+xlab("presence of gpor = 1")
+psal_eg<-ggplot(q8.data.eg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.eg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.eg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=gpor_presence),q8.data.eg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.eg.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=gpor_presence),q8.data.eg.expert,col="red")+xlab("presence of gpor = 1")
 
 # ecir-dfus
 q8.data.ecd<-subset(qall.data,question %in% c("8","2")&species=="ecir"&sal_other%in% c("none","dfus"))
 q8.data.ecd.expert<-subset(q8.data.ecd,expert_ID %in% c(expert_no))
 q8.data.ecd.mean<-summarise(group_by(q8.data.ecd,dfus_presence,species),mean=mean(mean_reaches))
-psal_ecd<-ggplot(q8.data.ecd, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ecd)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ecd$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=dfus_presence),q8.data.ecd.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.ecd.expert,col="red")+xlab("presence of dfus = 1")
+psal_ecd<-ggplot(q8.data.ecd, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ecd)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ecd$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=dfus_presence),q8.data.ecd.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.ecd.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=dfus_presence),q8.data.ecd.expert,col="red")+xlab("presence of dfus = 1")
 
 # ecir-gpor
 q8.data.ecg<-subset(qall.data,question %in% c("8","2")&species=="ecir"&sal_other%in% c("none","gpor"))
 q8.data.ecg.expert<-subset(q8.data.ecg,expert_ID %in% c(expert_no))
 q8.data.ecg.mean<-summarise(group_by(q8.data.ecg,gpor_presence,species),mean=mean(mean_reaches))
-psal_ecg<-ggplot(q8.data.ecg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ecg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ecg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=gpor_presence),q8.data.ecg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.ecg.expert,col="red")+xlab("presence of gpor = 1")
+psal_ecg<-ggplot(q8.data.ecg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ecg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ecg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=gpor_presence),q8.data.ecg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.ecg.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=gpor_presence),q8.data.ecg.expert,col="red")+xlab("presence of gpor = 1")
 
 # gpor-dfus
 q8.data.gd<-subset(qall.data,question %in% c("8","2")&species=="gpor"&sal_other%in% c("none","dfus"))
 q8.data.gd.expert<-subset(q8.data.gd,expert_ID %in% c(expert_no))
 q8.data.gd.mean<-summarise(group_by(q8.data.gd,dfus_presence,species),mean=mean(mean_reaches))
-psal_gd<-ggplot(q8.data.gd, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.gd)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.gd$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=dfus_presence),q8.data.gd.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.gd.expert,col="red")+xlab("presence of dfus = 1")
+psal_gd<-ggplot(q8.data.gd, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.gd)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.gd$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=dfus_presence),q8.data.gd.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.gd.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=dfus_presence),q8.data.gd.expert,col="red")+xlab("presence of dfus = 1")
 
 # gpor-ebis
 q8.data.ge<-subset(qall.data,question %in% c("8","2")&species=="gpor"&sal_other%in% c("none","ebis"))
 q8.data.ge.expert<-subset(q8.data.ge,expert_ID %in% c(expert_no))
 q8.data.ge.mean<-summarise(group_by(q8.data.ge,ebis_presence,species),mean=mean(mean_reaches))
-psal_ge<-ggplot(q8.data.ge, aes(ebis_presence,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ge)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ge$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=ebis_presence),q8.data.ge.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=ebis_presence),q8.data.ge.expert,col="red")+xlab("presence of ebis = 1")
+psal_ge<-ggplot(q8.data.ge, aes(ebis_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ge)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ge$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=ebis_presence),q8.data.ge.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=ebis_presence),q8.data.ge.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=ebis_presence),q8.data.ge.expert,col="red")+xlab("presence of ebis = 1")
 
 grid.arrange(psal_de,psal_dg,ncol=2)
 grid.arrange(psal_eg,psal_ed,ncol=2)
@@ -379,9 +388,12 @@ grid.arrange(psal_ecg,psal_ecd,ncol=2)
 grid.arrange(psal_gd,psal_ge,ncol=2)
 ```
 
-#### Compare Overall Mean Occupancy 
+### Compare Overall Regional Occupancy to Predicted 
 
 Summary of the average occupancy (from question 2) compared to the model-estimated average occupancy (intercept from a generalized linear mixed effects model).
+
+Expected number of occupied reaches (mean, median, maximum, minimum) across experts (N) compared to your the expected value (from question 2) and the predicted mean occupancy (i.e., intercept from species-specific generalized linear mixed effects model).
+
 ```{r kable_q2b, echo=FALSE, warning=FALSE, message=FALSE}
 glmer1.dfus<-glmer(cbind(qall.dfus$mean_reaches,qall.dfus$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow*c.freq + c.perc.ripa*c.perc.upla + trout_presence + ebis_presence + gpor_presence + (1+c.temp+ I(c.log.drainage^2)|expert_ID),data = qall.dfus,family=binomial)
 glmer1.gpor<-glmer(cbind(qall.gpor$mean_reaches,qall.gpor$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow+c.freq + c.perc.ripa*c.perc.upla + trout_presence + ebis_presence + dfus_presence + (1+c.temp+ I(c.log.drainage^2)|expert_ID),data = qall.gpor,family=binomial)
@@ -394,30 +406,28 @@ int.df<-data.frame(intercept=c(as.numeric(plogis(fixef(glmer1.ecir)[1])),
                                as.numeric(plogis(fixef(glmer1.ebis)[1]))),
                    species=c("ecir","gpor","dfus","ebis"))
 
-q2m.tbl<-as.data.frame(summarise(group_by(q2.data,species),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),no_experts=length(mean_reaches)))
+q2m.tbl<-as.data.frame(summarise(group_by(q2.data,species),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),N=length(mean_reaches)))
 q2m.tbl<-left_join(q2m.tbl,summarise(group_by(q2.data.expert,species),your_value=round(mean(mean_reaches),digits=0)))
-q2m.tbl$estimated_intercept<-int.df$intercept*100
+q2m.tbl$predicted_mean_occ<-int.df$intercept*100
 kable(q2m.tbl, digits=2)
 ```
 
-#### Regional Differences in Species-Responses?
+### Regional Differences in Species-Responses
 
-A. Are there predictable differences (strong support) that species-specific responses vary among regions (southern, midatlantic, northern)?
+A. Is there strong support that species-specific relationships to factors in this survey would vary among regions (southern, mid-atlantic, northern)? If so, please explain. 
 
-B. Do experts have evidence that EBIS would NOT similar relationships to factors in this survey compares to ECIR? Please explain.
+B. Do experts have evidence that EBIS would NOT have similar relationships to factors in this survey compares to ECIR? If not, please explain.
 
-#### Next Steps (April/May)
+### Next Steps (April/May)
 
-A. Experts revise your responses based on webinar discussions, insights, and critisims
+A. Experts revise your responses based on webinar discussions, insights, and critisims.
 
-B. Experts fill out any additional survey questions (i.e., network structure)
+B. Experts fill out any additional survey questions (i.e., network structure).
 
-C. Predict occupancy at catchment level (mean, min, max, variance)
+C. Data analysts predict catchment-level occupancy (mean, min, max, variance) for each species across the NE region (using SHEDS-ICE database of catchments). 
 
-D. Compare predictions to empirical observations of presence/absence (i.e., model validation)
+D. Data analysts compare predictions from expert judgement to empirical observations of presence/absence (i.e., model validation).
 
-#### Other Comments/Concerns?
-
-
+### Other Comments/Concerns
 
 
