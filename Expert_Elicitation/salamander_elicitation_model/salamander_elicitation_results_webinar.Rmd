@@ -339,8 +339,16 @@ q7.tbl<-as.data.frame(summarise(group_by(q7.data,species),mean=round(mean(mean_r
 q7.tbl<-left_join(q7.tbl,summarise(group_by(q7.data.expert,species),your_value=round(mean(mean_reaches),digits=0)))
 #q2.tbl<-as.table(q2.tbl)
 kable(q7.tbl, digits=2)
+```
 
-#across expert summary mean % decline?
+**NEW:** Expected number of occupied reaches (mean, median, SD, maximum, minimum, CV) across experts (N) compared to your the expected value when a resident brook trout population is present BY REGION.
+
+```{r kable_q7b, echo=FALSE, warning=FALSE, message=FALSE}
+q7b.data<-subset(qall.data,question %in% c("7"))
+q7b.data.expert<-subset(q7b.data,expert_ID %in% c(expert_no))
+q7b.tbl<-as.data.frame(summarise(group_by(q7b.data,species,region),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),SD=round(sd(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),CV=round(sd(mean_reaches)/mean(mean_reaches),digits=2),N=length(mean_reaches)))
+q7b.tbl<-left_join(q7b.tbl,summarise(group_by(q7b.data.expert,species,region),your_value=round(mean(mean_reaches),digits=0)))
+kable(q7b.tbl, digits=2)
 ```
 
 ### Survey Question 8 - Stream Salamander Interaction
@@ -393,19 +401,19 @@ psal_ecd<-ggplot(q8.data.ecd, aes(dfus_presence,col=factor(expert_ID)))+ geom_po
 q8.data.ecg<-subset(qall.data,question %in% c("8","2")&species=="ecir"&sal_other%in% c("none","gpor"))
 q8.data.ecg.expert<-subset(q8.data.ecg,expert_ID %in% c(expert_no))
 q8.data.ecg.mean<-summarise(group_by(q8.data.ecg,gpor_presence,species),mean=mean(mean_reaches))
-psal_ecg<-ggplot(q8.data.ecg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ecg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ecg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=gpor_presence),q8.data.ecg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.ecg.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=gpor_presence),q8.data.ecg.expert,col="red")+xlab("presence of gpor = 1")
+psal_ecg<-ggplot(q8.data.ecg, aes(gpor_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ecg)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ecg$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=gpor_presence),q8.data.ecg.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=gpor_presence),q8.data.ecg.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=gpor_presence),q8.data.ecg.expert,col="red")+xlab("presence of gpor = 1")
 
 # gpor-dfus
 q8.data.gd<-subset(qall.data,question %in% c("8","2")&species=="gpor"&sal_other%in% c("none","dfus"))
 q8.data.gd.expert<-subset(q8.data.gd,expert_ID %in% c(expert_no))
 q8.data.gd.mean<-summarise(group_by(q8.data.gd,dfus_presence,species),mean=mean(mean_reaches))
-psal_gd<-ggplot(q8.data.gd, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.gd)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.gd$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=dfus_presence),q8.data.gd.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.gd.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=dfus_presence),q8.data.gd.expert,col="red")+xlab("presence of dfus = 1")
+psal_gd<-ggplot(q8.data.gd, aes(dfus_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.gd)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.gd$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=dfus_presence),q8.data.gd.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=dfus_presence),q8.data.gd.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=dfus_presence),q8.data.gd.expert,col="red")+xlab("presence of dfus = 1")
 
 # gpor-ebis
 q8.data.ge<-subset(qall.data,question %in% c("8","2")&species=="gpor"&sal_other%in% c("none","ebis"))
 q8.data.ge.expert<-subset(q8.data.ge,expert_ID %in% c(expert_no))
 q8.data.ge.mean<-summarise(group_by(q8.data.ge,ebis_presence,species),mean=mean(mean_reaches))
-psal_ge<-ggplot(q8.data.ge, aes(ebis_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ge)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ge$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1,aes(y=mean,x=ebis_presence),q8.data.ge.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=ebis_presence),q8.data.ge.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=ebis_presence),q8.data.ge.expert,col="red")+xlab("presence of ebis = 1")
+psal_ge<-ggplot(q8.data.ge, aes(ebis_presence,col=factor(expert_ID)))+ geom_point(size=2,aes(y=mean_reaches),col="grey")+ geom_line(size=.75,aes(y=mean_reaches),q8.data.ge)+ ylim(0, 100)+ theme(legend.position="none")+scale_colour_manual(values=rep("grey",length(unique(q8.data.ge$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=ebis_presence),q8.data.ge.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=ebis_presence),q8.data.ge.expert,col="red")+geom_point(size=2,aes(y=mean_reaches,x=ebis_presence),q8.data.ge.expert,col="red")+xlab("presence of ebis = 1")
 
 grid.arrange(psal_de,psal_dg,ncol=2)
 grid.arrange(psal_eg,psal_ed,ncol=2)
@@ -439,9 +447,11 @@ kable(q2m.tbl, digits=2)
 
 ### Regional Differences in Species-Responses
 
-A. Is there strong support that species-specific relationships to factors in this survey would vary among regions (southern, mid-atlantic, northern)? If so, please explain. 
+A. Is there strong support that species-specific relationships to the factors elicited in this survey would VARY among regions (southern, mid-atlantic, northern)? If so, please explain. 
 
-B. Do experts have evidence that EBIS would NOT have similar relationships to factors in this survey compares to ECIR? If not, please explain.
+B. Do experts have evidence that EBIS would NOT have similar relationships to factors in this survey compared to ECIR? If not, please explain.
+
+C. Do experts have evidence that DFUS would NOT have similar relationships to factors in this survey compared to DCON? If not, please explain.
 
 ### Other Factors
 
@@ -459,21 +469,19 @@ Topics:
 Assumptions:
 
 * True presence (vs. absence vs. non-detection)
-* EBIS similar to ECIR responses?
-* DFUS similar to DCON responses?
-* No variation in center vs. edge of range effects
+* No variation in center vs. edge of range effects on occupancy
 * One-time decision (forest protection) with immediate impacts (static, not dynamic)
 * Landscapes are at equilibrium (i.e., forest loss)
 
 ### Next Steps (April/May)
 
-A. Experts revise your responses based on webinar discussions, insights, and critisims.
+1. Experts revise your responses based on webinar discussions, insights, and critisims.
 
-B. Experts fill out any additional survey questions (i.e., network structure).
+2. Experts fill out any additional survey questions (i.e., network structure).
 
-C. Data analysts predict catchment-level occupancy (mean, min, max, variance) for each species across the NE region (using SHEDS-ICE database of catchments). 
+3. Data analysts predict catchment-level occupancy (mean, min, max, variance) for each species across the NE region (using SHEDS-ICE database of catchments). 
 
-D. Data analysts compare predictions from expert judgement to empirical observations of presence/absence (i.e., model validation).
+4. Data analysts compare predictions from expert judgement to empirical observations of presence/absence (i.e., model validation).
 
 ### Other Comments/Concerns
 
