@@ -1,6 +1,6 @@
 ---
 title: "Stream Salamander Expert Elicitation Survey Results"
-output: word_document
+output: html_document
 ---
 
 ### Contact Info
@@ -9,7 +9,7 @@ output: word_document
 * Evan Grant (ehgrant@usgs.gov)
 
 ```{r expert, echo=FALSE, results='hide', warning=FALSE, message=FALSE} 
-expert_no<-10
+expert_no<-0
 ```
 Your expert ID is `r expert_no`.
 
