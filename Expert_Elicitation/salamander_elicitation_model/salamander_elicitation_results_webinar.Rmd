@@ -53,6 +53,39 @@ Download: For the optimal Fuze experience, we suggest you download Fuze (https:/
 
 **Please review your survey responses (red lines below = your expert ID; all other individual experts = grey lines; mean across experts = black line), check for accuracy, and review the discussion topics for each survey question before our webinar. Be prepared to share any relevant literature or experiences that helped guide your responses.**
 
+### Expert Elicitation Process
+
+**Expert elicitation** is a formal, structured process of obtaining expert opinion for specific questions.
+
+**Expert opinion** is an expression of an expert’s belief based on knowledge and experience; it is an informed belief.  
+
+* quantitative form = expert judgment
+* qualitative form = expert knowledge
+
+Successful elicitation entails capturing an expert’s true belief as well as her/his underlying rationale for this belief while minimizing cognitive bias to provide information that is otherwise unavailable.
+
+There is no RIGHT answer in expert elicitation and variation within and among experts can reflect varies types of uncertainty (environmental variability across regions, ecological hypotheses, or variability in potential responses (parameter uncertainty)).
+
+**Beware of Cognitive Traps**
+
+1. Anchoring (opinions that are expressed first are used as a baseline)
+
+2. Representativeness (most recent experiences are overly weighted)
+
+3. Availability (unequal access to information to form judgments)
+
+4. Consensus (unnecessary conformity to the group judgment without evidence)
+
+5. Overconfidence (defending your opinion may result in unintentional increased confidence)
+
+**Common Elicitation Questions**
+
+1. what was your rational for these values?
+
+2. what is the evidence to support this?
+
+3. what are the highest and lowest possible values? and why?
+
 ### Survey Description Summary
 
 Stream salamanders are vulnerable to decline across their range due to the increasing number of threats associated with climate change and land use development. Multiple management agencies and conservation organizations are interested in protecting these species through managing riparian and upland habitats and barriers that influence dispersal of stream fishes. Regional data sets useful for estimating and predicting local and broad-scale salamander occupancy in relation to changing abiotic and biotic factors are limited. As a result, management agencies are turning to stream salamander experts to help inform the potential benefits of alternative conservation actions using expert elicitation methods –an approach increasingly used to improve conservation of species with limited empirical data (see Martin et al. 2005, Kuhnert et al. 2010, Speirs-Bridge et al. 2010, Runge et al. 2011, Martin et al. 2012, Adams-Hocking et al. 2016). 
@@ -166,7 +199,7 @@ kable(q2.tbl, digits=2)
 
 **NEW:** Expected number of occupied reaches (mean, median, SD, maximum, minimum, CV) across experts (N) compared to your the expected value BY REGION.
 
-```{r kable_q2b, echo=FALSE, warning=FALSE, message=FALSE}
+```{r kable_q2b, echo=FALSE, warning=FALSE, message=FALSE,fig.width=7, fig.height=4}
 q2b.data<-subset(qall.data,question %in% c("2"))
 q2b.data.expert<-subset(q2b.data,expert_ID %in% c(expert_no))
 
@@ -174,7 +207,31 @@ q2b.tbl<-as.data.frame(summarise(group_by(q2b.data,species,region),mean=round(me
 
 q2b.tbl<-left_join(q2b.tbl,summarise(group_by(q2b.data.expert,species,region),your_value=round(mean(mean_reaches),digits=0)))
 
-kable(q2b.tbl, digits=2)
+region.order<- c("northern", "midatlantic", "southern")
+q2b.tbl.1<-q2b.tbl %>%
+  mutate(region =  factor(region, levels = region.order)) %>%
+  arrange(species,region)
+
+kable(q2b.tbl.1, digits=2)
+ggplot(q2b.tbl.1, aes(x=species,y=mean,shape=factor(region),size=3))+geom_point()+ylab("mean number of occupied reaches")
+```
+
+**NEW:** Range-wide salamander occupancy had large potential ranges (upper and lower realistic values) with low confidence (i.e., <80%). As the potential range increases, confidence that the true value is within this range should also increase.
+
+```{r kable_q2c, echo=FALSE, warning=FALSE, message=FALSE}
+q2c.data<-subset(qall.data,question %in% c("2"))
+q2c.data.expert<-subset(q2c.data,expert_ID %in% c(expert_no))
+q2c.tbl<-as.data.frame(summarise(group_by(q2c.data,species,expert_ID),mean=mean_reaches,lowest=lower_reaches ,highest=upper_reaches,CI=confidence_reaches))
+q2c.tbl.1<-select(q2c.tbl,species,mean,lowest,highest,CI)
+
+range<-q2c.tbl.1$highest-q2c.tbl.1$lowest
+q2c.tbl.2<-cbind(q2c.tbl.1,range)
+colnames(q2c.tbl.2)<-c("species","mean","lowest","highest","CI","range")
+plot(q2c.tbl.2$range,q2c.tbl.2$CI,pch=19,ylim=c(50,100),xlim=c(0,100),ylab="confidence that the true value is within the range",xlab="range = highest plausible value - lowest plausible value")
+                     #order(q7b.tbl.1,decreasing="CI")
+
+q2c.tbl.3<-q2c.tbl.2 %>% arrange(species,range,CI)
+kable(q2c.tbl.3,format = "markdown")
 ```
 
 ### Survey Question 3 - Stream Size
@@ -247,13 +304,13 @@ labels <- c("2"= "2-m wide stream", "4" = "4-m wide stream")
 
 q5.data<-subset(qall.data,question %in% c("5")&flow_type==10)
 q5.data.expert<-subset(q5.data,expert_ID %in% c(expert_no))
-q5.data.mean<-summarise(group_by(q5.data,species,flow_year_freq),mean=mean(mean_reaches))
+q5.data.mean<-summarise(group_by(q5.data,species,flow_year_freq,stream_width_m),mean=mean(mean_reaches))
 pflowl<-ggplot(q5.data, aes(flow_year_freq,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q5.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q5.data$expert_ID))))+ geom_line(size=1.5,aes(y=mean,x=flow_year_freq),q5.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=flow_year_freq),q5.data.expert,col="red")+ ggtitle("dry years")+xlab("number of exceedingly dry years")+facet_grid(stream_width_m~.~species, scales="free",labeller=labeller(stream_width_m = labels))
 pflowl
 
 q5.data<-subset(qall.data,question %in% c("5")&flow_type==190)
 q5.data.expert<-subset(q5.data,expert_ID %in% c(expert_no))
-q5.data.mean<-summarise(group_by(q5.data,species,flow_year_freq),mean=mean(mean_reaches))
+q5.data.mean<-summarise(group_by(q5.data,species,flow_year_freq,stream_width_m),mean=mean(mean_reaches))
 pflowh<-ggplot(q5.data, aes(flow_year_freq,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q5.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q5.data$expert_ID))))+  geom_line(size=1.5,aes(y=mean,x=flow_year_freq),q5.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=flow_year_freq),q5.data.expert,col="red")+ ggtitle("wet years")+xlab("number of exceedingly wet years")+facet_grid(stream_width_m~.~species, scales="free",labeller=labeller(stream_width_m = labels))
 pflowh
 
@@ -299,7 +356,7 @@ pformean
 labels <- c("0"= "0% upland forest","25"= "25% upland forest","50"= "50% upland forest","75"= "75% upland forest","100"= "100% upland forest")
 q6.data<-subset(qall.data,question %in% c("6"))
 q6.data.expert<-subset(q6.data,expert_ID %in% c(expert_no))
-q6.data.mean<-summarise(group_by(q6.data,species,riparian_forest),mean=mean(mean_reaches))
+q6.data.mean<-summarise(group_by(q6.data,species,riparian_forest,upland_forest),mean=mean(mean_reaches))
 pfor<-ggplot(q6.data, aes(riparian_forest,col=factor(expert_ID)))+ geom_point(size=0,aes(y=mean_reaches))+ geom_line(size=.75,aes(y=mean_reaches),q6.data)+ ylim(0, 100)+ theme(legend.position="none")+ scale_colour_manual(values=rep("grey",length(unique(q6.data$expert_ID))))+ facet_grid(.~species, scales="free")+ geom_line(size=1.5,aes(y=mean,x=riparian_forest),q6.data.mean,col="black")+ ylab("elicited number of occupied reaches")+geom_line(size=1,aes(y=mean_reaches,x=riparian_forest),q6.data.expert,col="red")+ ggtitle("forest cover")+xlab("percent riparian (30-m) forest cover ")+facet_grid(species~.~upland_forest, scales="free",labeller=labeller(upland_forest = labels))
 pfor
 ```
@@ -348,7 +405,32 @@ q7b.data<-subset(qall.data,question %in% c("7"))
 q7b.data.expert<-subset(q7b.data,expert_ID %in% c(expert_no))
 q7b.tbl<-as.data.frame(summarise(group_by(q7b.data,species,region),mean=round(mean(mean_reaches),digits=2),median=round(median(mean_reaches),digits=2),SD=round(sd(mean_reaches),digits=2),max=max(mean_reaches),min=min(mean_reaches),CV=round(sd(mean_reaches)/mean(mean_reaches),digits=2),N=length(mean_reaches)))
 q7b.tbl<-left_join(q7b.tbl,summarise(group_by(q7b.data.expert,species,region),your_value=round(mean(mean_reaches),digits=0)))
-kable(q7b.tbl, digits=2)
+region.order<- c("northern", "midatlantic", "southern")
+q7b.tbl.1<-q2b.tbl %>%
+  mutate(region =  factor(region, levels = region.order)) %>%
+  arrange(species,region)
+kable(q7b.tbl.1, digits=2)
+```
+
+**NEW:** Salamander occupancy when a brook trout population was had large potential ranges (upper and lower realistic values) with low confidence (i.e., <80%). As the potential range increases, confidence that the true value is within this range should also increase.
+
+```{r kable_q7c, echo=FALSE, warning=FALSE, message=FALSE}
+q7c.data<-subset(qall.data,question %in% c("7"))
+q7c.data.expert<-subset(q7c.data,expert_ID %in% c(expert_no))
+q7c.tbl<-as.data.frame(summarise(group_by(q7c.data,species,expert_ID),mean=mean_reaches,lowest=lower_reaches ,highest=upper_reaches,CI=confidence_reaches))
+q7c.tbl.1<-select(q7c.tbl,species,mean,lowest,highest,CI)
+low.ci<-(q7c.tbl.1$CI<80)
+low.ci["TRUE"]<-c(1)
+low.ci["FALSE"]<-c(0)
+#length(low.ci)
+range<-q7c.tbl.1$highest-q7c.tbl.1$lowest
+q7c.tbl.2<-cbind(q7c.tbl.1,range)
+colnames(q7c.tbl.2)<-c("species","mean","lowest","highest","CI","range")
+plot(q7c.tbl.2$range,q7c.tbl.2$CI,pch=19,ylim=c(50,100),xlim=c(0,100),ylab="confidence that the true value is within the range",xlab="range = highest plausible value - lowest plausible value")
+                     #order(q7b.tbl.1,decreasing="CI")
+
+q7c.tbl.3<-q7c.tbl.2 %>% arrange(species,range,CI)
+kable(q7c.tbl.3, format="markdown")
 ```
 
 ### Survey Question 8 - Stream Salamander Interaction
@@ -427,7 +509,7 @@ Summary of the average occupancy (from question 2) compared to the model-estimat
 
 Expected number of occupied reaches (mean, median, maximum, minimum) across experts (N) compared to your the expected value (from question 2) and the predicted mean occupancy (i.e., intercept from species-specific generalized linear mixed effects model).
 
-```{r kable_q2c, echo=FALSE, warning=FALSE, message=FALSE}
+```{r kable_q2d, echo=FALSE, warning=FALSE, message=FALSE}
 glmer1.dfus<-glmer(cbind(qall.dfus$mean_reaches,qall.dfus$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow*c.freq + c.perc.ripa*c.perc.upla + trout_presence + ebis_presence + gpor_presence + (1+c.temp+ I(c.log.drainage^2)|expert_ID),data = qall.dfus,family=binomial)
 glmer1.gpor<-glmer(cbind(qall.gpor$mean_reaches,qall.gpor$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow+c.freq + c.perc.ripa*c.perc.upla + trout_presence + ebis_presence + dfus_presence + (1+c.temp+ I(c.log.drainage^2)|expert_ID),data = qall.gpor,family=binomial)
 glmer1.ebis<-glmer(cbind(qall.ebis$mean_reaches,qall.ebis$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow*c.freq + c.perc.ripa*c.perc.upla + trout_presence + dfus_presence + gpor_presence + (1+c.temp+ I(c.log.drainage^2)|expert_ID),data = qall.ebis,family=binomial)
