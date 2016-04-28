@@ -10,7 +10,7 @@ Authors: Rachel Katz, Dan Hocking, Evan Grant
 Expert Contributors: List here.
 
 Created: Feb 01 2016
-Last Updated: April 8 2016
+Last Updated: April 19 2016
 
 #################### collect and format covariate data from sheds
 ```{r install libraries,                      echo=FALSE, results='hide'}
@@ -51,89 +51,80 @@ db <- src_postgres(dbname='sheds_new', host='osensei.cns.umass.edu', port='5432'
 # featureid = 
 # value = 
 
-# get featureids for the deerfield # code from jeff
+# get featureids for the all basins 
 tbl_huc12 <- tbl(db, 'catchment_huc12')
-df_huc <- tbl_huc12 %>%
+df_huc_01 <- tbl_huc12 %>%
      select(huc12, featureid) %>%
      dplyr::mutate(HUC4=substr(huc12, as.integer(1), as.integer(4)),
                    HUC8=substr(huc12, as.integer(1), as.integer(8)),
                    HUC10=substr(huc12, as.integer(1), as.integer(10))) %>%
-     dplyr::filter(substr(huc12, as.integer(1), as.integer(8)) == '01080203')
-df_huc <- dplyr::collect(df_huc)
-head(df_huc)
-plot(df_huc$HUC4)  # 1 basin (CT)
-plot(df_huc$HUC10) # 5 subwatersheds
-plot(df_huc$featureid)
-featureids<-c(df_huc$featureid)
-
-# get the covariates for deerfield featureids
-tbl_covariates <- tbl(db, 'covariates')
-tbl_covariates <- dplyr::filter(tbl_covariates, featureid %in% featureids ) 
-#df_cov_long<-dplyr::collect(tbl_covariates) # this takes ~ 201pm-
-#df_covariates<-tidyr::spread(df_cov_long,variable,value)
-summary(df_covariates)
-df_covariates_m<-as.matrix((df_covariates))
-df_covariates_m
-#write.csv(df_covariates_m,file="df_covariates.csv")
-
-# get featureids for the ct basin 
-tbl_huc12_ct <- tbl(db, 'catchment_huc12')
-df_huc_ct <- tbl_huc12_ct %>%
-     select(huc12, featureid) %>%
-     dplyr::mutate(HUC4=substr(huc12, as.integer(1), as.integer(4)),
-                   HUC8=substr(huc12, as.integer(1), as.integer(8)),
-                   HUC10=substr(huc12, as.integer(1), as.integer(10))) %>%
-     dplyr::filter(substr(huc12, as.integer(1), as.integer(4)) == '0108')
-df_huc_ct <- dplyr::collect(df_huc_ct)
-head(df_huc_ct)
-plot(df_huc_ct$HUC4)  # 1 basin (CT)
-plot(df_huc_ct$huc12) # 5 subwatersheds
-plot(df_huc_ct$featureid)
-featureids_ct<-c(df_huc_ct$featureid)
-
-# get covariates for the ct featureids #df_covariates_ct<-tidyr::spread(df_cov_long_ct,variable,value)
-#tbl_covariates_ct <- dplyr::filter(tbl_covariates, featureid %in% featureids_ct) 
-#df_cov_long_ct<-dplyr::collect(tbl_covariates_ct) # this takes ~ 1300pm-
-#summary(df_covariates_ct)
-df_covariates_m_ct<-as.matrix((df_covariates_ct))
-df_covariates_m_ct
-#write.csv(df_covariates_m_ct,file="df_covariates_ct.csv")
+     dplyr::filter(substr(huc12, as.integer(1), as.integer(2)) == '01')
+df_huc_01 <- dplyr::collect(df_huc_01)
+head(df_huc_01)
+length(unique(df_huc_01$HUC4))   # 10 HUC 4's
+length(unique(df_huc_01$HUC8))  # 58 HUC 8's
+length(unique(df_huc_01$HUC10))  # 395 HUC 10's
+length(unique(df_huc_01$huc12))  # 1927 HUC 12's
+length(df_huc_01$featureid)
+featureids_01<-as.integer(df_huc_01$featureid)
+# get covariates for the all featureids 
+tbl_covariates_01 <- tbl(db, 'covariates')
+tbl_covariates_01 <- dplyr::filter(tbl_covariates_01, featureid %in% featureids_01 ) 
+#df_cov_long_01<-dplyr::collect(tbl_covariates_01) # this takes ~ 701pm-720
+df_covariates_01<-tidyr::spread(df_cov_long_01,variable,value)
+df_covariates_01<-left_join(df_covariates_01,df_huc_01)
+summary(df_covariates_01)
+df_covariates_m_01<-as.matrix((df_covariates_01))
+df_covariates_m_01
+str(df_covariates_m_01)
+#write.csv(df_covariates_m_01,file="df_covariates_01.csv")
 ```
 ```{r import covariate data and create cov.df,echo=FALSE, results='hide', eval=FALSE}
-
 # import saved covariate data from db
-deerfield.cov.data<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/df_covariates.csv",fill=TRUE,header=TRUE)
+cov.data.01<-read.csv("/Users/katz-umass/github_folder/Trout_Salamander_Decisions/Expert_Elicitation/salamander_elicitation_model/df_covariates_01.csv",fill=TRUE,header=TRUE)
 
 # replace NA's with -999
-deerfield.cov.data[is.na(deerfield.cov.data)] <- -999
+cov.data.01[is.na(cov.data.01)] <- -999
 
-# select covariates 
-covariates<-deerfield.cov.data %>% 
-  select(featureid, AreaSqKM,zone,riparian_distance_ft,ann_tmax_c,forest,aug_prcp_mm,slope_pcnt)
+# select covariates to used in model
+covariates<-cov.data.01 %>% 
+  select(featureid,AreaSqKM,zone,riparian_distance_ft,ann_tmax_c,forest,jun_prcp_mm, jul_prcp_mm,aug_prcp_mm,impervious,slope_pcnt,elevation,huc12,HUC4,HUC10,HUC8)
 str(covariates)
 
 # subset local data (temp)
 cov1<-subset(covariates,zone=="local" & ann_tmax_c > -999)
-str(cov1) #1088 catchments
-ptd<-ggplot(cov1,aes(cov1$ann_tmax_c)) + geom_histogram(alpha=1,binwidth=.1) + xlim(10,26) + ggtitle("deefield max annual temp")
+str(cov1) #83519 catchments
+ptempl<-ggplot(cov1,aes(cov1$ann_tmax_c)) + geom_histogram(alpha=1,binwidth=.1) + xlim(8,25) + ggtitle("max annual temp")
+pelevl<-ggplot(cov1,aes(cov1$elevation)) + geom_histogram(alpha=1,binwidth=5) + xlim(0,1000) + ggtitle("elevation")
+pslopl<-ggplot(cov1,aes(cov1$slope_pcnt)) + geom_histogram(alpha=1,binwidth=1) + ggtitle("slope")
+ggplot()+geom_point(aes(cov1$elevation,cov1$slope_pcnt))+ylim(0,100)+xlim(0,100)+xlab("local elevation")+ylab("local slope")
 
 # subset upstream data (drainage area and precip)
 cov2<-subset(covariates, zone=="upstream" & ann_tmax_c > -999)
-str(cov2) #1088 catchments
-pssd<-ggplot(cov2,aes(AreaSqKM)) + geom_histogram(alpha=1, binwidth=20) + ggtitle("deefield drainage area")
-ppd<-ggplot(cov2,aes(aug_prcp_mm)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("deefield drainage area")
+flow<-c(cov2$jun_prcp_mm+cov2$jul_prcp_mm+cov2$aug_prcp_mm)/3*cov2$AreaSqKM
+cov2$flow<-flow
+str(cov2) #82934 catchments
+pareau<-ggplot(cov2,aes(AreaSqKM)) + geom_histogram(alpha=1, binwidth=20) + ggtitle("drainage area")
+pflowu<-ggplot(cov2,aes(flow)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("precip x area")
+pslopu<-ggplot(cov2,aes(slope_pcnt)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("upstream slope")
+pimpeu<-ggplot(cov2,aes(impervious)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("upstream impervious")
+ggplot()+geom_point(aes(cov2$AreaSqKM,cov2$slope_pcnt))+xlab("upstream area")+ylab("upstream slope")
 
 # subset local riparian zone data (forest cover)
 cov3<-subset(covariates, riparian_distance_ft == 200 & zone=="local")
 str(cov3) #1088 catchments
-pfd<-ggplot(cov3,aes(cov2$forest)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("deefield riparian forest")
+pforer<-ggplot(cov3,aes(forest)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("riparian forest")
+pimper<-ggplot(cov3,aes(impervious)) + geom_histogram(alpha=1, binwidth=1) + ggtitle("riparian impervious")
+ggplot()+geom_point(aes(cov3$forest,cov3$impervious))+ylim(0,100)+xlim(0,100)+xlab("percent forest in the riparian zone (30-m)")+ylab("percent impervious cover in the riparian zone (30-m)")
 
-# view plots
-grid.arrange(pssd,ptd,ppd,pfd)
+# view histograms
+grid.arrange(ptempl,pelevl,pslopl)
+grid.arrange(pareau,pflowu,pslopu)
+grid.arrange(pforer,pimper)
 
-# save subset data as cov.df
-cov.df<-data.frame(cov1$featureid,cov2$AreaSqKM,cov2$aug_prcp_mm,cov2$AreaSqKM*cov2$aug_prcp_mm,cov1$ann_tmax_c,cov2$ann_tmax_c^2,cov2$forest,cov3$forest)
-colnames(cov.df)<-c("featureid","area","prcp","area.prcp","temp","temp2","ufor","rfor")
+# save subset data as cov.df 
+# 83519 catchments
+cov.df<-data.frame(featureid=cov1$featureid,l.slop=cov1$slope_pcnt,l.temp=cov1$ann_tmax_c,l.temp2=cov1$ann_tmax_c^2,l.fore=cov1$forest,u.impe=cov2$impervious,u.area=cov2$AreaSqKM,u.flow=cov2$flow,r.fore=cov3$forest,r.impe=cov3$impervious)
 str(cov.df)
 
 # remove greater than 200km2 drainages
@@ -333,8 +324,7 @@ psalec
 grid.arrange(psald,psalg,psale,psalec)
 ```
 
-
-
+Removed expert plots of expert data - see salamander_elicitation_results_webinar.RMD
 
 ```{r plot expert results for EACH expert,  echo=FALSE, results='hide'}
 # remove NA's
@@ -425,21 +415,15 @@ psalec
 grid.arrange(psald,psalg,psale,psalec)
 ```
 
+used centered covariates (c.covariate name = baseline - value)
+* c.log.drainage 0 = log(2)    (-0.43=0.75km2, +2=200km2)
+* c.temp 0 = 0.14 (avg temp)   (-0.04=10C,     +0.12=26C)
+* c.flow 0 = 100 (normal flow) (-0.90=dry,     +0.90=wet)
+* c.freq 0 = 10 years          (-0.1 0yrs,      0=10yrs)
+* c.perc.ripa 0 = 100%         (-1=0%,          0=100%)
+* c.perc.upla 0 = 100%         (-1=0%,          0=100%)
 
-
-```{r calculate betas (glmer1 - rand int + slops), echo=FALSE, results='hide', eval=FALSE}
-# plot correlations among predictor variables
-#library(corrgram)
-#corrgram(qall.data[,22:27], order=TRUE, lower.panel=panel.shade,upper.panel=panel.pie, text.panel=panel.txt)
-
-# used centered covariates (c.covariate name = baseline - value)
-# c.log.drainage 0 = log(2)    (-0.43=0.75km2, +2=200km2)
-# c.temp 0 = 0.14 (avg temp)   (-0.04=10C,     +0.12=26C)
-# c.flow 0 = 100 (normal flow) (-0.90=dry,     +0.90=wet)
-# c.freq 0 = 10 years          (-0.1 0yrs,      0=10yrs)
-# c.perc.ripa 0 = 100%         (-1=0%,          0=100%)
-# c.perc.upla 0 = 100%         (-1=0%,          0=100%)
-
+```{r calculate betas (glmer0 - no re), echo=FALSE, results='hide', eval=FALSE}
 ######## glmer0 - no random effects
 glmer0.dfus<-glm(cbind(qall.dfus$mean_reaches,qall.dfus$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow + c.freq + c.perc.ripa*c.perc.upla + trout_presence + ebis_presence + gpor_presence,data = qall.dfus,family=binomial)
 
@@ -486,8 +470,9 @@ pr_nr_3c<-ggplot(qall.ebis.norand, aes(expert_ID,resid, col=factor(expert_ID))) 
 pr_nr_4c<-ggplot(qall.ecir.norand, aes(expert_ID,resid, col=factor(expert_ID))) + geom_boxplot() +geom_point()+ggtitle('gpor') + geom_hline(yintercept=0)+theme(legend.position="none")+ scale_colour_manual(values=unique(e.color[qall.ecir.norand$expert_ID-9]))+facet_grid(.~region, scales="free")
 
 grid.arrange(pr_nr_1c, pr_nr_3c, pr_nr_2c, pr_nr_4c)
+```
 
-
+```{r calculate betas (glmer1 - rand int + slops), echo=FALSE, results='hide', eval=FALSE}
 ######## glmer1 - with random expert_ID effects (intercept, temp, size^2)
 glmer1.dfus<-glmer(cbind(qall.dfus$mean_reaches,qall.dfus$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow*c.freq + c.perc.ripa*c.perc.upla + trout_presence + ebis_presence + gpor_presence + (1+c.temp+ I(c.log.drainage^2)|expert_ID),data = qall.dfus,family=binomial)
 glmer1.gpor<-glmer(cbind(qall.gpor$mean_reaches,qall.gpor$failure_reaches) ~ c.log.drainage + I(c.log.drainage^2) + c.temp + c.flow+c.freq + c.perc.ripa*c.perc.upla + trout_presence + ebis_presence + dfus_presence + (1+c.temp+ I(c.log.drainage^2)|expert_ID),data = qall.gpor,family=binomial)
@@ -590,6 +575,7 @@ grid.arrange(p7,p8,p9,p10, ncol=2)
 # make new df with predicted and residuals 
 qall.new<-rbind(qall.dfus.randex,qall.gpor.randex,qall.ebis.randex,qall.ecir.randex)
 ```
+
 # use startgazer() to summarize results of a lmer (latex format)
 ```{r plot predicted values,          echo=FALSE, results='hide', eval=FALSE}
 library("effects")
